@@ -1,0 +1,17 @@
+{
+  "bitmexApiKey": "",
+  "bitmexSecretKey": "",
+  "lastSide": "BUY",
+  "lastOrderType": "Limit",
+  "lastPair": "XBT/BTC",
+  "lastLowPrice": 7000.0,
+  "lastHighPrice": 8000.0,
+  "lastAmount": 1000,
+  "lastMinAmount": 21,
+  "lastMode": "FLAT",
+  "lastDistributionParameter": 2.0,
+  "lastPostOnly": true,
+  "lastReduceOnly": true,
+  "lastDistributionType": "FLAT",
+  "lastReversed": false
+}

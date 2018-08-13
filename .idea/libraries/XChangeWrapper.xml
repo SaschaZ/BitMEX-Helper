@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="XChangeWrapper">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/libs/XChangeWrapper.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

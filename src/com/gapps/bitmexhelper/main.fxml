@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+<VBox prefHeight="493.0" prefWidth="563.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gapps.bitmexhelper.MainControllerImpl">
+    <children>
+        <MenuBar VBox.vgrow="NEVER">
+            <menus>
+                <Menu mnemonicParsing="false" text="App">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#onSettingsClicked" text="Settings" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" onAction="#onQuitClicked" text="Quit" />
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Help">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#onAboutClicked" text="About" />
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+        <AnchorPane prefHeight="220.0" prefWidth="563.0" VBox.vgrow="ALWAYS">
+            <children>
+                <GridPane layoutX="12.0" layoutY="9.0" prefHeight="215.0" prefWidth="578.0">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="NEVER" maxWidth="117.0" minWidth="117.0" prefWidth="117.0" />
+                        <ColumnConstraints hgrow="NEVER" maxWidth="171.0" minWidth="171.0" prefWidth="171.0" />
+                        <ColumnConstraints hgrow="NEVER" maxWidth="117.0" minWidth="117.0" prefWidth="117.0" />
+                        <ColumnConstraints hgrow="NEVER" maxWidth="171.0" minWidth="171.0" prefWidth="171.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints maxHeight="33.0" minHeight="33.0" prefHeight="33.0" vgrow="NEVER" />
+                        <RowConstraints maxHeight="33.0" minHeight="33.0" prefHeight="33.0" vgrow="NEVER" />
+                        <RowConstraints maxHeight="33.0" minHeight="33.0" prefHeight="33.0" vgrow="NEVER" />
+                        <RowConstraints maxHeight="33.0" minHeight="33.0" prefHeight="33.0" vgrow="NEVER" />
+                        <RowConstraints maxHeight="33.0" minHeight="33.0" prefHeight="33.0" vgrow="NEVER" />
+                        <RowConstraints maxHeight="50.0" minHeight="50.0" prefHeight="50.0" vgrow="NEVER" />
+                    </rowConstraints>
+                    <children>
+                        <Label text="Pair:" />
+                        <ComboBox fx:id="pair" prefWidth="150.0" GridPane.columnIndex="1" />
+                        <Label text="High Price:" GridPane.rowIndex="1" />
+                        <Spinner fx:id="highPirce" amountToStepBy="0.5" editable="true" initialValue="3" max="100000000" min="0.5" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <Label text="Low Price:" GridPane.rowIndex="2" />
+                        <Spinner fx:id="lowPirce" amountToStepBy="0.5" editable="true" initialValue="3" max="100000000" min="0.5" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <Label text="Amount:" GridPane.rowIndex="3" />
+                        <Spinner fx:id="amount" amountToStepBy="1" editable="true" initialValue="3" max="100000000" min="1" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        <Label text="Type:" GridPane.rowIndex="4" />
+                        <ComboBox fx:id="orderType" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Distribution:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Parameter:" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Min. Amount:" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Side:" GridPane.columnIndex="2" />
+                        <ComboBox fx:id="side" prefWidth="150.0" GridPane.columnIndex="3" />
+                        <ComboBox fx:id="distribution" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                        <Spinner fx:id="parameter" amountToStepBy="0.5" editable="true" initialValue="3" max="100000000" min="0.5" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                        <Spinner fx:id="minAmount" amountToStepBy="0.5" editable="true" initialValue="3" max="100000000" min="0.5" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+                        <Button fx:id="execute" alignment="CENTER_RIGHT" contentDisplay="RIGHT" mnemonicParsing="false" text="Execute" GridPane.columnIndex="3" GridPane.rowIndex="5" />
+                        <CheckBox fx:id="reversed" mnemonicParsing="false" text="reversed" GridPane.rowIndex="5" />
+                        <CheckBox fx:id="postOnly" mnemonicParsing="false" text="post only" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                        <CheckBox fx:id="reduceOnly" mnemonicParsing="false" text="reduce only" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+                    </children>
+                </GridPane>
+            </children>
+        </AnchorPane>
+      <SplitPane dividerPositions="0.4973730297723292" prefHeight="252.0" prefWidth="563.0">
+        <items>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="252.0" prefWidth="294.0">
+               <children>
+                  <TableView fx:id="review" layoutX="-7.0" layoutY="-6.0" prefHeight="252.0" prefWidth="294.0">
+                    <columns>
+                      <TableColumn editable="false" prefWidth="150.0" sortType="DESCENDING" sortable="false" text="Price" />
+                      <TableColumn editable="false" prefWidth="136.0" sortType="DESCENDING" sortable="false" text="Amount" />
+                    </columns>
+                  </TableView>
+               </children>
+            </AnchorPane>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="252.0" prefWidth="294.0">
+               <children>
+                  <TextArea fx:id="stats" layoutX="-11.0" layoutY="1.0" prefHeight="252.0" prefWidth="300.0" />
+               </children>
+            </AnchorPane>
+        </items>
+      </SplitPane>
+    </children>
+</VBox>
