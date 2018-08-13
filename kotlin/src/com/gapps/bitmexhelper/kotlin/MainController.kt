@@ -1,24 +1,65 @@
 package com.gapps.bitmexhelper.kotlin
 
+import javafx.application.Platform
+import javafx.fxml.FXML
 import javafx.scene.control.*
 
-interface MainController {
+class MainController {
 
-    val pair: ComboBox<*>
-    val highPirce: Spinner<*>
-    val lowPirce: Spinner<*>
-    val amount: Spinner<*>
-    val orderType: ComboBox<*>
-    val side: ComboBox<*>
-    val distribution: ComboBox<*>
-    val parameter: Spinner<*>
-    val minAmount: Spinner<*>
-    val reversed: CheckBox
-    val postOnly: CheckBox
-    val reduceOnly: CheckBox
-    val execute: Button
-    val review: TableView<*>
-    val stats: TextArea
+    private val delegate = MainUiDelegate
 
-    fun exitApp()
+    @FXML
+    internal lateinit var pair: ComboBox<*>
+    @FXML
+    internal lateinit var highPirce: Spinner<*>
+    @FXML
+    internal lateinit var lowPirce: Spinner<*>
+    @FXML
+    internal lateinit var amount: Spinner<*>
+    @FXML
+    internal lateinit var orderType: ComboBox<*>
+    @FXML
+    internal lateinit var side: ComboBox<*>
+    @FXML
+    internal lateinit var distribution: ComboBox<*>
+    @FXML
+    internal lateinit var parameter: Spinner<*>
+    @FXML
+    internal lateinit var minAmount: Spinner<*>
+    @FXML
+    internal lateinit var reversed: CheckBox
+    @FXML
+    internal lateinit var postOnly: CheckBox
+    @FXML
+    internal lateinit var reduceOnly: CheckBox
+    @FXML
+    internal lateinit var execute: Button
+    @FXML
+    internal lateinit var review: TableView<*>
+    @FXML
+    internal lateinit var stats: TextArea
+
+    init {
+        delegate.onControllerAvailable(this)
+    }
+
+    @FXML
+    private fun onAboutClicked() {
+        delegate.onAboutClicked()
+    }
+
+    @FXML
+    private fun onSettingsClicked() {
+        delegate.onSettingsClicked()
+    }
+
+    @FXML
+    private fun onQuitClicked() {
+        delegate.onQuitClicked()
+    }
+
+    @FXML
+    internal fun exitApp() {
+        Platform.exit()
+    }
 }

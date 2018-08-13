@@ -8,10 +8,7 @@ import javafx.collections.FXCollections
 object MainUiDelegate {
 
     private lateinit var controller: MainController
-    private val settings = Settings.let {
-        it.load()
-        it.settings
-    }
+    private val settings = Settings.let { it.load(); it.settings }
 
     fun onControllerAvailable(controller: MainController) {
         println("onControllerAvailable")
@@ -81,12 +78,7 @@ object MainUiDelegate {
         println("onAboutClicked")
     }
 
-    fun onSettingsClicked() {
-        println("onSettingsClicked")
-    }
+    fun onSettingsClicked() = AppDelegate.openSettings()
 
-    fun onQuitClicked() {
-        println("onQuitClicked")
-        controller.exitApp()
-    }
+    fun onQuitClicked() = controller.exitApp()
 }
