@@ -1,4 +1,6 @@
-package com.gapps.bitmexhelper.kotlin
+@file:Suppress("unused")
+
+package com.gapps.bitmexhelper.kotlin.ui
 
 import javafx.fxml.FXML
 import javafx.scene.control.TextField
@@ -6,7 +8,7 @@ import javafx.scene.control.TextField
 class SettingsController {
 
     init {
-        SettingsUiDelegate.onControllerAvailable(this)
+        SettingsDelegate.onControllerAvailable(this)
     }
 
     @FXML
@@ -15,7 +17,5 @@ class SettingsController {
     internal lateinit var apiSecret: TextField
 
     @FXML
-    private fun onStoreClicked() {
-        SettingsUiDelegate.onStoreClicked(apiKey.text, apiSecret.text)
-    }
+    private fun onStoreClicked() = SettingsDelegate.onStoreClicked(apiKey.text, apiSecret.text)
 }

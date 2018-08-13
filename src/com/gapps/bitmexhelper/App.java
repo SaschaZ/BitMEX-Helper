@@ -1,9 +1,10 @@
 package com.gapps.bitmexhelper;
 
-import com.gapps.bitmexhelper.kotlin.AppDelegate;
-import com.gapps.bitmexhelper.kotlin.MainUiDelegate;
-import com.gapps.bitmexhelper.kotlin.SettingsUiDelegate;
 import com.gapps.bitmexhelper.kotlin.persistance.Constants;
+import com.gapps.bitmexhelper.kotlin.ui.AppController;
+import com.gapps.bitmexhelper.kotlin.ui.AppDelegate;
+import com.gapps.bitmexhelper.kotlin.ui.MainDelegate;
+import com.gapps.bitmexhelper.kotlin.ui.SettingsDelegate;
 import com.sun.istack.internal.NotNull;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -12,11 +13,11 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class App extends Application implements com.gapps.bitmexhelper.kotlin.App {
+public class App extends Application implements AppController {
 
     private final AppDelegate appDelegate = AppDelegate.INSTANCE;
-    private final SettingsUiDelegate settingsDelegate = SettingsUiDelegate.INSTANCE;
-    private final MainUiDelegate mainDelegate = MainUiDelegate.INSTANCE;
+    private final SettingsDelegate settingsDelegate = SettingsDelegate.INSTANCE;
+    private final MainDelegate mainDelegate = MainDelegate.INSTANCE;
 
     @NotNull
     private Stage stage;
@@ -65,5 +66,10 @@ public class App extends Application implements com.gapps.bitmexhelper.kotlin.Ap
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void openAbout() {
+        // TODO implement
     }
 }

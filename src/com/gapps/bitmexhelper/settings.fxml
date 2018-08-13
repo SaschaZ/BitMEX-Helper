@@ -5,7 +5,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
-<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gapps.bitmexhelper.kotlin.SettingsController">
+<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gapps.bitmexhelper.kotlin.ui.SettingsController">
    <children>
       <GridPane prefHeight="98.0" prefWidth="465.0">
         <columnConstraints>

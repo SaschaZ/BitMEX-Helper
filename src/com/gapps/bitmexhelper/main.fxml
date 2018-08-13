@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
-<VBox prefHeight="493.0" prefWidth="563.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gapps.bitmexhelper.kotlin.MainController">
+<VBox prefHeight="493.0" prefWidth="563.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gapps.bitmexhelper.kotlin.ui.MainController">
     <children>
         <MenuBar VBox.vgrow="NEVER">
             <menus>
@@ -57,7 +57,7 @@
                         <ComboBox fx:id="distribution" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
                         <Spinner fx:id="parameter" amountToStepBy="0.5" editable="true" initialValue="3" max="100000000" min="0.5" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
                         <Spinner fx:id="minAmount" amountToStepBy="0.5" editable="true" initialValue="3" max="100000000" min="0.5" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="3" />
-                        <Button fx:id="execute" alignment="CENTER_RIGHT" contentDisplay="RIGHT" mnemonicParsing="false" text="Execute" GridPane.columnIndex="3" GridPane.rowIndex="5" />
+                        <Button alignment="CENTER_RIGHT" contentDisplay="RIGHT" mnemonicParsing="false" onMouseClicked="#onExecuteClicked" text="Execute" GridPane.columnIndex="3" GridPane.rowIndex="5" />
                         <CheckBox fx:id="reversed" mnemonicParsing="false" text="reversed" GridPane.rowIndex="5" />
                         <CheckBox fx:id="postOnly" mnemonicParsing="false" text="post only" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                         <CheckBox fx:id="reduceOnly" mnemonicParsing="false" text="reduce only" GridPane.columnIndex="2" GridPane.rowIndex="5" />

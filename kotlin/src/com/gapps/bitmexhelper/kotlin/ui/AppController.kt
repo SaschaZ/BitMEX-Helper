@@ -1,7 +1,8 @@
-package com.gapps.bitmexhelper.kotlin
+package com.gapps.bitmexhelper.kotlin.ui
 
-interface App {
+interface AppController {
 
     fun openSettings(closeCurrent: Boolean)
     fun openMain(closeCurrent: Boolean)
+    fun openAbout()
 }

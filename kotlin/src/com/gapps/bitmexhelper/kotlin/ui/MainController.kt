@@ -1,4 +1,6 @@
-package com.gapps.bitmexhelper.kotlin
+@file:Suppress("unused")
+
+package com.gapps.bitmexhelper.kotlin.ui
 
 import javafx.application.Platform
 import javafx.fxml.FXML
@@ -6,7 +8,7 @@ import javafx.scene.control.*
 
 class MainController {
 
-    private val delegate = MainUiDelegate
+    private val delegate = MainDelegate
 
     @FXML
     internal lateinit var pair: ComboBox<*>
@@ -33,33 +35,40 @@ class MainController {
     @FXML
     internal lateinit var reduceOnly: CheckBox
     @FXML
-    internal lateinit var execute: Button
-    @FXML
     internal lateinit var review: TableView<*>
     @FXML
     internal lateinit var stats: TextArea
 
     init {
-        delegate.onControllerAvailable(this)
+        MainDelegate.onControllerAvailable(this)
     }
 
     @FXML
     private fun onAboutClicked() {
-        delegate.onAboutClicked()
+        MainDelegate.onAboutClicked()
     }
 
     @FXML
     private fun onSettingsClicked() {
-        delegate.onSettingsClicked()
+        MainDelegate.onSettingsClicked()
     }
 
     @FXML
     private fun onQuitClicked() {
-        delegate.onQuitClicked()
+        MainDelegate.onQuitClicked()
     }
 
     @FXML
+    private fun onExecuteClicked() {
+        MainDelegate.onExecuteClicked()
+    }
+
+
     internal fun exitApp() {
         Platform.exit()
+    }
+
+    internal fun changeInExecutionMode(show: Boolean) {
+        // TODO implement
     }
 }

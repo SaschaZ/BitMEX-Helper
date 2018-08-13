@@ -1,14 +1,14 @@
-package com.gapps.bitmexhelper.kotlin
+package com.gapps.bitmexhelper.kotlin.ui
 
 import com.gapps.bitmexhelper.kotlin.persistance.Settings
 
-object SettingsUiDelegate {
+object SettingsDelegate {
 
     private lateinit var controller: SettingsController
     private val settings = Settings.let { it.load(); it.settings }
 
     fun onControllerAvailable(settingsController: SettingsController) {
-        this.controller = settingsController
+        controller = settingsController
     }
 
     fun onSceneSet() {
