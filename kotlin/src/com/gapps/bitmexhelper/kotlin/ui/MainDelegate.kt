@@ -5,11 +5,19 @@ package com.gapps.bitmexhelper.kotlin.ui
 import com.gapps.bitmexhelper.kotlin.persistance.Constants
 import com.gapps.bitmexhelper.kotlin.persistance.Settings
 import com.gapps.xchangewrapper.XChangeWrapper
+import com.gapps.xchangewrapper.XChangeWrapper.BulkDistribution
+import com.gapps.xchangewrapper.XChangeWrapper.OrderType
 import com.gapps.xchangewrapper.toCurrencyPair
+import javafx.beans.property.SimpleDoubleProperty
+import javafx.beans.property.SimpleIntegerProperty
 import javafx.collections.FXCollections
+import javafx.scene.control.cell.PropertyValueFactory
 import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.runBlocking
 import org.knowm.xchange.bitmex.BitmexExchange
 import org.knowm.xchange.dto.Order
+import org.knowm.xchange.dto.Order.OrderType.ASK
+import org.knowm.xchange.dto.Order.OrderType.BID
 
 
 object MainDelegate {
@@ -24,7 +32,10 @@ object MainDelegate {
     private var exchange: XChangeWrapper? = null
 
     fun onSceneSet() {
-        exchange = XChangeWrapper(BitmexExchange::class, settings.bitmexApiKey, settings.bitmexSecretKey)
+        launch {
+            exchange = XChangeWrapper(BitmexExchange::class, settings.bitmexApiKey, settings.bitmexSecretKey)
+            updateView()
+        }
 
         controller.apply {
             pair.apply {
@@ -63,18 +74,66 @@ object MainDelegate {
             postOnly.setOnAction { updateView() }
             reduceOnly.isSelected = settings.lastReduceOnly
             reduceOnly.setOnAction { updateView() }
+            reviewPriceColumn.cellValueFactory = PropertyValueFactory<ReviewItem, Double>("price")
+            reviewAmountColumn.cellValueFactory = PropertyValueFactory<ReviewItem, Int>("amount")
         }
     }
 
     private fun updateView() {
-        // TODO implement
+        controller.apply {
+            exchange?.createBulkOrders(
+                    pair = pair.value.toString().toCurrencyPair(),
+                    side = if (side.value.toString() == "BUY") BID else ASK,
+                    amount = amount.value as Double,
+                    minimumAmount = minAmount.value as Double,
+                    priceLow = lowPirce.value as Double,
+                    priceHigh = highPirce.value as Double,
+                    distribution = BulkDistribution.valueOf(distribution.value.toString()),
+                    distributionParameter = parameter.value as Double,
+                    postOnly = postOnly.isSelected,
+                    reduceOnly = reduceOnly.isSelected,
+                    reversed = reversed.isSelected)?.let { orders ->
+                updatePreview(orders)
+                updateStats(orders)
+            }
+        }
     }
 
-    internal fun onExecuteClicked() = launch {
+    @Suppress("unused")
+    internal data class ReviewItem(private val price: SimpleDoubleProperty, private val amount: SimpleIntegerProperty) {
+        constructor(price: Double, amount: Int) : this(SimpleDoubleProperty(price), SimpleIntegerProperty(amount))
+
+        fun getPrice(): Double = price.get()
+        fun getAmount(): Int = amount.get()
+    }
+
+    private fun updatePreview(orders: List<XChangeWrapper.BulkOrder>) {
+        controller.review.items = FXCollections.observableArrayList<ReviewItem>(
+                orders.sortedByDescending { it.price }.map { ReviewItem(it.price, it.orderQuantity) }
+        )
+        controller.reviewPriceColumn.sortType = javafx.scene.control.TableColumn.SortType.ASCENDING
+    }
+
+    private fun updateStats(orders: List<XChangeWrapper.BulkOrder>) {
+        val sum = orders.sumBy { it.orderQuantity }
+        val averagePrice = orders.sumByDouble { it.price * it.orderQuantity / sum }
+
+        controller.stats.text = " total bulk order amount: " + sum + "\n" +
+                " average price: " + String.format("%.1f", averagePrice) + "\n" +
+                " order count: " + orders.size + "\n" +
+                " min. order amount: " + orders.minBy { it.orderQuantity }?.orderQuantity + "\n" +
+                " average order amount: " + String.format("%.1f", sum.toDouble() / orders.size) + "\n" +
+                " max. order amount: " + orders.maxBy { it.orderQuantity }?.orderQuantity + "\n"
+    }
+
+    internal fun onExecuteClicked() {
         controller.changeInExecutionMode(true)
-        storeSelection()
-        executeOrder()
+       val result = runBlocking {
+            storeSelection()
+            executeOrder()
+        }
         controller.changeInExecutionMode(false)
+        if (result == null) AppDelegate.showError()
     }
 
     private fun storeSelection() {
@@ -97,27 +156,24 @@ object MainDelegate {
         }
     }
 
-    private suspend fun executeOrder() {
+    private suspend fun executeOrder(): List<Order>? {
         controller.apply {
-            exchange?.placeBulkOrders(
+            return exchange?.placeBulkOrders(
                     pair = pair.value.toString().toCurrencyPair(),
-                    side = if (side.value.toString() == "BUY") Order.OrderType.BID else Order.OrderType.ASK,
-                    type = XChangeWrapper.OrderType.valueOf(orderType.value.toString().replace("-", "_")),
+                    side = if (side.value.toString() == "BUY") BID else ASK,
+                    type = OrderType.valueOf(orderType.value.toString().toUpperCase().replace("-", "_")),
                     amount = amount.value as Double,
                     minimumAmount = minAmount.value as Double,
                     priceLow = lowPirce.value as Double,
                     priceHigh = highPirce.value as Double,
-                    distribution = XChangeWrapper.BulkDistribution.valueOf(distribution.value.toString()),
+                    distribution = BulkDistribution.valueOf(distribution.value.toString()),
                     distributionParameter = parameter.value as Double,
                     postOnly = postOnly.isSelected,
                     reduceOnly = reduceOnly.isSelected,
                     reversed = reversed.isSelected)
         }
+        return null
     }
 
-    fun onAboutClicked() = AppDelegate.openAbout()
-
     fun onSettingsClicked() = AppDelegate.openSettings()
-
-    fun onQuitClicked() = controller.exitApp()
 }

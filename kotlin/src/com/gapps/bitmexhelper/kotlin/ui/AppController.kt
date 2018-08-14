@@ -4,5 +4,4 @@ interface AppController {
 
     fun openSettings(closeCurrent: Boolean)
     fun openMain(closeCurrent: Boolean)
-    fun openAbout()
 }

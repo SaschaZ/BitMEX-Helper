@@ -37,15 +37,18 @@ class MainController {
     @FXML
     internal lateinit var review: TableView<*>
     @FXML
+    internal lateinit var reviewPriceColumn: TableColumn<MainDelegate.ReviewItem, Double>
+    @FXML
+    internal lateinit var reviewAmountColumn: TableColumn<MainDelegate.ReviewItem, Int>
+    @FXML
     internal lateinit var stats: TextArea
+    @FXML
+    internal lateinit var execute: Button
+    @FXML
+    internal lateinit var progress: ProgressIndicator
 
     init {
         MainDelegate.onControllerAvailable(this)
-    }
-
-    @FXML
-    private fun onAboutClicked() {
-        MainDelegate.onAboutClicked()
     }
 
     @FXML
@@ -54,21 +57,16 @@ class MainController {
     }
 
     @FXML
-    private fun onQuitClicked() {
-        MainDelegate.onQuitClicked()
-    }
-
-    @FXML
     private fun onExecuteClicked() {
         MainDelegate.onExecuteClicked()
     }
-
 
     internal fun exitApp() {
         Platform.exit()
     }
 
     internal fun changeInExecutionMode(show: Boolean) {
-        // TODO implement
+        progress.isVisible = show
+        execute.isDisable = show
     }
 }

@@ -50,6 +50,7 @@ public class App extends Application implements AppController {
         try {
             stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("settings.fxml"))));
             settingsDelegate.onSceneSet();
+            stage.setResizable(false);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -62,14 +63,10 @@ public class App extends Application implements AppController {
         try {
             stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("main.fxml"))));
             mainDelegate.onSceneSet();
+            stage.setResizable(false);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void openAbout() {
-        // TODO implement
     }
 }

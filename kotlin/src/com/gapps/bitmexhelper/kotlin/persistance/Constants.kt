@@ -2,7 +2,7 @@ package com.gapps.bitmexhelper.kotlin.persistance
 
 object Constants {
 
-    const val title = "BitMEX Helper"
+    const val title = "BitMEX Helper v1.0"
     val pairs = listOf(
             "XBT/BTC",
             "ETH/BTC",
@@ -11,8 +11,20 @@ object Constants {
             "EOS/BTC",
             "LTC/BTC",
             "TRX/BTC",
-            "XRP/BTC")
-    val orderTypes = listOf("Limit", "Stop", "Stop-Limit")
-    val sides = listOf("BUY", "SELL")
-    val distributions = listOf("FLAT", "MIN_MULT", "AMOUNT_DIV")
+            "XRP/BTC"
+    )
+    val orderTypes = listOf(
+            "Limit",
+            "Stop",
+            "Stop-Limit"
+    )
+    val sides = listOf(
+            "BUY",
+            "SELL"
+    )
+    val distributions = listOf(
+            "FLAT",
+            "MULT_MIN",
+            "DIV_AMOUNT"
+    )
 }

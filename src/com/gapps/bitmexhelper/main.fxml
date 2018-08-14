@@ -1,29 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
-<VBox prefHeight="493.0" prefWidth="563.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gapps.bitmexhelper.kotlin.ui.MainController">
+<VBox maxHeight="480.0" maxWidth="585.0" minHeight="480.0" minWidth="585.0" prefHeight="480.0" prefWidth="585.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gapps.bitmexhelper.kotlin.ui.MainController">
     <children>
         <MenuBar VBox.vgrow="NEVER">
             <menus>
-                <Menu mnemonicParsing="false" text="App">
-                    <items>
-                        <MenuItem mnemonicParsing="false" onAction="#onSettingsClicked" text="Settings" />
-                        <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" onAction="#onQuitClicked" text="Quit" />
-                    </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="Help">
-                    <items>
-                        <MenuItem mnemonicParsing="false" onAction="#onAboutClicked" text="About" />
-                    </items>
-                </Menu>
+            <Menu mnemonicParsing="false" text="App">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#onSettingsClicked" text="Settings" />
+              </items>
+            </Menu>
             </menus>
         </MenuBar>
-        <AnchorPane prefHeight="220.0" prefWidth="563.0" VBox.vgrow="ALWAYS">
+        <AnchorPane minHeight="230.0" minWidth="585.0" VBox.vgrow="ALWAYS">
             <children>
-                <GridPane layoutX="12.0" layoutY="9.0" prefHeight="215.0" prefWidth="578.0">
+                <GridPane layoutX="12.0" layoutY="9.0" minHeight="215.0" minWidth="578.0">
                     <columnConstraints>
                         <ColumnConstraints hgrow="NEVER" maxWidth="117.0" minWidth="117.0" prefWidth="117.0" />
                         <ColumnConstraints hgrow="NEVER" maxWidth="171.0" minWidth="171.0" prefWidth="171.0" />
@@ -57,32 +51,38 @@
                         <ComboBox fx:id="distribution" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
                         <Spinner fx:id="parameter" amountToStepBy="0.5" editable="true" initialValue="3" max="100000000" min="0.5" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
                         <Spinner fx:id="minAmount" amountToStepBy="0.5" editable="true" initialValue="3" max="100000000" min="0.5" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="3" />
-                        <Button alignment="CENTER_RIGHT" contentDisplay="RIGHT" mnemonicParsing="false" onMouseClicked="#onExecuteClicked" text="Execute" GridPane.columnIndex="3" GridPane.rowIndex="5" />
+                        <Button fx:id="execute" alignment="CENTER" contentDisplay="RIGHT" mnemonicParsing="false" onMouseClicked="#onExecuteClicked" text="Execute" textAlignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="5">
+                     <GridPane.margin>
+                        <Insets left="50.0" />
+                     </GridPane.margin></Button>
                         <CheckBox fx:id="reversed" mnemonicParsing="false" text="reversed" GridPane.rowIndex="5" />
-                        <CheckBox fx:id="postOnly" mnemonicParsing="false" text="post only" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                        <CheckBox fx:id="postOnly" mnemonicParsing="false" text="post only" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                     <GridPane.margin>
+                        <Insets left="30.0" />
+                     </GridPane.margin></CheckBox>
                         <CheckBox fx:id="reduceOnly" mnemonicParsing="false" text="reduce only" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+                  <ProgressIndicator fx:id="progress" visible="false" GridPane.columnIndex="3" GridPane.rowIndex="4" />
                     </children>
                 </GridPane>
             </children>
         </AnchorPane>
-      <SplitPane dividerPositions="0.4973730297723292" prefHeight="252.0" prefWidth="563.0">
-        <items>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="252.0" prefWidth="294.0">
-               <children>
-                  <TableView fx:id="review" layoutX="-7.0" layoutY="-6.0" prefHeight="252.0" prefWidth="294.0">
-                    <columns>
-                      <TableColumn editable="false" prefWidth="150.0" sortType="DESCENDING" sortable="false" text="Price" />
-                      <TableColumn editable="false" prefWidth="136.0" sortType="DESCENDING" sortable="false" text="Amount" />
-                    </columns>
-                  </TableView>
-               </children>
-            </AnchorPane>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="252.0" prefWidth="294.0">
-               <children>
-                  <TextArea fx:id="stats" layoutX="-11.0" layoutY="1.0" prefHeight="252.0" prefWidth="300.0" />
-               </children>
-            </AnchorPane>
-        </items>
-      </SplitPane>
+      <GridPane minHeight="226.0" VBox.vgrow="ALWAYS">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <TableView fx:id="review" prefHeight="226.0" prefWidth="403.0">
+              <columns>
+                <TableColumn fx:id="reviewPriceColumn" editable="false" prefWidth="146.0" resizable="false" style="-fx-alignment: CENTER;" text="Price" />
+                <TableColumn fx:id="reviewAmountColumn" editable="false" prefWidth="140.0" resizable="false" sortType="DESCENDING" sortable="false" style="-fx-alignment: CENTER;" text="Amount" />
+              </columns>
+            </TableView>
+            <TextArea fx:id="stats" editable="false" minHeight="226.0" prefHeight="226.0" prefWidth="218.0" GridPane.columnIndex="1" />
+         </children>
+      </GridPane>
     </children>
 </VBox>
