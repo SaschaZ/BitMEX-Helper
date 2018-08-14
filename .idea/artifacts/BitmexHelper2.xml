@@ -1,0 +1,33 @@
+<component name="ArtifactManager">
+  <artifact type="javafx" name="BitmexHelper2">
+    <output-path>$PROJECT_DIR$/out/artifacts/BitmexHelper2</output-path>
+    <properties id="javafx-properties">
+      <options>
+        <option name="appClass" value="com.gapps.bitmexhelper.App" />
+        <option name="description" value="" />
+        <option name="htmlPlaceholderId" value="" />
+        <option name="nativeBundle" value="all" />
+        <option name="title" value="" />
+        <option name="vendor" value="" />
+        <option name="version" value="" />
+      </options>
+    </properties>
+    <root id="root">
+      <element id="archive" name="BitmexHelper.jar">
+        <element id="module-output" name="BitmexHelper" />
+        <element id="library" level="project" name="KotlinJavaRuntime" />
+        <element id="archive" name="kotlin.jar">
+          <element id="module-output" name="kotlin" />
+        </element>
+        <element id="file-copy" path="$PROJECT_DIR$/libs/GappsUtils.jar" />
+        <element id="library" level="project" name="org.slf4j:slf4j-simple:1.7.25" />
+        <element id="library" level="project" name="org.knowm.xchange:xchange-bitmex:4.3.9" />
+        <element id="library" level="project" name="org.jetbrains.kotlinx:kotlinx-coroutines-core:0.24.0" />
+        <element id="library" level="project" name="com.google.code.gson:gson:2.8.5" />
+        <element id="directory" name="META-INF">
+          <element id="file-copy" path="$PROJECT_DIR$/src/com/gapps/bitmexhelper/META-INF/MANIFEST.MF" />
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>

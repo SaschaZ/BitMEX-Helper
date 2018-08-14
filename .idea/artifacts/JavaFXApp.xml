@@ -14,9 +14,9 @@
     <root id="root">
       <element id="archive" name="JavaFXApp.jar">
         <element id="module-output" name="BitmexHelper" />
+        <element id="module-output" name="kotlin" />
+        <element id="library" level="project" name="KotlinJavaRuntime" />
       </element>
-      <element id="module-output" name="kotlin" />
-      <element id="library" level="project" name="KotlinJavaRuntime" />
     </root>
   </artifact>
 </component>

@@ -9,6 +9,7 @@ import com.sun.istack.internal.NotNull;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -33,8 +34,10 @@ public class App extends Application implements AppController {
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle(Constants.title);
         this.stage = primaryStage;
+        primaryStage.setTitle(Constants.title);
+        primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("icBitmex.jpg")));
+        primaryStage.setResizable(false);
         appDelegate.onStarted();
     }
 
@@ -50,7 +53,6 @@ public class App extends Application implements AppController {
         try {
             stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("settings.fxml"))));
             settingsDelegate.onSceneSet();
-            stage.setResizable(false);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -63,7 +65,6 @@ public class App extends Application implements AppController {
         try {
             stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("main.fxml"))));
             mainDelegate.onSceneSet();
-            stage.setResizable(false);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
