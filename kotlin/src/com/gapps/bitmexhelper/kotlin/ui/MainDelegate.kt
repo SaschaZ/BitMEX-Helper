@@ -7,6 +7,7 @@ import com.gapps.bitmexhelper.kotlin.XChangeWrapper.BulkDistribution
 import com.gapps.bitmexhelper.kotlin.XChangeWrapper.OrderType
 import com.gapps.bitmexhelper.kotlin.persistance.Constants
 import com.gapps.bitmexhelper.kotlin.persistance.Settings
+import com.gapps.bitmexhelper.kotlin.persistance.Settings.Companion.settings
 import com.gapps.bitmexhelper.kotlin.toCurrencyPair
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleIntegerProperty
@@ -23,7 +24,6 @@ import org.knowm.xchange.dto.Order.OrderType.BID
 object MainDelegate {
 
     private lateinit var controller: MainController
-    private val settings = Settings.let { it.load(); it.settings }
 
     fun onControllerAvailable(controller: MainController) {
         MainDelegate.controller = controller
@@ -33,7 +33,7 @@ object MainDelegate {
 
     fun onSceneSet() {
         launch {
-            exchange = XChangeWrapper(BitmexExchange::class, settings.bitmexApiKey, settings.bitmexSecretKey)
+            exchange = XChangeWrapper(BitmexExchange::class, Settings.getBitmexApiKey(), Settings.getBitmexApiSecret())
             updateView()
         }
 

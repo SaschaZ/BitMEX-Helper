@@ -6,17 +6,17 @@ import javafx.scene.control.Alert
 object AppDelegate {
 
     private lateinit var controller: AppController
-    private val settings = Settings.let { it.load(); it.settings }
 
     fun onInitialized(appController: AppController) {
         controller = appController
+        Settings.load()
     }
 
     fun onStarted() {
-        if (settings.bitmexApiKey.isEmpty())
-            controller.openSettings(false)
-        else
+        if (Settings.hasCredentials)
             controller.openMain(false)
+        else
+            controller.openSettings(false)
     }
 
     fun onStopped() {}

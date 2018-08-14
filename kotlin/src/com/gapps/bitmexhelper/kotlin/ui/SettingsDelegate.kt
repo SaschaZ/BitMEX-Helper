@@ -1,7 +1,6 @@
 package com.gapps.bitmexhelper.kotlin.ui
 
 import com.gapps.bitmexhelper.kotlin.persistance.Settings
-import com.gapps.bitmexhelper.kotlin.persistance.Settings.Companion.settings
 
 object SettingsDelegate {
 
@@ -9,20 +8,19 @@ object SettingsDelegate {
 
     fun onControllerAvailable(settingsController: SettingsController) {
         controller = settingsController
-        Settings.load()
     }
 
     fun onSceneSet() {
-        controller.apiKey.text = settings.bitmexApiKey
-        controller.apiSecret.text = settings.bitmexSecretKey
+        controller.apiKey.text = Settings.getBitmexApiKey()
+        controller.apiSecret.text = Settings.getBitmexApiSecret()
     }
 
     fun onStoreClicked(apiKey: String, apiSecret: String) {
         if (apiKey.isEmpty() || apiSecret.isEmpty())
             AppDelegate.showError("You have to enter an API-Key and API-Secret.")
         else {
-            settings.bitmexApiKey = apiKey
-            settings.bitmexSecretKey = apiSecret
+            Settings.setBitmexApiKey(apiKey)
+            Settings.setBitmexApiSecret(apiSecret)
             Settings.store()
             AppDelegate.openMain()
         }
