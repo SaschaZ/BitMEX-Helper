@@ -1,9 +1,9 @@
 package com.gapps.bitmexhelper.kotlin.persistance
 
+import com.gapps.bitmexhelper.kotlin.XChangeWrapper
 import com.gapps.utils.catch
 import com.gapps.utils.readString
 import com.gapps.utils.writeString
-import com.gapps.xchangewrapper.XChangeWrapper
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import java.io.File

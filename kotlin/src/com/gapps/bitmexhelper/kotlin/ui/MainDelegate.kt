@@ -2,12 +2,12 @@
 
 package com.gapps.bitmexhelper.kotlin.ui
 
+import com.gapps.bitmexhelper.kotlin.XChangeWrapper
+import com.gapps.bitmexhelper.kotlin.XChangeWrapper.BulkDistribution
+import com.gapps.bitmexhelper.kotlin.XChangeWrapper.OrderType
 import com.gapps.bitmexhelper.kotlin.persistance.Constants
 import com.gapps.bitmexhelper.kotlin.persistance.Settings
-import com.gapps.xchangewrapper.XChangeWrapper
-import com.gapps.xchangewrapper.XChangeWrapper.BulkDistribution
-import com.gapps.xchangewrapper.XChangeWrapper.OrderType
-import com.gapps.xchangewrapper.toCurrencyPair
+import com.gapps.bitmexhelper.kotlin.toCurrencyPair
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.collections.FXCollections
