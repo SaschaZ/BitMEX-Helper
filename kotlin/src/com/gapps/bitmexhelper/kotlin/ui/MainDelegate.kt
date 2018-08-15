@@ -12,6 +12,7 @@ import com.gapps.bitmexhelper.kotlin.toCurrencyPair
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.collections.FXCollections
+import javafx.scene.control.TableView
 import javafx.scene.control.cell.PropertyValueFactory
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
@@ -74,6 +75,7 @@ object MainDelegate {
             postOnly.setOnAction { updateView() }
             reduceOnly.isSelected = settings.lastReduceOnly
             reduceOnly.setOnAction { updateView() }
+            review.columnResizePolicy = TableView.CONSTRAINED_RESIZE_POLICY
             reviewPriceColumn.cellValueFactory = PropertyValueFactory<ReviewItem, Double>("price")
             reviewAmountColumn.cellValueFactory = PropertyValueFactory<ReviewItem, Int>("amount")
         }

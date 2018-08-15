@@ -2,7 +2,7 @@ package com.gapps.bitmexhelper.kotlin.persistance
 
 object Constants {
 
-    const val title = "BitMEX Helper v1.0"
+    const val title = "BitMEX Helper v1.0.2"
     val pairs = listOf(
             "XBT/BTC",
             "ETH/BTC",

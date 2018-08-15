@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
+
 <VBox maxHeight="480.0" maxWidth="585.0" minHeight="480.0" minWidth="585.0" prefHeight="480.0" prefWidth="585.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gapps.bitmexhelper.kotlin.ui.MainController">
     <children>
         <MenuBar VBox.vgrow="NEVER">
@@ -75,13 +79,13 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <TableView fx:id="review" prefHeight="226.0" prefWidth="403.0">
+            <TableView fx:id="review" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="226.0" prefWidth="292.0">
               <columns>
-                <TableColumn fx:id="reviewPriceColumn" editable="false" prefWidth="146.0" resizable="false" style="-fx-alignment: CENTER;" text="Price" />
-                <TableColumn fx:id="reviewAmountColumn" editable="false" prefWidth="140.0" resizable="false" sortType="DESCENDING" sortable="false" style="-fx-alignment: CENTER;" text="Amount" />
+                <TableColumn fx:id="reviewPriceColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="-Infinity" prefWidth="135.0" resizable="false" style="-fx-alignment: CENTER;" text="Price" />
+                <TableColumn fx:id="reviewAmountColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="-Infinity" prefWidth="135.0" resizable="false" sortType="DESCENDING" sortable="false" style="-fx-alignment: CENTER;" text="Amount" />
               </columns>
             </TableView>
-            <TextArea fx:id="stats" editable="false" minHeight="226.0" prefHeight="226.0" prefWidth="218.0" GridPane.columnIndex="1" />
+            <TextArea fx:id="stats" editable="false" minHeight="-Infinity" minWidth="-Infinity" prefHeight="226.0" prefWidth="218.0" GridPane.columnIndex="1" />
          </children>
       </GridPane>
     </children>
