@@ -14,16 +14,8 @@
     <orderEntry type="library" name="org.slf4j:slf4j-simple:1.7.25" level="project" />
     <orderEntry type="library" name="org.jetbrains.kotlinx:kotlinx-coroutines-core:0.24.0" level="project" />
     <orderEntry type="library" name="com.google.code.gson:gson:2.8.5" level="project" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../libs/GappsUtils.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
     <orderEntry type="library" scope="TEST" name="junit:junit:4.12" level="project" />
     <orderEntry type="library" name="apache-codec:commons-codec:1.2" level="project" />
+    <orderEntry type="module" module-name="utils" />
   </component>
 </module>

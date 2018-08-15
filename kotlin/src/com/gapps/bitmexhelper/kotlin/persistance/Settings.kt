@@ -31,7 +31,6 @@ data class Settings(private var bitmexApiKey: String = "",
 
         var settings: Settings = Settings()
         private val file = File(Settings::class.java.protectionDomain.codeSource.location.path.let { path ->
-            println(path)
             val decoded = URLDecoder.decode(path, "UTF-8")
             "${decoded.substring(0, decoded.lastIndexOf(File.separator))}${File.separator}bhSettings.json"
         })
