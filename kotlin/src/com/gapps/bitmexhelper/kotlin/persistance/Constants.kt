@@ -5,13 +5,13 @@ object Constants {
     const val title = "BitMEX Helper v1.0.3"
     val pairs = listOf(
             "XBT/USD",
-            "ETH/BTC",
-            "ADA/BTC",
-            "BCH/BTC",
-            "EOS/BTC",
-            "LTC/BTC",
-            "TRX/BTC",
-            "XRP/BTC"
+            "ETH/USD",
+            "ADA/U18",
+            "BCH/U18",
+            "EOS/U18",
+            "LTC/U18",
+            "TRX/U18",
+            "XRP/U18"
     )
     val orderTypes = listOf(
             "Limit",

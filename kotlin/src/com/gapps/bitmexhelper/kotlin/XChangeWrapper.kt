@@ -234,8 +234,8 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                                 distributionParameter: Double,
                                 postOnly: Boolean,
                                 reduceOnly: Boolean,
-                                reversed: Boolean): List<Order>? = catchAsync(null) {
-        when (exchange) {
+                                reversed: Boolean): List<Order>? /*= catchAsync(null)*/ {
+        return when (exchange) {
             is BitmexExchange -> {
                 val orders = createBulkOrders(amount, distribution, distributionParameter, minimumAmount,
                         postOnly, reduceOnly, priceLow, priceHigh, pair, side, reversed)

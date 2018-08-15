@@ -25,7 +25,7 @@ object AppDelegate {
 
     internal fun openSettings() = controller.openSettings(true)
 
-    internal fun showError(message: String = "Something went wrong.") {
+    internal fun showError(message: String) {
         val alert = Alert(Alert.AlertType.ERROR)
         alert.title = "ERROR"
         alert.headerText = null

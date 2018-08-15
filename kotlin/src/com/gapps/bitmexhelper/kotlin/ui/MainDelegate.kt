@@ -9,17 +9,20 @@ import com.gapps.bitmexhelper.kotlin.persistance.Constants
 import com.gapps.bitmexhelper.kotlin.persistance.Settings
 import com.gapps.bitmexhelper.kotlin.persistance.Settings.Companion.settings
 import com.gapps.bitmexhelper.kotlin.toCurrencyPair
+import javafx.application.Platform
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.collections.FXCollections
 import javafx.scene.control.TableView
 import javafx.scene.control.cell.PropertyValueFactory
+import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.runBlocking
 import org.knowm.xchange.bitmex.BitmexExchange
 import org.knowm.xchange.dto.Order
 import org.knowm.xchange.dto.Order.OrderType.ASK
 import org.knowm.xchange.dto.Order.OrderType.BID
+import si.mazi.rescu.HttpStatusIOException
+import java.lang.reflect.UndeclaredThrowableException
 
 
 object MainDelegate {
@@ -145,12 +148,25 @@ object MainDelegate {
 
     internal fun onExecuteClicked() {
         controller.changeInExecutionMode(true)
-        val result = runBlocking {
-            storeSelection()
-            executeOrder()
+        launch {
+            var error: Throwable? = null
+
+            val result = async {
+                storeSelection()
+                try {
+                    executeOrder()
+                } catch (t: Throwable) {
+                    error = t
+                }
+            }.await()
+
+            Platform.runLater {
+                controller.changeInExecutionMode(false)
+                if (result == null || error != null)
+                    AppDelegate.showError(((error as? UndeclaredThrowableException)?.undeclaredThrowable as? HttpStatusIOException)?.httpBody
+                            ?: "Something went wrong.")
+            }
         }
-        controller.changeInExecutionMode(false)
-        if (result == null) AppDelegate.showError()
     }
 
     private fun storeSelection() {
@@ -175,7 +191,7 @@ object MainDelegate {
 
     private suspend fun executeOrder(): List<Order>? {
         controller.apply {
-            return exchange?.placeBulkOrders(
+            exchange?.placeBulkOrders(
                     pair = pair.value.toString().toCurrencyPair(),
                     side = if (side.value.toString() == "BUY") BID else ASK,
                     type = OrderType.valueOf(orderType.value.toString().toUpperCase().replace("-", "_")),
