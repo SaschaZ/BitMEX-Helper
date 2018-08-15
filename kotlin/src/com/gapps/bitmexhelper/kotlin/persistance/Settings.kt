@@ -8,7 +8,6 @@ import com.google.gson.GsonBuilder
 
 data class Settings(private var bitmexApiKey: String = "",
                     private var bitmexSecretKey: String = "",
-                    var supportedPairs: List<String> = emptyList(),
                     var lastSide: String = "BUY",
                     var lastOrderType: String = "Limit",
                     var lastPair: String = "XBT/USD",
