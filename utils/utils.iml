@@ -9,5 +9,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="KotlinJavaRuntime" level="project" />
     <orderEntry type="library" name="org.jetbrains.kotlinx:kotlinx-coroutines-core:0.24.0" level="project" />
+    <orderEntry type="library" name="apache-codec:commons-codec:1.2" level="project" />
   </component>
 </module>

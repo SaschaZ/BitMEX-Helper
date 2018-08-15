@@ -1,7 +1,7 @@
 package com.gapps.bitmexhelper.kotlin.persistance
 
 import com.gapps.bitmexhelper.kotlin.XChangeWrapper
-import com.gapps.bitmexhelper.kotlin.utils.Cipher
+import com.gapps.utils.Cipher
 import com.gapps.utils.catch
 import com.gapps.utils.readString
 import com.gapps.utils.writeString

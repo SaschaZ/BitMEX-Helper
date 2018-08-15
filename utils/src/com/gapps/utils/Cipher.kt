@@ -1,4 +1,4 @@
-package com.gapps.bitmexhelper.kotlin.utils
+package com.gapps.utils
 
 import org.apache.commons.codec.binary.Base64
 import kotlin.experimental.xor
