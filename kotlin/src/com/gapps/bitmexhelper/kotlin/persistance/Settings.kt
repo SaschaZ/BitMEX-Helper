@@ -8,6 +8,8 @@ import com.gapps.utils.writeString
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import java.io.File
+import java.net.URLDecoder
+
 
 data class Settings(private var bitmexApiKey: String = "",
                     private var bitmexSecretKey: String = "",
@@ -28,7 +30,11 @@ data class Settings(private var bitmexApiKey: String = "",
     companion object {
 
         var settings: Settings = Settings()
-        private val file = File(".BitMEX-Helper.json")
+        private val file = File(Settings::class.java.protectionDomain.codeSource.location.path.let { path ->
+            println(path)
+            val decoded = URLDecoder.decode(path, "UTF-8")
+            "${decoded.substring(0, decoded.lastIndexOf(File.separator))}${File.separator}bhSettings.json"
+        })
 
         private val cipher = Cipher("WTrUCHj6bVn3jaRxEqx9SetrZpKDX7sNYCpdqjz8fUQPv6aSMjBGrtTJP75CFwKKw98QGHAS6Wg9a5cV92geRWY3MKR3A3vDRB3q")
 
