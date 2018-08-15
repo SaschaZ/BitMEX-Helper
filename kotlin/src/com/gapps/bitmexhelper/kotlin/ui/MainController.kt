@@ -17,7 +17,7 @@ class MainController {
     @FXML
     internal lateinit var lowPirce: Spinner<*>
     @FXML
-    internal lateinit var amount: Spinner<*>
+    internal lateinit var amount: Spinner<Double>
     @FXML
     internal lateinit var orderType: ComboBox<*>
     @FXML

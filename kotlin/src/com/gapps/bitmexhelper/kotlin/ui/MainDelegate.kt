@@ -44,12 +44,21 @@ object MainDelegate {
                 value = items[Constants.pairs.indexOf(settings.lastPair)]
                 setOnAction { updateView() }
             }
-            highPirce.valueFactory.value = settings.lastHighPrice
-            highPirce.valueProperty().addListener { _, _, _ -> updateView() }
-            lowPirce.valueFactory.value = settings.lastLowPrice
-            lowPirce.valueProperty().addListener { _, _, _ -> updateView() }
-            amount.valueFactory.value = settings.lastAmount.toDouble()
-            amount.valueProperty().addListener { _, _, _ -> updateView() }
+            highPirce.apply {
+                valueFactory.value = settings.lastHighPrice
+                valueProperty().addListener { _, _, _ -> updateView() }
+                editor.textProperty().addListener { _, _, new -> valueFactory.value = new.toDouble() }
+            }
+            lowPirce.apply {
+                valueFactory.value = settings.lastLowPrice
+                valueProperty().addListener { _, _, _ -> updateView() }
+                editor.textProperty().addListener { _, _, new -> valueFactory.value = new.toDouble() }
+            }
+            amount.apply {
+                valueFactory.value = settings.lastAmount.toDouble()
+                valueProperty().addListener { _, _, _ -> updateView() }
+                editor.textProperty().addListener { _, _, new -> valueFactory.value = new.toDouble() }
+            }
             orderType.apply {
                 items = FXCollections.observableArrayList(Constants.orderTypes)
                 value = items[Constants.orderTypes.indexOf(settings.lastOrderType)]
@@ -65,10 +74,16 @@ object MainDelegate {
                 value = items[Constants.distributions.indexOf(settings.lastDistributionType)]
                 setOnAction { updateView() }
             }
-            parameter.valueFactory.value = settings.lastDistributionParameter
-            parameter.valueProperty().addListener { _, _, _ -> updateView() }
-            minAmount.valueFactory.value = settings.lastMinAmount.toDouble()
-            minAmount.valueProperty().addListener { _, _, _ -> updateView() }
+            parameter.apply {
+                valueFactory.value = settings.lastDistributionParameter
+                valueProperty().addListener { _, _, _ -> updateView() }
+                editor.textProperty().addListener { _, _, new -> valueFactory.value = new.toDouble() }
+            }
+            minAmount.apply {
+                valueFactory.value = settings.lastMinAmount.toDouble()
+                valueProperty().addListener { _, _, _ -> updateView() }
+                editor.textProperty().addListener { _, _, new -> valueFactory.value = new.toDouble() }
+            }
             reversed.isSelected = settings.lastReversed
             reversed.setOnAction { updateView() }
             postOnly.isSelected = settings.lastPostOnly
@@ -130,7 +145,7 @@ object MainDelegate {
 
     internal fun onExecuteClicked() {
         controller.changeInExecutionMode(true)
-       val result = runBlocking {
+        val result = runBlocking {
             storeSelection()
             executeOrder()
         }
