@@ -4,7 +4,7 @@ object Constants {
 
     const val title = "BitMEX Helper v1.0.2"
     val pairs = listOf(
-            "XBT/BTC",
+            "XBT/USD",
             "ETH/BTC",
             "ADA/BTC",
             "BCH/BTC",

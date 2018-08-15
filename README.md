@@ -17,7 +17,7 @@ Java application to execute bulk orders on the BitMEX exchange.
 * Realtime bulk order review.
 * Supports `LIMIT`, `STOP` and `STOP_LIMIT` order types. The limit price for a `STOP_LIMIT` order is always one step
     below (long) or above  (short) the stop price.
-* Supports all major BitMEX pairs (XBT/BTC, ETH/BTC, ADA/BTC, BCH/BTC, EOS/BTC, LTC/BTC, TRX/BTC, XRP/BTC).
+* Supports all major BitMEX pairs (XBT/USD, ETH/BTC, ADA/BTC, BCH/BTC, EOS/BTC, LTC/BTC, TRX/BTC, XRP/BTC).
 * Uses the Open-Source [XChange Library](https://github.com/knowm/XChange) to connect to the BitMEX Api.
 * **DOES ONLY CONNECT TO BITMEX. YOUR DATA IS SAFE.**
 
