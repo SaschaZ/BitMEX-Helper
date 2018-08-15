@@ -38,7 +38,7 @@
                         <Label text="High Price:" GridPane.rowIndex="1" />
                         <Spinner fx:id="highPirce" amountToStepBy="0.5" editable="true" initialValue="3" max="100000000" min="0.5" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                         <Label text="Low Price:" GridPane.rowIndex="2" />
-                        <Spinner fx:id="lowPirce" amountToStepBy="0.5" editable="true" initialValue="3" max="100000000" min="0.5" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <Spinner fx:id="lowPrice" amountToStepBy="0.5" editable="true" initialValue="3" max="100000000" min="0.5" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                         <Label text="Amount:" GridPane.rowIndex="3" />
                         <Spinner fx:id="amount" amountToStepBy="1" editable="true" initialValue="3" max="100000000" min="1" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                         <Label text="Type:" GridPane.rowIndex="4" />
@@ -49,7 +49,7 @@
                         <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Side:" GridPane.columnIndex="2" />
                         <ComboBox fx:id="side" prefWidth="150.0" GridPane.columnIndex="3" />
                         <ComboBox fx:id="distribution" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-                        <Spinner fx:id="parameter" amountToStepBy="0.5" editable="true" initialValue="3" max="100000000" min="0.5" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                        <Spinner fx:id="parameter" amountToStepBy="0.01" editable="true" initialValue="2" max="10" min="0.01" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
                         <Spinner fx:id="minAmount" amountToStepBy="1.0" editable="true" initialValue="3" max="100000000" min="0.5" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="3" />
                         <Button fx:id="execute" alignment="CENTER" contentDisplay="RIGHT" mnemonicParsing="false" onMouseClicked="#onExecuteClicked" text="Execute" textAlignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="5">
                      <GridPane.margin>

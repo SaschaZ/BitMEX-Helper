@@ -13,11 +13,13 @@ import javafx.application.Platform
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.collections.FXCollections
+import javafx.scene.control.CustomSpinnerValueFactory
 import javafx.scene.control.TableView
 import javafx.scene.control.cell.PropertyValueFactory
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import org.knowm.xchange.bitmex.BitmexExchange
+import org.knowm.xchange.currency.CurrencyPair
 import org.knowm.xchange.dto.Order
 import org.knowm.xchange.dto.Order.OrderType.ASK
 import org.knowm.xchange.dto.Order.OrderType.BID
@@ -36,31 +38,39 @@ object MainDelegate {
     private var exchange: XChangeWrapper? = null
 
     fun onSceneSet() {
+        controller.changeInExecutionMode(true)
         launch {
             exchange = XChangeWrapper(BitmexExchange::class, Settings.getBitmexApiKey(), Settings.getBitmexApiSecret())
-            updateView()
+            Platform.runLater {
+                updateView()
+                controller.changeInExecutionMode(false)
+            }
         }
 
         controller.apply {
             pair.apply {
                 items = FXCollections.observableArrayList(Constants.pairs)
-                value = items[Constants.pairs.indexOf(settings.lastPair)]
-                setOnAction { updateView() }
+                value = items[Constants.pairs.indexOf(settings.lastPair).let { if (it < 0) 0 else it }]
+                configureSpinnerParameters(pair.value.toString().toCurrencyPair())
+                setOnAction {
+                    updateView()
+                    configureSpinnerParameters(pair.value.toString().toCurrencyPair())
+                }
             }
             highPirce.apply {
                 valueFactory.value = settings.lastHighPrice
                 valueProperty().addListener { _, _, _ -> updateView() }
-                editor.textProperty().addListener { _, _, new -> valueFactory.value = new.toDouble() }
+                editor.textProperty().addListener { _, _, new -> valueFactory.value = new.replace(",", ".").toDouble() }
             }
-            lowPirce.apply {
+            lowPrice.apply {
                 valueFactory.value = settings.lastLowPrice
                 valueProperty().addListener { _, _, _ -> updateView() }
-                editor.textProperty().addListener { _, _, new -> valueFactory.value = new.toDouble() }
+                editor.textProperty().addListener { _, _, new -> valueFactory.value = new.replace(",", ".").toDouble() }
             }
             amount.apply {
                 valueFactory.value = settings.lastAmount.toDouble()
                 valueProperty().addListener { _, _, _ -> updateView() }
-                editor.textProperty().addListener { _, _, new -> valueFactory.value = new.toDouble() }
+                editor.textProperty().addListener { _, _, new -> valueFactory.value = new.replace(",", ".").toDouble() }
             }
             orderType.apply {
                 items = FXCollections.observableArrayList(Constants.orderTypes)
@@ -80,12 +90,12 @@ object MainDelegate {
             parameter.apply {
                 valueFactory.value = settings.lastDistributionParameter
                 valueProperty().addListener { _, _, _ -> updateView() }
-                editor.textProperty().addListener { _, _, new -> valueFactory.value = new.toDouble() }
+                editor.textProperty().addListener { _, _, new -> valueFactory.value = new.replace(",", ".").toDouble() }
             }
             minAmount.apply {
                 valueFactory.value = settings.lastMinAmount.toDouble()
                 valueProperty().addListener { _, _, _ -> updateView() }
-                editor.textProperty().addListener { _, _, new -> valueFactory.value = new.toDouble() }
+                editor.textProperty().addListener { _, _, new -> valueFactory.value = new.replace(",", ".").toDouble() }
             }
             reversed.isSelected = settings.lastReversed
             reversed.setOnAction { updateView() }
@@ -99,6 +109,14 @@ object MainDelegate {
         }
     }
 
+    private fun configureSpinnerParameters(pair: CurrencyPair) {
+        val minStep = Constants.minimumPriceSteps[pair] ?: 0.00000001
+        controller.apply {
+            highPirce.valueFactory = CustomSpinnerValueFactory(minStep, 10000000.0, 10.0, minStep)
+            lowPrice.valueFactory = CustomSpinnerValueFactory(minStep, 10000000.0, 10.0, minStep)
+        }
+    }
+
     private fun updateView() {
         controller.apply {
             exchange?.createBulkOrders(
@@ -106,7 +124,7 @@ object MainDelegate {
                     side = if (side.value.toString() == "BUY") BID else ASK,
                     amount = amount.value as Double,
                     minimumAmount = minAmount.value as Double,
-                    priceLow = lowPirce.value as Double,
+                    priceLow = lowPrice.value as Double,
                     priceHigh = highPirce.value as Double,
                     distribution = BulkDistribution.valueOf(distribution.value.toString()),
                     distributionParameter = parameter.value as Double,
@@ -174,7 +192,7 @@ object MainDelegate {
             settings.apply {
                 lastPair = pair.value.toString()
                 lastHighPrice = highPirce.value as Double
-                lastLowPrice = lowPirce.value as Double
+                lastLowPrice = lowPrice.value as Double
                 lastAmount = (amount.value as Double).toInt()
                 lastOrderType = orderType.value.toString()
                 lastSide = side.value.toString()
@@ -191,13 +209,13 @@ object MainDelegate {
 
     private suspend fun executeOrder(): List<Order>? {
         controller.apply {
-            exchange?.placeBulkOrders(
+            return exchange?.placeBulkOrders(
                     pair = pair.value.toString().toCurrencyPair(),
                     side = if (side.value.toString() == "BUY") BID else ASK,
                     type = OrderType.valueOf(orderType.value.toString().toUpperCase().replace("-", "_")),
                     amount = amount.value as Double,
                     minimumAmount = minAmount.value as Double,
-                    priceLow = lowPirce.value as Double,
+                    priceLow = lowPrice.value as Double,
                     priceHigh = highPirce.value as Double,
                     distribution = BulkDistribution.valueOf(distribution.value.toString()),
                     distributionParameter = parameter.value as Double,

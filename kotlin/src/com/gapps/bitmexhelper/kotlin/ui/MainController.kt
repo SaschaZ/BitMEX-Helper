@@ -15,7 +15,7 @@ class MainController {
     @FXML
     internal lateinit var highPirce: Spinner<*>
     @FXML
-    internal lateinit var lowPirce: Spinner<*>
+    internal lateinit var lowPrice: Spinner<*>
     @FXML
     internal lateinit var amount: Spinner<Double>
     @FXML
