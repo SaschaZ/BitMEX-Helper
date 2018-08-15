@@ -3,6 +3,7 @@ package com.gapps.bitmexhelper.kotlin.persistance
 object Constants {
 
     const val title = "BitMEX Helper v1.0.3"
+    const val settingsFilename = "bhSettings.json"
     val pairs = listOf(
             "XBT/USD",
             "ETH/USD",

@@ -6,7 +6,6 @@ import com.gapps.utils.Constants.ERROR_LOG_FILE
 import com.gapps.utils.Constants.SHOW_EXCEPTIONS
 import com.gapps.utils.TimeUnit.M
 import kotlinx.coroutines.experimental.*
-import java.io.File
 import kotlin.system.measureTimeMillis
 
 suspend fun <T> List<Deferred<T>>.joinAllA() = map { it.await() }
@@ -83,7 +82,7 @@ fun <T : Any?> catch(returnOnCatch: T,
 }
 
 fun Throwable.logToFile() = launch {
-    File(ERROR_LOG_FILE).also { file ->
+    JarLocation.fileInSameDir(ERROR_LOG_FILE).also { file ->
         var log = "${formatDate()}: ${javaClass.simpleName}: $message\n"
         log += stackTrace.joinToString("\n")
         log += "\n\n\n"
