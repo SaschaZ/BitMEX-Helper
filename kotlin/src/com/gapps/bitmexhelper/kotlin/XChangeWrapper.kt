@@ -4,6 +4,7 @@ package com.gapps.bitmexhelper.kotlin
 
 import com.gapps.bitmexhelper.kotlin.XChangeWrapper.BulkDistribution.*
 import com.gapps.bitmexhelper.kotlin.XChangeWrapper.OrderType.*
+import com.gapps.bitmexhelper.kotlin.persistance.Constants
 import com.gapps.utils.TimeUnit
 import com.gapps.utils.catchAsync
 import com.gapps.utils.launchInterval
@@ -242,9 +243,10 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
 
                 (exchange.tradeService as BitmexTradeServiceRaw).placeLimitOrderBulk(orders.map {
                     val price = when (type) {
-                        STOP_LIMIT -> it.price + if (side == BID) -0.5 else 0.5
+                        STOP -> null
+                        STOP_LIMIT -> it.price + Constants.minimumPriceSteps[pair]!! * if (side == BID) -1 else 1
                         else -> it.price
-                    }.toBigDecimal()
+                    }?.toBigDecimal()
                     val stop = when (type) {
                         STOP,
                         STOP_LIMIT -> it.price
