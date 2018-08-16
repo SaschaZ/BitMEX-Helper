@@ -244,7 +244,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                 (exchange.tradeService as BitmexTradeServiceRaw).placeLimitOrderBulk(orders.map {
                     val price = when (type) {
                         STOP -> null
-                        STOP_LIMIT -> it.price + Constants.minimumPriceSteps[pair]!! * if (side == BID) -1 else 1
+                        STOP_LIMIT -> it.price + (Constants.minimumPriceSteps[pair]!! * if (side == BID) 1 else -1)
                         else -> it.price
                     }?.toBigDecimal()
                     val stop = when (type) {
@@ -255,7 +255,8 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
 
                     Bitmex.PlaceOrderCommand(it.symbol, it.side, it.orderQuantity, price, stop, when (type) {
                         LIMIT -> "Limit"
-                        else -> "Stop"
+                        STOP -> "Stop"
+                        else -> "StopLimit"
                     }, it.clOrId, it.executionInstructions)
                 }).map {
                     LimitOrder.Builder(side, pair)
