@@ -291,25 +291,36 @@ object MainDelegate {
     private fun initLinkedTable() {
         controller.apply {
             linkedPriceColumn.cellValueFactory = PropertyValueFactory<LinkedTableItem, Double>("price")
-            linkedPriceColumn.cellFactory = Callback<TableColumn<LinkedTableItem, Double>, TableCell<LinkedTableItem, Double>> { EditCell(DoubleStringConverter()) }
+            linkedPriceColumn.cellFactory = Callback<TableColumn<LinkedTableItem, Double>, TableCell<LinkedTableItem, Double>> {
+                EditCell(DoubleStringConverter())
+            }
             linkedPriceColumn.setOnEditCommit { event ->
                 linkedOrders[event.tablePosition.row].setPrice(event.newValue)
             }
+
             linkedAmountColumn.cellValueFactory = PropertyValueFactory<LinkedTableItem, Int>("amount")
-            linkedAmountColumn.cellFactory = Callback<TableColumn<LinkedTableItem, Int>, TableCell<LinkedTableItem, Int>> { EditCell(IntegerStringConverter()) }
+            linkedAmountColumn.cellFactory = Callback<TableColumn<LinkedTableItem, Int>, TableCell<LinkedTableItem, Int>> {
+                EditCell(IntegerStringConverter())
+            }
             linkedAmountColumn.setOnEditCommit { event ->
                 linkedOrders[event.tablePosition.row].setAmount(event.newValue)
             }
+
             linkedOrderTypeColumn.cellValueFactory = PropertyValueFactory<LinkedTableItem, String>("orderType")
-            linkedOrderTypeColumn.cellFactory = ComboBoxTableCell.forTableColumn(*XChangeWrapper.OrderType.values().map { it.toString() }.toTypedArray())
+            linkedOrderTypeColumn.cellFactory = ComboBoxTableCell.forTableColumn(*XChangeWrapper.OrderType.values()
+                    .map { it.toString() }.toTypedArray())
             linkedOrderTypeColumn.setOnEditCommit { event ->
                 linkedOrders[event.tablePosition.row].setOrderType(event.newValue)
             }
+
             linkedOrderTypeParameterColumn.cellValueFactory = PropertyValueFactory<LinkedTableItem, Double>("orderTypeParameter")
-            linkedOrderTypeParameterColumn.cellFactory = Callback<TableColumn<LinkedTableItem, Double>, TableCell<LinkedTableItem, Double>> { EditCell(DoubleStringConverter()) }
+            linkedOrderTypeParameterColumn.cellFactory = Callback<TableColumn<LinkedTableItem, Double>, TableCell<LinkedTableItem, Double>> {
+                EditCell(DoubleStringConverter())
+            }
             linkedOrderTypeParameterColumn.setOnEditCommit { event ->
                 linkedOrders[event.tablePosition.row].setOrderTypeParameter(event.newValue)
             }
+
             linkedLinkIdColumn.cellValueFactory = PropertyValueFactory<LinkedTableItem, String>("linkId")
             linkedLinkIdColumn.cellFactory = Callback<TableColumn<LinkedTableItem, String>, TableCell<LinkedTableItem, String>> {
                 EditCell(object : StringConverter<String>() {
@@ -320,8 +331,10 @@ object MainDelegate {
             linkedLinkIdColumn.setOnEditCommit { event ->
                 linkedOrders[event.tablePosition.row].setLinkId(event.newValue)
             }
+
             linkedLinkTypeColumn.cellValueFactory = PropertyValueFactory<LinkedTableItem, String>("linkType")
-            linkedLinkTypeColumn.cellFactory = ComboBoxTableCell.forTableColumn(*XChangeWrapper.OrderLinkType.values().map { it.toString() }.toTypedArray())
+            linkedLinkTypeColumn.cellFactory = ComboBoxTableCell.forTableColumn(*XChangeWrapper.OrderLinkType.values()
+                    .map { it.toString() }.toMutableList().toTypedArray())
             linkedLinkTypeColumn.setOnEditCommit { event ->
                 linkedOrders[event.tablePosition.row].setLinkType(event.newValue)
             }
@@ -337,7 +350,7 @@ object MainDelegate {
     private val linkedOrders = ArrayList<LinkedTableItem>()
 
     fun onAddLinkedOrderClicked() {
-        linkedOrders.add(LinkedTableItem(100.0, 10, OrderType.LIMIT, 0.0, "fooboo", XChangeWrapper.OrderLinkType.OCO))
+        linkedOrders.add(LinkedTableItem(100.0, 10, OrderType.LIMIT, 0.0, "fooboo", XChangeWrapper.OrderLinkType.NONE))
         updateLinkedOrders()
     }
 }

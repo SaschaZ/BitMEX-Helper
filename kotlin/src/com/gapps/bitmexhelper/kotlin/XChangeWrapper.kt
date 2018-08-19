@@ -226,7 +226,8 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
         OCO,
         OTO,
         OUOA,
-        OUOP
+        OUOP,
+        NONE
     }
 
     enum class BulkDistribution {
