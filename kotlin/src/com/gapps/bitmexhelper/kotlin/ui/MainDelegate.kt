@@ -23,6 +23,7 @@ import org.knowm.xchange.currency.CurrencyPair
 import org.knowm.xchange.dto.Order
 import org.knowm.xchange.dto.Order.OrderType.ASK
 import org.knowm.xchange.dto.Order.OrderType.BID
+import org.knowm.xchange.dto.marketdata.Ticker
 import si.mazi.rescu.HttpStatusIOException
 import java.lang.reflect.UndeclaredThrowableException
 
@@ -36,14 +37,17 @@ object MainDelegate {
     }
 
     private var exchange: XChangeWrapper? = null
+    private var tickers: Map<CurrencyPair, Ticker>? = null
 
     fun onSceneSet() {
         controller.changeInExecutionMode(true)
         launch {
-            exchange = XChangeWrapper(BitmexExchange::class, Settings.getBitmexApiKey(), Settings.getBitmexApiSecret())
-            Platform.runLater {
-                updateView()
-                controller.changeInExecutionMode(false)
+            exchange = XChangeWrapper(BitmexExchange::class, Settings.getBitmexApiKey(), Settings.getBitmexApiSecret()).also {
+                tickers = it.getTickers()
+                Platform.runLater {
+                    configureSpinnerParameters(controller.pair.value.toString().toCurrencyPair())
+                    controller.changeInExecutionMode(false)
+                }
             }
         }
 
@@ -51,10 +55,9 @@ object MainDelegate {
             pair.apply {
                 items = FXCollections.observableArrayList(Constants.pairs)
                 value = items[Constants.pairs.indexOf(settings.lastPair).let { if (it < 0) 0 else it }]
-                configureSpinnerParameters(pair.value.toString().toCurrencyPair())
                 setOnAction {
-                    updateView()
                     configureSpinnerParameters(pair.value.toString().toCurrencyPair())
+                    updateView()
                 }
             }
             highPirce.apply {
@@ -107,13 +110,17 @@ object MainDelegate {
             reviewPriceColumn.cellValueFactory = PropertyValueFactory<ReviewItem, Double>("price")
             reviewAmountColumn.cellValueFactory = PropertyValueFactory<ReviewItem, Int>("amount")
         }
+        updateView()
     }
 
     private fun configureSpinnerParameters(pair: CurrencyPair) {
         val minStep = Constants.minimumPriceSteps[pair] ?: 0.00000001
         controller.apply {
-            highPirce.valueFactory = CustomSpinnerValueFactory(minStep, 10000000.0, 10.0, minStep)
-            lowPrice.valueFactory = CustomSpinnerValueFactory(minStep, 10000000.0, 10.0, minStep)
+            val lastTicker = tickers?.get(pair)?.last?.toDouble()
+            highPirce.valueFactory = CustomSpinnerValueFactory(minStep, 10000000.0,
+                    lastTicker?.let { it + 10 * minStep } ?: minStep, minStep)
+            lowPrice.valueFactory = CustomSpinnerValueFactory(minStep, 10000000.0,
+                    lastTicker?.let { it - 10 * minStep } ?: minStep, minStep)
         }
     }
 
@@ -207,7 +214,7 @@ object MainDelegate {
         }
     }
 
-    private suspend fun executeOrder(): List<Order>? {
+    private fun executeOrder(): List<Order>? {
         controller.apply {
             return exchange?.placeBulkOrders(
                     pair = pair.value.toString().toCurrencyPair(),

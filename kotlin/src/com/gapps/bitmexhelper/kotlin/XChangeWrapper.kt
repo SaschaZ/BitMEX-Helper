@@ -27,6 +27,7 @@ import org.knowm.xchange.dto.marketdata.Ticker
 import org.knowm.xchange.dto.trade.LimitOrder
 import org.knowm.xchange.dto.trade.MarketOrder
 import org.knowm.xchange.dto.trade.StopOrder
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.max
@@ -85,6 +86,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
     }
 
     suspend fun getTickers(): Map<CurrencyPair, Ticker>? = catchAsync(null) {
+        val dateFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH)
         when (exchange) {
             is BitmexExchange -> (exchange.marketDataService as BitmexMarketDataServiceRaw).activeTickers?.mapNotNull {
                 Pair(it.symbol.toCurrencyPair(), Ticker.Builder()
@@ -95,7 +97,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                         .last(it.lastPrice)
                         .low(it.lowPrice)
                         .open(it.openValue)
-                        .timestamp(Date(it.timestamp.toLong()))
+                        .timestamp(dateFormatter.parse(it.timestamp))
                         .volume(it.volume)
                         .vwap(it.vwap.toBigDecimal())
                         .build())

@@ -7,6 +7,8 @@ import javafx.util.StringConverter
 import java.math.BigDecimal
 import java.text.DecimalFormat
 import java.text.ParseException
+import kotlin.math.max
+import kotlin.math.min
 
 class CustomSpinnerValueFactory(_min: Double,
                                 _max: Double,
@@ -16,32 +18,14 @@ class CustomSpinnerValueFactory(_min: Double,
     private val min = object : SimpleDoubleProperty(this, "min") {
         override fun invalidated() {
             val currentValue = value ?: return
-
-            val newMin = get()
-            if (newMin > getMax()) {
-                setMin(getMax())
-                return
-            }
-
-            if (currentValue < newMin) {
-                value = newMin
-            }
+            value = min(currentValue, getMax())
         }
     }
 
     private val max = object : SimpleDoubleProperty(this, "max") {
         override fun invalidated() {
             val currentValue = value ?: return
-
-            val newMax = get()
-            if (newMax < getMin()) {
-                setMax(getMin())
-                return
-            }
-
-            if (currentValue > newMax) {
-                value = newMax
-            }
+            value = max(currentValue, getMin())
         }
     }
 
@@ -51,35 +35,21 @@ class CustomSpinnerValueFactory(_min: Double,
         setMin(_min)
         setMax(_max)
         setAmountToStepBy(_step)
+
         converter = object : StringConverter<Double>() {
             private val df = DecimalFormat("#.########")
 
-            override fun toString(value: Double?): String {
-                // If the specified value is null, return a zero-length String
-                return if (value == null) {
-                    ""
-                } else df.format(value)
+            override fun toString(value: Double?) = value?.let { df.format(it) } ?: ""
 
-            }
-
-            override fun fromString(value: String?): Double? {
-                try {
-                    // If the specified value is null or zero-length, return null
-                    if (value == null) {
-                        return null
-                    }
-
-                    val result = value.trim { it <= ' ' }
-
-                    return if (result.isEmpty()) {
-                        null
-                    } else df.parse(value).toDouble()
-
-                    // Perform the requested parsing
-                } catch (ex: ParseException) {
-                    throw RuntimeException(ex)
+            override fun fromString(value: String?) = try {
+                value?.let { nonNullValue ->
+                    val result = nonNullValue.trim()
+                    if (result.isEmpty()) null
+                    else df.parse(result).toDouble()
                 }
-
+            } catch (ex: ParseException) {
+                ex.printStackTrace()
+                null
             }
         }
 
