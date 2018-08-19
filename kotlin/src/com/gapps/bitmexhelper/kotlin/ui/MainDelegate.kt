@@ -145,7 +145,10 @@ object MainDelegate {
                     reversed = reversed.isSelected)?.let { orders ->
                 updatePreview(orders)
                 updateStats(orders)
-            }
+            } ?: {
+                updatePreview(emptyList())
+                updateStats(emptyList())
+            }.invoke()
         }
     }
 
@@ -165,15 +168,17 @@ object MainDelegate {
     }
 
     private fun updateStats(orders: List<XChangeWrapper.BulkOrder>) {
-        val sum = orders.sumBy { it.orderQuantity }
-        val averagePrice = orders.sumByDouble { it.price * it.orderQuantity / sum }
+        if (orders.isNotEmpty()) {
+            val sum = orders.sumBy { it.orderQuantity }
+            val averagePrice = orders.sumByDouble { it.price * it.orderQuantity / sum }
 
-        controller.stats.text = " total bulk order amount: " + sum + "\n" +
-                " average price: ${averagePrice.roundToMinimumStep(controller.pair.value.toString().toCurrencyPair())}\n" +
-                " order count: ${orders.size}\n" +
-                " min. order amount: ${orders.minBy { it.orderQuantity }?.orderQuantity}\n" +
-                " average order amount: ${String.format("%.1f", sum.toDouble() / orders.size)}\n" +
-                " max. order amount: ${orders.maxBy { it.orderQuantity }?.orderQuantity}\n"
+            controller.stats.text = " total bulk order amount: " + sum + "\n" +
+                    " average price: ${averagePrice.roundToMinimumStep(controller.pair.value.toString().toCurrencyPair())}\n" +
+                    " order count: ${orders.size}\n" +
+                    " min. order amount: ${orders.minBy { it.orderQuantity }?.orderQuantity}\n" +
+                    " average order amount: ${String.format("%.1f", sum.toDouble() / orders.size)}\n" +
+                    " max. order amount: ${orders.maxBy { it.orderQuantity }?.orderQuantity}\n"
+        } else controller.stats.text = ""
     }
 
     internal fun onExecuteClicked() {
