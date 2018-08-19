@@ -9,6 +9,7 @@ import com.gapps.bitmexhelper.kotlin.persistance.Constants
 import com.gapps.bitmexhelper.kotlin.persistance.Settings
 import com.gapps.bitmexhelper.kotlin.persistance.Settings.Companion.settings
 import com.gapps.bitmexhelper.kotlin.roundToMinimumStep
+import com.gapps.bitmexhelper.kotlin.toBitmexSymbol
 import com.gapps.bitmexhelper.kotlin.toCurrencyPair
 import javafx.application.Platform
 import javafx.beans.property.SimpleDoubleProperty
@@ -59,6 +60,15 @@ object MainDelegate {
 
         controller.apply {
             pair.apply {
+                items = FXCollections.observableArrayList(Constants.pairs)
+                value = items[Constants.pairs.indexOf(settings.lastPair).let { if (it < 0) 0 else it }]
+                setOnAction {
+                    configureSpinnerParameters(pair.value.toString().toCurrencyPair())
+                    updateView()
+                }
+                enableValueChangeOnScroll()
+            }
+            linkedPair.apply {
                 items = FXCollections.observableArrayList(Constants.pairs)
                 value = items[Constants.pairs.indexOf(settings.lastPair).let { if (it < 0) 0 else it }]
                 setOnAction {
@@ -264,18 +274,21 @@ object MainDelegate {
     fun onSettingsClicked() = AppDelegate.openSettings()
 
     @Suppress("unused")
-    data class LinkedTableItem(private val price: SimpleDoubleProperty,
+    data class LinkedTableItem(private val side: SimpleStringProperty,
+                               private val price: SimpleDoubleProperty,
                                private val amount: SimpleIntegerProperty,
                                private val orderType: SimpleStringProperty,
                                private val orderTypeParameter: SimpleDoubleProperty,
                                private val linkId: SimpleStringProperty,
                                private val linkType: SimpleStringProperty) {
-        constructor(price: Double,
+        constructor(side: String,
+                    price: Double,
                     amount: Int,
                     orderType: OrderType,
                     orderTypeParameter: Double,
                     linkId: String,
                     linkType: XChangeWrapper.OrderLinkType) : this(
+                SimpleStringProperty(side),
                 SimpleDoubleProperty(price),
                 SimpleIntegerProperty(amount),
                 SimpleStringProperty(orderType.toString()),
@@ -283,6 +296,8 @@ object MainDelegate {
                 SimpleStringProperty(linkId),
                 SimpleStringProperty(linkType.toString()))
 
+        fun getSide(): String = side.get()
+        fun setSide(value: String) = side.set(value)
         fun getPrice(): Double = price.get()
         fun setPrice(value: Double) = price.set(value)
         fun getAmount(): Int = amount.get()
@@ -299,53 +314,73 @@ object MainDelegate {
 
     private fun initLinkedTable() {
         controller.apply {
-            linkedPriceColumn.cellValueFactory = PropertyValueFactory<LinkedTableItem, Double>("price")
-            linkedPriceColumn.cellFactory = Callback<TableColumn<LinkedTableItem, Double>, TableCell<LinkedTableItem, Double>> {
-                EditCell(DoubleStringConverter())
-            }
-            linkedPriceColumn.setOnEditCommit { event ->
-                linkedOrders[event.tablePosition.row].setPrice(event.newValue)
-            }
-
-            linkedAmountColumn.cellValueFactory = PropertyValueFactory<LinkedTableItem, Int>("amount")
-            linkedAmountColumn.cellFactory = Callback<TableColumn<LinkedTableItem, Int>, TableCell<LinkedTableItem, Int>> {
-                EditCell(IntegerStringConverter())
-            }
-            linkedAmountColumn.setOnEditCommit { event ->
-                linkedOrders[event.tablePosition.row].setAmount(event.newValue)
+            linkedSideColumn.apply {
+                cellValueFactory = PropertyValueFactory<LinkedTableItem, String>("side")
+                cellFactory = ComboBoxTableCell.forTableColumn("Buy", "Sell")
+                setOnEditCommit { event ->
+                    linkedOrders[event.tablePosition.row].setSide(event.newValue)
+                }
             }
 
-            linkedOrderTypeColumn.cellValueFactory = PropertyValueFactory<LinkedTableItem, String>("orderType")
-            linkedOrderTypeColumn.cellFactory = ComboBoxTableCell.forTableColumn(*XChangeWrapper.OrderType.values()
-                    .map { it.toString() }.toTypedArray())
-            linkedOrderTypeColumn.setOnEditCommit { event ->
-                linkedOrders[event.tablePosition.row].setOrderType(event.newValue)
+            linkedPriceColumn.apply {
+                cellValueFactory = PropertyValueFactory<LinkedTableItem, Double>("price")
+                cellFactory = Callback<TableColumn<LinkedTableItem, Double>, TableCell<LinkedTableItem, Double>> {
+                    EditCell(DoubleStringConverter())
+                }
+                setOnEditCommit { event ->
+                    linkedOrders[event.tablePosition.row].setPrice(event.newValue)
+                }
             }
 
-            linkedOrderTypeParameterColumn.cellValueFactory = PropertyValueFactory<LinkedTableItem, Double>("orderTypeParameter")
-            linkedOrderTypeParameterColumn.cellFactory = Callback<TableColumn<LinkedTableItem, Double>, TableCell<LinkedTableItem, Double>> {
-                EditCell(DoubleStringConverter())
-            }
-            linkedOrderTypeParameterColumn.setOnEditCommit { event ->
-                linkedOrders[event.tablePosition.row].setOrderTypeParameter(event.newValue)
-            }
-
-            linkedLinkIdColumn.cellValueFactory = PropertyValueFactory<LinkedTableItem, String>("linkId")
-            linkedLinkIdColumn.cellFactory = Callback<TableColumn<LinkedTableItem, String>, TableCell<LinkedTableItem, String>> {
-                EditCell(object : StringConverter<String>() {
-                    override fun toString(value: String?) = value
-                    override fun fromString(string: String?) = string
-                })
-            }
-            linkedLinkIdColumn.setOnEditCommit { event ->
-                linkedOrders[event.tablePosition.row].setLinkId(event.newValue)
+            linkedAmountColumn.apply {
+                cellValueFactory = PropertyValueFactory<LinkedTableItem, Int>("amount")
+                cellFactory = Callback<TableColumn<LinkedTableItem, Int>, TableCell<LinkedTableItem, Int>> {
+                    EditCell(IntegerStringConverter())
+                }
+                setOnEditCommit { event ->
+                    linkedOrders[event.tablePosition.row].setAmount(event.newValue)
+                }
             }
 
-            linkedLinkTypeColumn.cellValueFactory = PropertyValueFactory<LinkedTableItem, String>("linkType")
-            linkedLinkTypeColumn.cellFactory = ComboBoxTableCell.forTableColumn(*XChangeWrapper.OrderLinkType.values()
-                    .map { it.toString() }.toMutableList().toTypedArray())
-            linkedLinkTypeColumn.setOnEditCommit { event ->
-                linkedOrders[event.tablePosition.row].setLinkType(event.newValue)
+            linkedOrderTypeColumn.apply {
+                cellValueFactory = PropertyValueFactory<LinkedTableItem, String>("orderType")
+                cellFactory = ComboBoxTableCell.forTableColumn(*XChangeWrapper.OrderType.values()
+                        .map { it.toString() }.toTypedArray())
+                setOnEditCommit { event ->
+                    linkedOrders[event.tablePosition.row].setOrderType(event.newValue)
+                }
+            }
+
+            linkedOrderTypeParameterColumn.apply {
+                cellValueFactory = PropertyValueFactory<LinkedTableItem, Double>("orderTypeParameter")
+                cellFactory = Callback<TableColumn<LinkedTableItem, Double>, TableCell<LinkedTableItem, Double>> {
+                    EditCell(DoubleStringConverter())
+                }
+                setOnEditCommit { event ->
+                    linkedOrders[event.tablePosition.row].setOrderTypeParameter(event.newValue)
+                }
+            }
+
+            linkedLinkIdColumn.apply {
+                cellValueFactory = PropertyValueFactory<LinkedTableItem, String>("linkId")
+                cellFactory = Callback<TableColumn<LinkedTableItem, String>, TableCell<LinkedTableItem, String>> {
+                    EditCell(object : StringConverter<String>() {
+                        override fun toString(value: String?) = value
+                        override fun fromString(string: String?) = string
+                    })
+                }
+                setOnEditCommit { event ->
+                    linkedOrders[event.tablePosition.row].setLinkId(event.newValue)
+                }
+            }
+
+            linkedLinkTypeColumn.apply {
+                cellValueFactory = PropertyValueFactory<LinkedTableItem, String>("linkType")
+                cellFactory = ComboBoxTableCell.forTableColumn(*XChangeWrapper.OrderLinkType.values()
+                        .map { it.toString() }.toMutableList().toTypedArray())
+                setOnEditCommit { event ->
+                    linkedOrders[event.tablePosition.row].setLinkType(event.newValue)
+                }
             }
         }
     }
@@ -359,8 +394,21 @@ object MainDelegate {
     private val linkedOrders = ArrayList<LinkedTableItem>()
 
     fun onAddLinkedOrderClicked() {
-        linkedOrders.add(LinkedTableItem(100.0, 10, OrderType.LIMIT, 0.0, "fooboo", XChangeWrapper.OrderLinkType.NONE))
+        linkedOrders.add(LinkedTableItem("Buy", 0.0, 0, OrderType.LIMIT, 0.0, "", XChangeWrapper.OrderLinkType.NONE))
         updateLinkedOrders()
+    }
+
+    fun onRemoveLinkedOrderClicked() {
+        linkedOrders.removeAt(controller.linkedOrdersTable.selectionModel.selectedCells.first().row)
+        updateLinkedOrders()
+    }
+
+    fun onExecuteLinkedOrdersClicked() {
+        println(linkedOrders.map {
+            XChangeWrapper.BulkOrder(controller.linkedPair.value.toString().toCurrencyPair().toBitmexSymbol(),
+                    it.getSide(), it.getAmount(), it.getPrice(), null, it.getLinkId(),
+                    XChangeWrapper.OrderLinkType.valueOf(it.getLinkType()))
+        })
     }
 }
 

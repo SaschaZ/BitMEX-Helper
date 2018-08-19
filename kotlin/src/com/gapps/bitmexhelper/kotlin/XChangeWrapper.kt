@@ -300,8 +300,9 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                          val side: String?,
                          var orderQuantity: Int,
                          val price: Double,
-                         val clOrId: String?,
-                         val executionInstructions: String?)
+                         val executionInstructions: String? = null,
+                         val clOrId: String? = null,
+                         val linkedType: OrderLinkType? = null)
 
     fun createBulkOrders(amount: Double, distribution: BulkDistribution, distributionParameter: Double,
                          minimumAmount: Double, postOnly: Boolean, reduceOnly: Boolean, priceLow: Double, priceHigh: Double,

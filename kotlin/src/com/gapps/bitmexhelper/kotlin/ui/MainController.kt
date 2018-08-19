@@ -46,7 +46,11 @@ class MainController {
     internal lateinit var progress: ProgressIndicator
 
     @FXML
+    internal lateinit var linkedPair: ComboBox<*>
+    @FXML
     internal lateinit var linkedOrdersTable: TableView<*>
+    @FXML
+    internal lateinit var linkedSideColumn: TableColumn<MainDelegate.LinkedTableItem, String>
     @FXML
     internal lateinit var linkedPriceColumn: TableColumn<MainDelegate.LinkedTableItem, Double>
     @FXML
@@ -86,5 +90,15 @@ class MainController {
     @FXML
     private fun onAddLinkedOrderClicked() {
         MainDelegate.onAddLinkedOrderClicked()
+    }
+
+    @FXML
+    private fun onRemoveLinkedOrderClicked() {
+        MainDelegate.onRemoveLinkedOrderClicked()
+    }
+
+    @FXML
+    private fun onExecuteLinkedOrdersClicked() {
+        MainDelegate.onExecuteLinkedOrdersClicked()
     }
 }
