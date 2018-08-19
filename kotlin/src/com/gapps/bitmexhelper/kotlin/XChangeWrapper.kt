@@ -224,18 +224,18 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
         DIV_AMOUNT
     }
 
-    suspend fun placeBulkOrders(pair: CurrencyPair,
-                                side: Order.OrderType,
-                                type: OrderType,
-                                amount: Double,
-                                minimumAmount: Double,
-                                priceLow: Double,
-                                priceHigh: Double,
-                                distribution: BulkDistribution,
-                                distributionParameter: Double,
-                                postOnly: Boolean,
-                                reduceOnly: Boolean,
-                                reversed: Boolean): List<Order>? {
+    fun placeBulkOrders(pair: CurrencyPair,
+                        side: Order.OrderType,
+                        type: OrderType,
+                        amount: Double,
+                        minimumAmount: Double,
+                        priceLow: Double,
+                        priceHigh: Double,
+                        distribution: BulkDistribution,
+                        distributionParameter: Double,
+                        postOnly: Boolean,
+                        reduceOnly: Boolean,
+                        reversed: Boolean): List<Order>? {
         return when (exchange) {
             is BitmexExchange -> {
                 val orders = createBulkOrders(amount, distribution, distributionParameter, minimumAmount,
@@ -313,41 +313,41 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                     "($amount >= $minimumAmount)")
 
         val maxOrderCount = 100
-        var lastAmount = 0
-        var totalAmount = 0
+        var lastAmount = 0.0
+        var totalAmount = 0.0
 
         return (0 until maxOrderCount).map loop@{
             if (totalAmount >= amount) return@loop 0
             when (distribution) {
                 FLAT -> {
-                    lastAmount = max(amount / maxOrderCount, minimumAmount).toInt()
+                    lastAmount = max(amount / maxOrderCount, minimumAmount)
                     if (totalAmount + lastAmount > amount)
                         0
                     else {
                         totalAmount += lastAmount
-                        lastAmount
+                        lastAmount.toInt()
                     }
                 }
                 DIV_AMOUNT -> {
-                    lastAmount = ((if (totalAmount == 0) amount.toInt() else lastAmount) / distributionParameter).toInt()
+                    lastAmount = (if (totalAmount == 0.0) amount else lastAmount) / distributionParameter
                     if (totalAmount + lastAmount > amount || lastAmount < minimumAmount)
                         0
                     else {
                         totalAmount += lastAmount
-                        lastAmount
+                        lastAmount.toInt()
                     }
                 }
                 MULT_MIN -> {
-                    lastAmount = max(minimumAmount, lastAmount * distributionParameter).toInt()
+                    lastAmount = max(minimumAmount, lastAmount * distributionParameter)
                     if (totalAmount + lastAmount > amount)
                         0
                     else {
                         totalAmount += lastAmount
-                        lastAmount
+                        lastAmount.toInt()
                     }
                 }
             }
-        }.filter { it > 0 && it != Integer.MAX_VALUE }
+        }.filter { it > 0 }
     }
 
     private fun createBitmexExecInstructions(postOnly: Boolean, reduceOnly: Boolean): ArrayList<String> {
