@@ -8,6 +8,7 @@ import com.gapps.bitmexhelper.kotlin.XChangeWrapper.OrderType
 import com.gapps.bitmexhelper.kotlin.persistance.Constants
 import com.gapps.bitmexhelper.kotlin.persistance.Settings
 import com.gapps.bitmexhelper.kotlin.persistance.Settings.Companion.settings
+import com.gapps.bitmexhelper.kotlin.roundToMinimumStep
 import com.gapps.bitmexhelper.kotlin.toCurrencyPair
 import javafx.application.Platform
 import javafx.beans.property.SimpleDoubleProperty
@@ -46,7 +47,7 @@ object MainDelegate {
             exchange = XChangeWrapper(BitmexExchange::class, Settings.getBitmexApiKey(), Settings.getBitmexApiSecret()).also {
                 tickers = it.getTickers()
                 Platform.runLater {
-                    configureSpinnerParameters(controller.pair.value.toString().toCurrencyPair())
+                    configureSpinnerParameters(controller.pair.value.toString().toCurrencyPair(), true)
                     controller.changeInExecutionMode(false)
                 }
             }
@@ -88,7 +89,7 @@ object MainDelegate {
             }
             distribution.apply {
                 items = FXCollections.observableArrayList(Constants.distributions)
-                value = items[Constants.distributions.indexOf(settings.lastDistributionType)]
+                value = items[Constants.distributions.indexOf(settings.lastMode)]
                 setOnAction { updateView() }
             }
             parameter.apply {
@@ -114,15 +115,18 @@ object MainDelegate {
         updateView()
     }
 
-    private fun configureSpinnerParameters(pair: CurrencyPair) {
+    private fun configureSpinnerParameters(pair: CurrencyPair, useSettingsAsInitial: Boolean = false) {
         val minStep = Constants.minimumPriceSteps[pair] ?: 0.00000001
         controller.apply {
             val lastTicker = tickers?.get(pair)?.last?.toDouble()
             highPirce.valueFactory = CustomSpinnerValueFactory(minStep, 10000000.0,
-                    lastTicker?.let { it + 10 * minStep } ?: minStep, minStep)
+                    if (useSettingsAsInitial && settings.lastHighPrice > 0.0) settings.lastHighPrice
+                    else lastTicker?.let { it + 10 * minStep } ?: minStep, minStep)
             lowPrice.valueFactory = CustomSpinnerValueFactory(minStep, 10000000.0,
-                    lastTicker?.let { it - 10 * minStep } ?: minStep, minStep)
+                    if (useSettingsAsInitial && settings.lastLowPrice > 0.0) settings.lastLowPrice
+                    else lastTicker?.let { it - 10 * minStep } ?: minStep, minStep)
         }
+        updateView()
     }
 
     private fun updateView() {
@@ -165,11 +169,11 @@ object MainDelegate {
         val averagePrice = orders.sumByDouble { it.price * it.orderQuantity / sum }
 
         controller.stats.text = " total bulk order amount: " + sum + "\n" +
-                " average price: " + String.format("%.1f", averagePrice) + "\n" +
-                " order count: " + orders.size + "\n" +
-                " min. order amount: " + orders.minBy { it.orderQuantity }?.orderQuantity + "\n" +
-                " average order amount: " + String.format("%.1f", sum.toDouble() / orders.size) + "\n" +
-                " max. order amount: " + orders.maxBy { it.orderQuantity }?.orderQuantity + "\n"
+                " average price: ${averagePrice.roundToMinimumStep(controller.pair.value.toString().toCurrencyPair())}\n" +
+                " order count: ${orders.size}\n" +
+                " min. order amount: ${orders.minBy { it.orderQuantity }?.orderQuantity}\n" +
+                " average order amount: ${String.format("%.1f", sum.toDouble() / orders.size)}\n" +
+                " max. order amount: ${orders.maxBy { it.orderQuantity }?.orderQuantity}\n"
     }
 
     internal fun onExecuteClicked() {
@@ -204,7 +208,7 @@ object MainDelegate {
                 lastAmount = (amount.value as Double).toInt()
                 lastOrderType = orderType.value.toString()
                 lastSide = side.value.toString()
-                lastDistributionType = distribution.value.toString()
+                lastMode = distribution.value.toString()
                 lastDistributionParameter = parameter.value as Double
                 lastMinAmount = (minAmount.value as Double).toInt()
                 lastReversed = reversed.isSelected

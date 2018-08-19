@@ -27,6 +27,8 @@ import org.knowm.xchange.dto.marketdata.Ticker
 import org.knowm.xchange.dto.trade.LimitOrder
 import org.knowm.xchange.dto.trade.MarketOrder
 import org.knowm.xchange.dto.trade.StopOrder
+import java.math.BigDecimal
+import java.math.MathContext
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -299,7 +301,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
         amounts = if (reversed) amounts.reversed() else amounts
         val execInstructions = createBitmexExecInstructions(postOnly, reduceOnly)
         val orders = amounts.mapIndexed { orderIndex, amountForOrder ->
-            val priceForOrder = (priceLow + (priceHigh - priceLow) / (amounts.size - 1) * orderIndex).roundTo50Cent()
+            val priceForOrder = (priceLow + (priceHigh - priceLow) / (amounts.size - 1) * orderIndex).roundToMinimumStep(pair)
 
             BulkOrder(pair.toBitmexSymbol(), side.getSide().capitalized,
                     amountForOrder, priceForOrder, null, execInstructions.joinToString(","))
@@ -380,6 +382,9 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
     }
 }
 
+fun Double.roundToMinimumStep(pair: CurrencyPair) =
+        BigDecimal(this - this % Constants.minimumPriceSteps[pair]!!).round(MathContext(8)).toDouble()
+
 fun String.toCurrencyPair(): CurrencyPair {
     val counterStartIndex = length - when {
         endsWith("USDT", true) -> 4
@@ -396,10 +401,6 @@ fun String.toCurrencyPair(): CurrencyPair {
 }
 
 internal fun CurrencyPair.toBitmexSymbol() = "${base.currencyCode}${counter.currencyCode}"
-
-internal fun Double.roundTo50Cent(): Double {
-    return (toInt() + ((this + 0.5).toInt())) / 2.0
-}
 
 internal fun Order.OrderType.getSide() = when (this) {
     BID -> BitmexSide.BUY

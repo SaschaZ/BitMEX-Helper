@@ -8,6 +8,7 @@ object Constants {
 
     const val settingsFilename = "bhSettings.json"
 
+    // TODO get available pairs and their minimum steps from exchange
     val pairs = listOf(
             "XBT/USD",
             "ETH/USD",
