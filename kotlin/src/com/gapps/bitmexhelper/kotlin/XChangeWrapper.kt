@@ -361,7 +361,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                     }
                 }
             }
-        }.filter { it > 0 }
+        }.filter { it > 0 && it < Integer.MAX_VALUE }
     }
 
     private fun createBitmexExecInstructions(postOnly: Boolean, reduceOnly: Boolean): ArrayList<String> {
