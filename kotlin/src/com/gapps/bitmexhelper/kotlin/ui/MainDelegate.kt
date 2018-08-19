@@ -14,6 +14,7 @@ import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.collections.FXCollections
 import javafx.scene.control.CustomSpinnerValueFactory
+import javafx.scene.control.Spinner
 import javafx.scene.control.TableView
 import javafx.scene.control.cell.PropertyValueFactory
 import kotlinx.coroutines.experimental.async
@@ -63,17 +64,17 @@ object MainDelegate {
             highPirce.apply {
                 valueFactory.value = settings.lastHighPrice
                 valueProperty().addListener { _, _, _ -> updateView() }
-                editor.textProperty().addListener { _, _, new -> valueFactory.value = new.replace(",", ".").toDouble() }
+                enableBetterListener()
             }
             lowPrice.apply {
                 valueFactory.value = settings.lastLowPrice
                 valueProperty().addListener { _, _, _ -> updateView() }
-                editor.textProperty().addListener { _, _, new -> valueFactory.value = new.replace(",", ".").toDouble() }
+                enableBetterListener()
             }
             amount.apply {
                 valueFactory.value = settings.lastAmount.toDouble()
                 valueProperty().addListener { _, _, _ -> updateView() }
-                editor.textProperty().addListener { _, _, new -> valueFactory.value = new.replace(",", ".").toDouble() }
+                enableBetterListener()
             }
             orderType.apply {
                 items = FXCollections.observableArrayList(Constants.orderTypes)
@@ -93,12 +94,12 @@ object MainDelegate {
             parameter.apply {
                 valueFactory.value = settings.lastDistributionParameter
                 valueProperty().addListener { _, _, _ -> updateView() }
-                editor.textProperty().addListener { _, _, new -> valueFactory.value = new.replace(",", ".").toDouble() }
+                enableBetterListener()
             }
             minAmount.apply {
                 valueFactory.value = settings.lastMinAmount.toDouble()
                 valueProperty().addListener { _, _, _ -> updateView() }
-                editor.textProperty().addListener { _, _, new -> valueFactory.value = new.replace(",", ".").toDouble() }
+                enableBetterListener()
             }
             reversed.isSelected = settings.lastReversed
             reversed.setOnAction { updateView() }
@@ -234,4 +235,12 @@ object MainDelegate {
     }
 
     fun onSettingsClicked() = AppDelegate.openSettings()
+}
+
+
+fun Spinner<Double>.enableBetterListener() {
+    editor.textProperty().addListener { _, _, new ->
+        if (new.isNotBlank())
+            valueFactory.value = new.replace(",", ".").toDouble()
+    }
 }

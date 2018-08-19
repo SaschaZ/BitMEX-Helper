@@ -287,7 +287,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
 
     data class BulkOrder(val symbol: String,
                          val side: String?,
-                         val orderQuantity: Int,
+                         var orderQuantity: Int,
                          val price: Double,
                          val clOrId: String?,
                          val executionInstructions: String?)
@@ -298,12 +298,23 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
         var amounts = getBulkAmounts(amount, distribution, distributionParameter, minimumAmount)
         amounts = if (reversed) amounts.reversed() else amounts
         val execInstructions = createBitmexExecInstructions(postOnly, reduceOnly)
-        return amounts.mapIndexed { orderIndex, amountForOrder ->
+        val orders = amounts.mapIndexed { orderIndex, amountForOrder ->
             val priceForOrder = (priceLow + (priceHigh - priceLow) / (amounts.size - 1) * orderIndex).roundTo50Cent()
 
             BulkOrder(pair.toBitmexSymbol(), side.getSide().capitalized,
                     amountForOrder, priceForOrder, null, execInstructions.joinToString(","))
+        }.toMutableList()
+
+        val distinctOrders = ArrayList<BulkOrder>()
+        orders.forEach { order ->
+            distinctOrders.lastOrNull()?.let { last ->
+                if (last.price == order.price)
+                    last.orderQuantity += order.orderQuantity
+                else
+                    distinctOrders.add(order)
+            } ?: distinctOrders.add(order)
         }
+        return distinctOrders
     }
 
     private fun getBulkAmounts(amount: Double,
@@ -311,8 +322,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                                distributionParameter: Double,
                                minimumAmount: Double): List<Int> {
         if (amount < minimumAmount)
-            throw IllegalArgumentException("Amount has to be at least the same as minimum amount " +
-                    "($amount >= $minimumAmount)")
+            return emptyList()
 
         val maxOrderCount = 100
         var lastAmount = 0.0

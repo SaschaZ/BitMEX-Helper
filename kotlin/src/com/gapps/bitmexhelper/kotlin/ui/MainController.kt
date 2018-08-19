@@ -13,9 +13,9 @@ class MainController {
     @FXML
     internal lateinit var pair: ComboBox<*>
     @FXML
-    internal lateinit var highPirce: Spinner<*>
+    internal lateinit var highPirce: Spinner<Double>
     @FXML
-    internal lateinit var lowPrice: Spinner<*>
+    internal lateinit var lowPrice: Spinner<Double>
     @FXML
     internal lateinit var amount: Spinner<Double>
     @FXML
@@ -25,9 +25,9 @@ class MainController {
     @FXML
     internal lateinit var distribution: ComboBox<*>
     @FXML
-    internal lateinit var parameter: Spinner<*>
+    internal lateinit var parameter: Spinner<Double>
     @FXML
-    internal lateinit var minAmount: Spinner<*>
+    internal lateinit var minAmount: Spinner<Double>
     @FXML
     internal lateinit var reversed: CheckBox
     @FXML
