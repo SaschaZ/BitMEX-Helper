@@ -14,6 +14,7 @@ import javafx.application.Platform
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.collections.FXCollections
+import javafx.scene.control.ComboBox
 import javafx.scene.control.CustomSpinnerValueFactory
 import javafx.scene.control.Spinner
 import javafx.scene.control.TableView
@@ -66,41 +67,49 @@ object MainDelegate {
                 valueFactory.value = settings.lastHighPrice
                 valueProperty().addListener { _, _, _ -> updateView() }
                 enableBetterListener()
+                enableValueChangeOnScroll()
             }
             lowPrice.apply {
                 valueFactory.value = settings.lastLowPrice
                 valueProperty().addListener { _, _, _ -> updateView() }
                 enableBetterListener()
+                enableValueChangeOnScroll()
             }
             amount.apply {
                 valueFactory.value = settings.lastAmount.toDouble()
                 valueProperty().addListener { _, _, _ -> updateView() }
                 enableBetterListener()
+                enableValueChangeOnScroll()
             }
             orderType.apply {
                 items = FXCollections.observableArrayList(Constants.orderTypes)
                 value = items[Constants.orderTypes.indexOf(settings.lastOrderType)]
                 setOnAction { updateView() }
+                enableValueChangeOnScroll()
             }
             side.apply {
                 items = FXCollections.observableArrayList(Constants.sides)
                 value = items[Constants.sides.indexOf(settings.lastSide)]
                 setOnAction { updateView() }
+                enableValueChangeOnScroll()
             }
             distribution.apply {
                 items = FXCollections.observableArrayList(Constants.distributions)
                 value = items[Constants.distributions.indexOf(settings.lastMode)]
                 setOnAction { updateView() }
+                enableValueChangeOnScroll()
             }
             parameter.apply {
                 valueFactory.value = settings.lastDistributionParameter
                 valueProperty().addListener { _, _, _ -> updateView() }
                 enableBetterListener()
+                enableValueChangeOnScroll()
             }
             minAmount.apply {
                 valueFactory.value = settings.lastMinAmount.toDouble()
                 valueProperty().addListener { _, _, _ -> updateView() }
                 enableBetterListener()
+                enableValueChangeOnScroll()
             }
             reversed.isSelected = settings.lastReversed
             reversed.setOnAction { updateView() }
@@ -251,5 +260,32 @@ fun Spinner<Double>.enableBetterListener() {
     editor.textProperty().addListener { _, _, new ->
         if (new.isNotBlank())
             valueFactory.value = new.replace(",", ".").toDouble()
+    }
+}
+
+fun Spinner<Double>.enableValueChangeOnScroll() {
+    setOnScroll { event ->
+        if (event.deltaY > 0)
+            increment()
+        else if (event.deltaY < 0)
+            decrement()
+    }
+}
+
+fun ComboBox<*>.enableValueChangeOnScroll() {
+    setOnScroll { event ->
+        if (event.deltaY > 0) {
+            val index = items.indexOf(value)
+            value = if (index - 1 >= 0)
+                items[index - 1]
+            else
+                items[items.size - 1]
+        } else if (event.deltaY < 0) {
+            val index = items.indexOf(value)
+            value = if (index + 1 < items.size)
+                items[index + 1]
+            else
+                items[0]
+        }
     }
 }
