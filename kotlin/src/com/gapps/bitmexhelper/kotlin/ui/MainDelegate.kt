@@ -399,7 +399,8 @@ object MainDelegate {
     }
 
     fun onRemoveLinkedOrderClicked() {
-        linkedOrders.removeAt(controller.linkedOrdersTable.selectionModel.selectedCells.first().row)
+        val row = controller.linkedOrdersTable.selectionModel.selectedCells.firstOrNull()?.row ?: linkedOrders.lastIndex
+        linkedOrders.removeAt(row)
         updateLinkedOrders()
     }
 
