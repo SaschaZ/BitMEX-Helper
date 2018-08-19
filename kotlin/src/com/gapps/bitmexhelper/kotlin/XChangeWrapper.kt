@@ -327,37 +327,37 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
             return emptyList()
 
         val maxOrderCount = 100
-        var lastAmount = 0.0
-        var totalAmount = 0.0
+        var lastAmount = 0
+        var totalAmount = 0
 
         return (0 until maxOrderCount).map loop@{
             if (totalAmount >= amount) return@loop 0
             when (distribution) {
                 FLAT -> {
-                    lastAmount = max(amount / maxOrderCount, minimumAmount)
+                    lastAmount = max(amount / maxOrderCount, minimumAmount).toInt()
                     if (totalAmount + lastAmount > amount)
                         0
                     else {
                         totalAmount += lastAmount
-                        lastAmount.toInt()
+                        lastAmount
                     }
                 }
                 DIV_AMOUNT -> {
-                    lastAmount = (if (totalAmount == 0.0) amount else lastAmount) / distributionParameter
+                    lastAmount = ((if (totalAmount == 0) amount.toInt() else lastAmount) / distributionParameter).toInt()
                     if (totalAmount + lastAmount > amount || lastAmount < minimumAmount)
                         0
                     else {
                         totalAmount += lastAmount
-                        lastAmount.toInt()
+                        lastAmount
                     }
                 }
                 MULT_MIN -> {
-                    lastAmount = max(minimumAmount, lastAmount * distributionParameter)
+                    lastAmount = max(minimumAmount, lastAmount * distributionParameter).toInt()
                     if (totalAmount + lastAmount > amount)
                         0
                     else {
                         totalAmount += lastAmount
-                        lastAmount.toInt()
+                        lastAmount
                     }
                 }
             }
