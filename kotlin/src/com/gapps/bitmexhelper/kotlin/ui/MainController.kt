@@ -8,8 +8,6 @@ import javafx.scene.control.*
 
 class MainController {
 
-    private val delegate = MainDelegate
-
     @FXML
     internal lateinit var pair: ComboBox<*>
     @FXML
@@ -47,6 +45,21 @@ class MainController {
     @FXML
     internal lateinit var progress: ProgressIndicator
 
+    @FXML
+    internal lateinit var linkedOrdersTable: TableView<*>
+    @FXML
+    internal lateinit var linkedPriceColumn: TableColumn<MainDelegate.LinkedTableItem, Double>
+    @FXML
+    internal lateinit var linkedAmountColumn: TableColumn<MainDelegate.LinkedTableItem, Int>
+    @FXML
+    internal lateinit var linkedOrderTypeColumn: TableColumn<MainDelegate.LinkedTableItem, String>
+    @FXML
+    internal lateinit var linkedOrderTypeParameterColumn: TableColumn<MainDelegate.LinkedTableItem, Double>
+    @FXML
+    internal lateinit var linkedLinkIdColumn: TableColumn<MainDelegate.LinkedTableItem, String>
+    @FXML
+    internal lateinit var linkedLinkTypeColumn: TableColumn<MainDelegate.LinkedTableItem, String>
+
     init {
         MainDelegate.onControllerAvailable(this)
     }
@@ -68,5 +81,10 @@ class MainController {
     internal fun changeInExecutionMode(show: Boolean) {
         progress.isVisible = show
         execute.isDisable = show
+    }
+
+    @FXML
+    private fun onAddLinkedOrderClicked() {
+        MainDelegate.onAddLinkedOrderClicked()
     }
 }

@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
-
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="532.0" prefWidth="607.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gapps.bitmexhelper.kotlin.ui.MainController">
     <children>
         <MenuBar VBox.vgrow="NEVER">
@@ -105,7 +101,25 @@
           </Tab>
           <Tab text="Linked">
             <content>
-              <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" />
+              <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity">
+                     <children>
+                        <FlowPane prefHeight="200.0" prefWidth="200.0">
+                           <children>
+                              <Button mnemonicParsing="false" onAction="#onAddLinkedOrderClicked" text="+" />
+                              <TableView fx:id="linkedOrdersTable" editable="true" prefHeight="363.0" prefWidth="607.0">
+                                <columns>
+                                  <TableColumn fx:id="linkedPriceColumn" prefWidth="91.0" text="Price" />
+                                  <TableColumn fx:id="linkedAmountColumn" prefWidth="85.0" text="Amount" />
+                                    <TableColumn fx:id="linkedOrderTypeColumn" prefWidth="98.0" text="Type" />
+                                    <TableColumn fx:id="linkedOrderTypeParameterColumn" prefWidth="134.0" text="Type Parameter" />
+                                    <TableColumn fx:id="linkedLinkIdColumn" prefWidth="111.0" text="Link ID" />
+                                    <TableColumn fx:id="linkedLinkTypeColumn" prefWidth="82.0" text="Link Type" />
+                                </columns>
+                              </TableView>
+                           </children>
+                        </FlowPane>
+                     </children>
+                  </AnchorPane>
             </content>
           </Tab>
         </tabs>

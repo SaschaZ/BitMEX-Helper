@@ -221,6 +221,14 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
         STOP_LIMIT
     }
 
+    enum class OrderLinkType {
+
+        OCO,
+        OTO,
+        OUOA,
+        OUOP
+    }
+
     enum class BulkDistribution {
 
         FLAT,
