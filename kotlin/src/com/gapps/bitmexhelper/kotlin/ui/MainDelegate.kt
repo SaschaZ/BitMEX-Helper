@@ -62,6 +62,7 @@ object MainDelegate {
                     configureSpinnerParameters(pair.value.toString().toCurrencyPair())
                     updateView()
                 }
+                enableValueChangeOnScroll()
             }
             highPirce.apply {
                 valueFactory.value = settings.lastHighPrice
