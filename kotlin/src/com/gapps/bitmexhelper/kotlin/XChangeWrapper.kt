@@ -144,7 +144,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
 
             (exchange.tradeService as BitmexTradeServiceRaw).placeLimitOrder(pair.toBitmexSymbol(),
                     amount.toBigDecimal(), price.toBigDecimal(), type.getSide(), null,
-                    execInstructions.joinToString(",")).id
+                    execInstructions.joinToString(","), null, null).id
         }
         else -> {
             exchange.tradeService.placeLimitOrder(LimitOrder.Builder(type, pair)
@@ -204,7 +204,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
 
             (exchange.tradeService as BitmexTradeServiceRaw).placeStopOrder(pair.toBitmexSymbol(),
                     type.getSide(), amount.toBigDecimal(), stopPrice.toBigDecimal(),
-                    execInstructions.joinToString(","), null).id
+                    execInstructions.joinToString(","), null, null, null).id
         }
         else -> {
             exchange.tradeService.placeStopOrder(StopOrder.Builder(type, pair)
@@ -227,7 +227,15 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
         OTO,
         OUOA,
         OUOP,
-        NONE
+        NONE;
+
+        fun toParameter() = when(this) {
+            XChangeWrapper.OrderLinkType.OCO -> "OneCancelsTheOther"
+            XChangeWrapper.OrderLinkType.OTO -> "OneTriggersTheOther"
+            XChangeWrapper.OrderLinkType.OUOA -> "OneUpdatesTheOtherAbsolute"
+            XChangeWrapper.OrderLinkType.OUOP -> "OneUpdatesTheOtherProportional"
+            XChangeWrapper.OrderLinkType.NONE -> ""
+        }
     }
 
     enum class BulkDistribution {
@@ -270,7 +278,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                         LIMIT -> "Limit"
                         STOP -> "Stop"
                         else -> "StopLimit"
-                    }, it.clOrId, it.executionInstructions)
+                    }, it.clOrId, it.executionInstructions, it.clOrdLinkID, it.linkedType?.toParameter())
                 }).map {
                     LimitOrder.Builder(side, pair)
                             .limitPrice(it.price)
@@ -302,6 +310,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                          val price: Double,
                          val executionInstructions: String? = null,
                          val clOrId: String? = null,
+                         val clOrdLinkID: String? = null,
                          val linkedType: OrderLinkType? = null)
 
     fun createBulkOrders(amount: Double, distribution: BulkDistribution, distributionParameter: Double,

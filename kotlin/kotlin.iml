@@ -10,11 +10,23 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="KotlinJavaRuntime" level="project" />
     <orderEntry type="library" name="org.knowm.xchange:xchange-core:4.3.9" level="project" />
-    <orderEntry type="library" name="org.knowm.xchange:xchange-bitmex:4.3.9" level="project" />
     <orderEntry type="library" name="org.slf4j:slf4j-simple:1.7.25" level="project" />
     <orderEntry type="library" name="org.jetbrains.kotlinx:kotlinx-coroutines-core:0.24.0" level="project" />
     <orderEntry type="library" name="com.google.code.gson:gson:2.8.5" level="project" />
     <orderEntry type="library" scope="TEST" name="junit:junit:4.12" level="project" />
     <orderEntry type="module" module-name="utils" />
+    <orderEntry type="module-library">
+      <library name="Bitmex">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../libs/xchange-bitmex-4.3.10-SNAPSHOT.jar!/" />
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://$MODULE_DIR$/../libs/xchange-bitmex-4.3.10-SNAPSHOT-javadoc.jar!/" />
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/../libs/xchange-bitmex-4.3.10-SNAPSHOT-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
   </component>
 </module>

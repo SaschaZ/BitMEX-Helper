@@ -406,7 +406,7 @@ object MainDelegate {
     fun onExecuteLinkedOrdersClicked() {
         println(linkedOrders.map {
             XChangeWrapper.BulkOrder(controller.linkedPair.value.toString().toCurrencyPair().toBitmexSymbol(),
-                    it.getSide(), it.getAmount(), it.getPrice(), null, it.getLinkId(),
+                    it.getSide(), it.getAmount(), it.getPrice(), null, null, it.getLinkId(),
                     XChangeWrapper.OrderLinkType.valueOf(it.getLinkType()))
         })
     }
