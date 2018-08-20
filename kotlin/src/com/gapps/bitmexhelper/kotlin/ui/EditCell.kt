@@ -3,7 +3,7 @@ package com.gapps.bitmexhelper.kotlin.ui
 import javafx.event.Event
 import javafx.scene.control.*
 import javafx.scene.control.TableColumn.CellEditEvent
-import javafx.scene.input.KeyCode
+import javafx.scene.input.KeyCode.*
 import javafx.scene.input.KeyEvent
 import javafx.util.StringConverter
 
@@ -17,7 +17,7 @@ class EditCell<S, T>(// Converter for converting the text in the text field to t
 
     init {
 
-        itemProperty().addListener { obx, oldItem, newItem ->
+        itemProperty().addListener { _, _, newItem ->
             if (newItem == null) {
                 setText(null)
             } else {
@@ -27,29 +27,35 @@ class EditCell<S, T>(// Converter for converting the text in the text field to t
         graphic = textField
         contentDisplay = ContentDisplay.TEXT_ONLY
 
-        textField.setOnAction { evt -> commitEdit(this.converter.fromString(textField.text)) }
-        textField.focusedProperty().addListener { obs, wasFocused, isNowFocused ->
+        textField.setOnAction { _ -> commitEdit(this.converter.fromString(textField.text)) }
+        textField.focusedProperty().addListener { _, _, isNowFocused ->
             if (!isNowFocused) {
                 commitEdit(this.converter.fromString(textField.text))
             }
         }
         textField.addEventFilter(KeyEvent.KEY_PRESSED) { event ->
-            if (event.code == KeyCode.ESCAPE) {
-                textField.text = converter.toString(item)
-                cancelEdit()
-                event.consume()
-            } else if (event.code == KeyCode.RIGHT) {
-                tableView.selectionModel.selectRightCell()
-                event.consume()
-            } else if (event.code == KeyCode.LEFT) {
-                tableView.selectionModel.selectLeftCell()
-                event.consume()
-            } else if (event.code == KeyCode.UP) {
-                tableView.selectionModel.selectAboveCell()
-                event.consume()
-            } else if (event.code == KeyCode.DOWN) {
-                tableView.selectionModel.selectBelowCell()
-                event.consume()
+            when {
+                event.code == ESCAPE -> {
+                    textField.text = converter.toString(item)
+                    cancelEdit()
+                    event.consume()
+                }
+                event.code == RIGHT -> {
+                    tableView.selectionModel.selectRightCell()
+                    event.consume()
+                }
+                event.code == LEFT -> {
+                    tableView.selectionModel.selectLeftCell()
+                    event.consume()
+                }
+                event.code == UP -> {
+                    tableView.selectionModel.selectAboveCell()
+                    event.consume()
+                }
+                event.code == DOWN -> {
+                    tableView.selectionModel.selectBelowCell()
+                    event.consume()
+                }
             }
         }
     }
@@ -96,7 +102,7 @@ class EditCell<S, T>(// Converter for converting the text in the text field to t
         /**
          * Convenience converter that does nothing (converts Strings to themselves and vice-versa...).
          */
-        val IDENTITY_CONVERTER: StringConverter<String> = object : StringConverter<String>() {
+        private val IDENTITY_CONVERTER: StringConverter<String> = object : StringConverter<String>() {
 
             override fun toString(`object`: String): String {
                 return `object`
@@ -112,6 +118,7 @@ class EditCell<S, T>(// Converter for converting the text in the text field to t
          * Convenience method for creating an EditCell for a String value.
          * @return
          */
+        @Suppress("unused")
         fun <S> createStringEditCell(): EditCell<S, String> {
             return EditCell(IDENTITY_CONVERTER)
         }

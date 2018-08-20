@@ -28,5 +28,6 @@
         </SOURCES>
       </library>
     </orderEntry>
+    <orderEntry type="library" name="com.google.guava:guava:26.0-jre" level="project" />
   </component>
 </module>
