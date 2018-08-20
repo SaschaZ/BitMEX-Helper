@@ -12,6 +12,7 @@ import com.gapps.utils.toMs
 import org.knowm.xchange.ExchangeFactory
 import org.knowm.xchange.bitmex.Bitmex
 import org.knowm.xchange.bitmex.BitmexExchange
+import org.knowm.xchange.bitmex.BitmexPrompt
 import org.knowm.xchange.bitmex.dto.marketdata.BitmexPrivateOrder
 import org.knowm.xchange.bitmex.dto.trade.BitmexSide
 import org.knowm.xchange.bitmex.service.BitmexMarketDataServiceRaw
@@ -380,6 +381,55 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
             else -> System.err.println("Can not set leverage for exchange ${exchange.javaClass.simpleName}.")
         }
     }
+
+    @Suppress("EnumEntryName")
+    enum class CandleInterval {
+        m1,
+        m3,
+        m5,
+        m10,
+        m15,
+        m30,
+        m45,
+        h1,
+        h2,
+        h3,
+        h4,
+        h6,
+        h8,
+        h12,
+        d1,
+        d2,
+        d3,
+        w1,
+        M1
+    }
+
+    data class Candle(val low: Double, val high: Double, val open: Double, val close: Double, val volume: Double, val timestamp: Long)
+
+    fun getCandles(pair: CurrencyPair, interval: CandleInterval): List<Candle>? {
+        return when (exchange) {
+            is BitmexExchange -> {
+                interval.getBitmexBinSize()?.let { binSize ->
+                    val dateFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH)
+                    (exchange.marketDataService as BitmexMarketDataServiceRaw).getBucketedTrades(binSize,
+                            false, pair, BitmexPrompt.PERPETUAL, 100, false).map {
+                        Candle(it.low.toDouble(), it.high.toDouble(), it.open.toDouble(), it.close.toDouble(), it.volume.toDouble(),
+                                dateFormatter.parse(it.timestamp).time)
+                    }
+                }
+            }
+            else -> null
+        }
+    }
+}
+
+private fun XChangeWrapper.CandleInterval.getBitmexBinSize() = when (this) {
+    XChangeWrapper.CandleInterval.m1 -> "1m"
+    XChangeWrapper.CandleInterval.m5 -> "5m"
+    XChangeWrapper.CandleInterval.h1 -> "1h"
+    XChangeWrapper.CandleInterval.d1 -> "1d"
+    else -> null
 }
 
 fun Double.roundToMinimumStep(pair: CurrencyPair) =
