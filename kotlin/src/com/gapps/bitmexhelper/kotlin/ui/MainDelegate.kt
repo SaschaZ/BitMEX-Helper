@@ -260,7 +260,7 @@ object MainDelegate {
 fun Spinner<Double>.enableBetterListener() {
     editor.textProperty().addListener { _, _, new ->
         if (new.isNotBlank())
-            valueFactory.value = new.replace(",", ".").toDouble()
+            valueFactory.value = new.replace(",", ".").toDouble() // FIX datatype
     }
 }
 
