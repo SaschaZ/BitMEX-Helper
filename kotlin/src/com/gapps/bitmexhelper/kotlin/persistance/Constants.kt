@@ -12,6 +12,7 @@ object Constants {
     val pairs = listOf(
             "XBT/USD",
             "ETH/USD",
+            "ETH/U18",
             "ADA/U18",
             "BCH/U18",
             "EOS/U18",
