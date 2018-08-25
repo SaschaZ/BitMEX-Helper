@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
-
 <VBox maxHeight="488.0" maxWidth="585.0" minHeight="480.0" minWidth="585.0" prefHeight="483.0" prefWidth="585.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gapps.bitmexhelper.kotlin.ui.MainController">
     <children>
         <MenuBar VBox.vgrow="NEVER">
@@ -44,7 +40,7 @@
                         <Label text="Low Price:" GridPane.rowIndex="2" />
                         <Spinner fx:id="lowPrice" amountToStepBy="0.5" editable="true" initialValue="3" max="100000000" min="0.5" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                         <Label text="Amount:" GridPane.rowIndex="3" />
-                        <Spinner fx:id="amount" amountToStepBy="1" editable="true" initialValue="3" max="100000000" min="1" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        <Spinner fx:id="amount" amountToStepBy="1.0" editable="true" initialValue="3" max="100000000" min="1" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                         <Label text="Type:" GridPane.rowIndex="4" />
                         <ComboBox fx:id="orderType" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                         <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Distribution:" GridPane.columnIndex="2" GridPane.rowIndex="1" />

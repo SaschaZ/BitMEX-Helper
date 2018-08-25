@@ -4,7 +4,7 @@ import com.gapps.bitmexhelper.kotlin.toCurrencyPair
 
 object Constants {
 
-    const val title = "BitMEX Helper v1.0.10"
+    const val title = "BitMEX Helper v1.0.11"
 
     const val settingsFilename = "bhSettings.json"
 
@@ -30,12 +30,6 @@ object Constants {
     val sides = listOf(
             "BUY",
             "SELL"
-    )
-
-    val distributions = listOf(
-            "FLAT",
-            "MULT_MIN",
-            "DIV_AMOUNT"
     )
 
     val minimumPriceSteps = mapOf(

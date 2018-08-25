@@ -225,6 +225,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
     enum class BulkDistribution {
 
         FLAT,
+        DCA,
         MULT_MIN,
         DIV_AMOUNT
     }
@@ -333,36 +334,40 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
 
         return (0 until maxOrderCount).map loop@{
             if (totalAmount >= amount) return@loop 0
-            when (distribution) {
+            lastAmount = when (distribution) {
                 FLAT -> {
-                    lastAmount = max(amount / maxOrderCount, minimumAmount).toInt()
-                    if (totalAmount + lastAmount > amount)
-                        0
-                    else {
-                        totalAmount += lastAmount
-                        lastAmount
-                    }
+                    max(amount / maxOrderCount, minimumAmount).toInt()
+                }
+                DCA -> {
+                    max(minimumAmount, totalAmount * distributionParameter).toInt()
                 }
                 DIV_AMOUNT -> {
-                    lastAmount = ((if (totalAmount == 0) amount.toInt() else lastAmount) / distributionParameter).toInt()
-                    if (totalAmount + lastAmount > amount || lastAmount < minimumAmount)
-                        0
-                    else {
-                        totalAmount += lastAmount
-                        lastAmount
-                    }
+                    ((if (totalAmount == 0) amount.toInt() else lastAmount) / distributionParameter).toInt()
                 }
                 MULT_MIN -> {
-                    lastAmount = max(minimumAmount, lastAmount * distributionParameter).toInt()
-                    if (totalAmount + lastAmount > amount)
-                        0
-                    else {
-                        totalAmount += lastAmount
-                        lastAmount
-                    }
+                    max(minimumAmount, lastAmount * distributionParameter).toInt()
+
                 }
             }
-        }.filter { it > 0 && it < Integer.MAX_VALUE }
+            if (totalAmount + lastAmount > amount)
+                0
+            else {
+                totalAmount += lastAmount
+                lastAmount
+            }
+        }.filter { it > 0 && it < Integer.MAX_VALUE }.toMutableList().let { result ->
+            val sum = result.sum()
+            if (sum < amount && result.isNotEmpty()) {
+                val amountToAdd = ((amount - sum) / (result.size * 3)).toInt()
+                result.map { it + amountToAdd }.toMutableList().also { increasedResult ->
+                    val increasedSum = increasedResult.sum()
+                    if (increasedSum < amount) {
+                        increasedResult[increasedResult.lastIndex] += amount.toInt() - increasedSum
+                    }
+                }
+            } else
+                result
+        }
     }
 
     private fun createBitmexExecInstructions(postOnly: Boolean, reduceOnly: Boolean): ArrayList<String> {

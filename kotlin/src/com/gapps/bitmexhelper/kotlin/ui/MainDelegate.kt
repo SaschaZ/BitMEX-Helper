@@ -95,8 +95,9 @@ object MainDelegate {
                 enableValueChangeOnScroll()
             }
             distribution.apply {
-                items = FXCollections.observableArrayList(Constants.distributions)
-                value = items[Constants.distributions.indexOf(settings.lastMode)]
+                val values = XChangeWrapper.BulkDistribution.values().map { it.toString() }
+                items = FXCollections.observableArrayList(values)
+                value = items[values.indexOf(settings.lastMode)]
                 setOnAction { updateView() }
                 enableValueChangeOnScroll()
             }
