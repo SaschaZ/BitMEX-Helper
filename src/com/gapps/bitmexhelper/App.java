@@ -5,12 +5,12 @@ import com.gapps.bitmexhelper.kotlin.ui.AppController;
 import com.gapps.bitmexhelper.kotlin.ui.AppDelegate;
 import com.gapps.bitmexhelper.kotlin.ui.MainDelegate;
 import com.gapps.bitmexhelper.kotlin.ui.SettingsDelegate;
-import com.sun.istack.internal.NotNull;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
