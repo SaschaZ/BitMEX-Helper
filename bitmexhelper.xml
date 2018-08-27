@@ -1,0 +1,571 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="bitmexhelper" default="all">
+  
+  
+  <property file="bitmexhelper.properties"/>
+  <!-- Uncomment the following property if no tests compilation is needed -->
+  <!-- 
+  <property name="skip.tests" value="true"/>
+   -->
+  
+  <!-- Compiler options -->
+  
+  <property name="compiler.debug" value="on"/>
+  <property name="compiler.generate.no.warnings" value="off"/>
+  <property name="compiler.args" value=""/>
+  <property name="compiler.max.memory" value="700m"/>
+  <patternset id="ignored.files">
+    <exclude name="**/*.hprof/**"/>
+    <exclude name="**/*.pyc/**"/>
+    <exclude name="**/*.pyo/**"/>
+    <exclude name="**/*.rbc/**"/>
+    <exclude name="**/*.yarb/**"/>
+    <exclude name="**/*~/**"/>
+    <exclude name="**/.DS_Store/**"/>
+    <exclude name="**/.git/**"/>
+    <exclude name="**/.hg/**"/>
+    <exclude name="**/.svn/**"/>
+    <exclude name="**/CVS/**"/>
+    <exclude name="**/__pycache__/**"/>
+    <exclude name="**/_svn/**"/>
+    <exclude name="**/vssver.scc/**"/>
+    <exclude name="**/vssver2.scc/**"/>
+  </patternset>
+  <patternset id="library.patterns">
+    <include name="*.war"/>
+    <include name="*.swc"/>
+    <include name="*.zip"/>
+    <include name="*.egg"/>
+    <include name="*.ane"/>
+    <include name="*.jar"/>
+    <include name="*.ear"/>
+  </patternset>
+  <patternset id="compiler.resources">
+    <exclude name="**/?*.java"/>
+    <exclude name="**/?*.form"/>
+    <exclude name="**/?*.class"/>
+    <exclude name="**/?*.groovy"/>
+    <exclude name="**/?*.scala"/>
+    <exclude name="**/?*.flex"/>
+    <exclude name="**/?*.kt"/>
+    <exclude name="**/?*.clj"/>
+  </patternset>
+  
+  <!-- JDK definitions -->
+  
+  <property name="jdk.bin.1.8" value="${jdk.home.1.8}/bin"/>
+  <path id="jdk.classpath.1.8">
+    <fileset dir="${jdk.home.1.8}">
+      <include name="jre/lib/charsets.jar"/>
+      <include name="jre/lib/deploy.jar"/>
+      <include name="jre/lib/ext/cldrdata.jar"/>
+      <include name="jre/lib/ext/dnsns.jar"/>
+      <include name="jre/lib/ext/jaccess.jar"/>
+      <include name="jre/lib/ext/jfxrt.jar"/>
+      <include name="jre/lib/ext/localedata.jar"/>
+      <include name="jre/lib/ext/nashorn.jar"/>
+      <include name="jre/lib/ext/sunec.jar"/>
+      <include name="jre/lib/ext/sunjce_provider.jar"/>
+      <include name="jre/lib/ext/sunpkcs11.jar"/>
+      <include name="jre/lib/ext/zipfs.jar"/>
+      <include name="jre/lib/javaws.jar"/>
+      <include name="jre/lib/jce.jar"/>
+      <include name="jre/lib/jfr.jar"/>
+      <include name="jre/lib/jfxswt.jar"/>
+      <include name="jre/lib/jsse.jar"/>
+      <include name="jre/lib/management-agent.jar"/>
+      <include name="jre/lib/plugin.jar"/>
+      <include name="jre/lib/resources.jar"/>
+      <include name="jre/lib/rt.jar"/>
+    </fileset>
+  </path>
+  
+  <property name="project.jdk.home" value="${jdk.home.1.8}"/>
+  <property name="project.jdk.bin" value="${jdk.bin.1.8}"/>
+  <property name="project.jdk.classpath" value="jdk.classpath.1.8"/>
+  
+  
+  <!-- Project Libraries -->
+  
+  <path id="library.apache-codec:commons-codec:1.2.classpath">
+    <pathelement location="${path.variable.maven_repository}/apache-codec/commons-codec/1.2/commons-codec-1.2.jar"/>
+  </path>
+  
+  <path id="library.com.google.code.gson:gson:2.8.5.classpath">
+    <pathelement location="${path.variable.maven_repository}/com/google/code/gson/gson/2.8.5/gson-2.8.5.jar"/>
+  </path>
+  
+  <path id="library.com.google.guava:guava:26.0-jre.classpath">
+    <pathelement location="${path.variable.maven_repository}/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar"/>
+    <pathelement location="${path.variable.maven_repository}/com/google/errorprone/error_prone_annotations/2.1.3/error_prone_annotations-2.1.3.jar"/>
+    <pathelement location="${path.variable.maven_repository}/com/google/guava/guava/26.0-jre/guava-26.0-jre.jar"/>
+    <pathelement location="${path.variable.maven_repository}/com/google/j2objc/j2objc-annotations/1.1/j2objc-annotations-1.1.jar"/>
+    <pathelement location="${path.variable.maven_repository}/org/checkerframework/checker-qual/2.5.2/checker-qual-2.5.2.jar"/>
+    <pathelement location="${path.variable.maven_repository}/org/codehaus/mojo/animal-sniffer-annotations/1.14/animal-sniffer-annotations-1.14.jar"/>
+  </path>
+  
+  <path id="library.junit:junit:4.12.classpath">
+    <pathelement location="${path.variable.maven_repository}/junit/junit/4.12/junit-4.12.jar"/>
+    <pathelement location="${path.variable.maven_repository}/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar"/>
+  </path>
+  
+  <path id="library.kotlinjavaruntime.classpath">
+    <pathelement location="${path.variable.kotlin_bundled}/lib/kotlin-reflect.jar"/>
+    <pathelement location="${path.variable.kotlin_bundled}/lib/kotlin-stdlib-jdk7.jar"/>
+    <pathelement location="${path.variable.kotlin_bundled}/lib/kotlin-stdlib-jdk8.jar"/>
+    <pathelement location="${path.variable.kotlin_bundled}/lib/kotlin-stdlib.jar"/>
+    <pathelement location="${path.variable.kotlin_bundled}/lib/kotlin-test.jar"/>
+  </path>
+  
+  <path id="library.org.jetbrains.kotlinx:kotlinx-coroutines-core:0.24.0.classpath">
+    <pathelement location="${path.variable.maven_repository}/org/jetbrains/annotations/13.0/annotations-13.0.jar"/>
+    <pathelement location="${path.variable.maven_repository}/org/jetbrains/kotlin/kotlin-stdlib-common/1.2.51/kotlin-stdlib-common-1.2.51.jar"/>
+    <pathelement location="${path.variable.maven_repository}/org/jetbrains/kotlin/kotlin-stdlib/1.2.51/kotlin-stdlib-1.2.51.jar"/>
+    <pathelement location="${path.variable.maven_repository}/org/jetbrains/kotlinx/atomicfu-common/0.11.0/atomicfu-common-0.11.0.jar"/>
+    <pathelement location="${path.variable.maven_repository}/org/jetbrains/kotlinx/kotlinx-coroutines-core-common/0.24.0/kotlinx-coroutines-core-common-0.24.0.jar"/>
+    <pathelement location="${path.variable.maven_repository}/org/jetbrains/kotlinx/kotlinx-coroutines-core/0.24.0/kotlinx-coroutines-core-0.24.0.jar"/>
+  </path>
+  
+  <path id="library.org.knowm.xchange:xchange-bitmex:4.3.9.classpath">
+    <pathelement location="${path.variable.maven_repository}/com/fasterxml/jackson/core/jackson-annotations/2.9.0/jackson-annotations-2.9.0.jar"/>
+    <pathelement location="${path.variable.maven_repository}/com/fasterxml/jackson/core/jackson-core/2.9.1/jackson-core-2.9.1.jar"/>
+    <pathelement location="${path.variable.maven_repository}/com/fasterxml/jackson/core/jackson-databind/2.9.1/jackson-databind-2.9.1.jar"/>
+    <pathelement location="${path.variable.maven_repository}/com/github/mmazi/rescu/2.0.2/rescu-2.0.2.jar"/>
+    <pathelement location="${path.variable.maven_repository}/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar"/>
+    <pathelement location="${path.variable.maven_repository}/com/google/errorprone/error_prone_annotations/2.1.3/error_prone_annotations-2.1.3.jar"/>
+    <pathelement location="${path.variable.maven_repository}/com/google/guava/guava/25.1-jre/guava-25.1-jre.jar"/>
+    <pathelement location="${path.variable.maven_repository}/com/google/j2objc/j2objc-annotations/1.1/j2objc-annotations-1.1.jar"/>
+    <pathelement location="${path.variable.maven_repository}/commons-io/commons-io/2.6/commons-io-2.6.jar"/>
+    <pathelement location="${path.variable.maven_repository}/javax/annotation/javax.annotation-api/1.3.2/javax.annotation-api-1.3.2.jar"/>
+    <pathelement location="${path.variable.maven_repository}/javax/ws/rs/javax.ws.rs-api/2.1/javax.ws.rs-api-2.1.jar"/>
+    <pathelement location="${path.variable.maven_repository}/oauth/signpost/signpost-core/1.2.1.2/signpost-core-1.2.1.2.jar"/>
+    <pathelement location="${path.variable.maven_repository}/org/apache/commons/commons-lang3/3.7/commons-lang3-3.7.jar"/>
+    <pathelement location="${path.variable.maven_repository}/org/checkerframework/checker-qual/2.0.0/checker-qual-2.0.0.jar"/>
+    <pathelement location="${path.variable.maven_repository}/org/codehaus/mojo/animal-sniffer-annotations/1.14/animal-sniffer-annotations-1.14.jar"/>
+    <pathelement location="${path.variable.maven_repository}/org/knowm/xchange/xchange-bitmex/4.3.9/xchange-bitmex-4.3.9.jar"/>
+    <pathelement location="${path.variable.maven_repository}/org/knowm/xchange/xchange-core/4.3.9/xchange-core-4.3.9.jar"/>
+    <pathelement location="${path.variable.maven_repository}/org/slf4j/slf4j-api/1.7.25/slf4j-api-1.7.25.jar"/>
+  </path>
+  
+  <path id="library.org.knowm.xchange:xchange-core:4.3.9.classpath">
+    <pathelement location="${path.variable.maven_repository}/com/fasterxml/jackson/core/jackson-annotations/2.9.0/jackson-annotations-2.9.0.jar"/>
+    <pathelement location="${path.variable.maven_repository}/com/fasterxml/jackson/core/jackson-core/2.9.1/jackson-core-2.9.1.jar"/>
+    <pathelement location="${path.variable.maven_repository}/com/fasterxml/jackson/core/jackson-databind/2.9.1/jackson-databind-2.9.1.jar"/>
+    <pathelement location="${path.variable.maven_repository}/com/github/mmazi/rescu/2.0.2/rescu-2.0.2.jar"/>
+    <pathelement location="${path.variable.maven_repository}/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar"/>
+    <pathelement location="${path.variable.maven_repository}/commons-io/commons-io/2.6/commons-io-2.6.jar"/>
+    <pathelement location="${path.variable.maven_repository}/javax/annotation/javax.annotation-api/1.3.2/javax.annotation-api-1.3.2.jar"/>
+    <pathelement location="${path.variable.maven_repository}/javax/ws/rs/javax.ws.rs-api/2.1/javax.ws.rs-api-2.1.jar"/>
+    <pathelement location="${path.variable.maven_repository}/oauth/signpost/signpost-core/1.2.1.2/signpost-core-1.2.1.2.jar"/>
+    <pathelement location="${path.variable.maven_repository}/org/apache/commons/commons-lang3/3.7/commons-lang3-3.7.jar"/>
+    <pathelement location="${path.variable.maven_repository}/org/knowm/xchange/xchange-core/4.3.9/xchange-core-4.3.9.jar"/>
+    <pathelement location="${path.variable.maven_repository}/org/slf4j/slf4j-api/1.7.25/slf4j-api-1.7.25.jar"/>
+  </path>
+  
+  <path id="library.org.slf4j:slf4j-simple:1.7.25.classpath">
+    <pathelement location="${path.variable.maven_repository}/org/slf4j/slf4j-api/1.7.25/slf4j-api-1.7.25.jar"/>
+    <pathelement location="${path.variable.maven_repository}/org/slf4j/slf4j-simple/1.7.25/slf4j-simple-1.7.25.jar"/>
+  </path>
+  <!-- Register Custom Compiler Taskdefs -->
+  <property name="javac2.home" value="${idea.home}/lib"/>
+  <path id="javac2.classpath">
+    <fileset dir="${javac2.home}">
+      <include name="javac2.jar"/>
+      <include name="jdom.jar"/>
+      <include name="asm-all*.jar"/>
+      <include name="forms-*.jar"/>
+    </fileset>
+  </path>
+  <target name="register.custom.compilers">
+    <taskdef name="javac2" classname="com.intellij.ant.Javac2" classpathref="javac2.classpath"/>
+    <taskdef name="instrumentIdeaExtensions" classname="com.intellij.ant.InstrumentIdeaExtensions" classpathref="javac2.classpath"/>
+  </target>
+  
+  <!-- Modules -->
+  
+  
+  <!-- Module utils -->
+  
+  <dirname property="module.utils.basedir" file="${ant.file}"/>
+  
+  
+  <property name="module.jdk.home.utils" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.utils" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.utils" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.utils" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  
+  <property name="utils.output.dir" value="${module.utils.basedir}/out/production/utils"/>
+  <property name="utils.testoutput.dir" value="${module.utils.basedir}/out/test/utils"/>
+  
+  <path id="utils.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="utils.module.production.classpath">
+    <path refid="${module.jdk.classpath.utils}"/>
+    <path refid="library.kotlinjavaruntime.classpath"/>
+    <path refid="library.org.jetbrains.kotlinx:kotlinx-coroutines-core:0.24.0.classpath"/>
+    <path refid="library.apache-codec:commons-codec:1.2.classpath"/>
+  </path>
+  
+  <path id="utils.runtime.production.module.classpath">
+    <pathelement location="${utils.output.dir}"/>
+    <path refid="library.kotlinjavaruntime.classpath"/>
+    <path refid="library.org.jetbrains.kotlinx:kotlinx-coroutines-core:0.24.0.classpath"/>
+    <path refid="library.apache-codec:commons-codec:1.2.classpath"/>
+  </path>
+  
+  <path id="utils.module.classpath">
+    <path refid="${module.jdk.classpath.utils}"/>
+    <pathelement location="${utils.output.dir}"/>
+    <path refid="library.kotlinjavaruntime.classpath"/>
+    <path refid="library.org.jetbrains.kotlinx:kotlinx-coroutines-core:0.24.0.classpath"/>
+    <path refid="library.apache-codec:commons-codec:1.2.classpath"/>
+  </path>
+  
+  <path id="utils.runtime.module.classpath">
+    <pathelement location="${utils.testoutput.dir}"/>
+    <pathelement location="${utils.output.dir}"/>
+    <path refid="library.kotlinjavaruntime.classpath"/>
+    <path refid="library.org.jetbrains.kotlinx:kotlinx-coroutines-core:0.24.0.classpath"/>
+    <path refid="library.apache-codec:commons-codec:1.2.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.utils">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.utils">
+    <patternset refid="excluded.from.module.utils"/>
+  </patternset>
+  
+  <path id="utils.module.sourcepath">
+    <dirset dir="${module.utils.basedir}/utils">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.utils" depends="compile.module.utils.production,compile.module.utils.tests" description="Compile module utils"/>
+  
+  <target name="compile.module.utils.production" depends="register.custom.compilers" description="Compile module utils; production classes">
+    <mkdir dir="${utils.output.dir}"/>
+    <javac2 destdir="${utils.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.utils}/javac">
+      <compilerarg line="${compiler.args.utils}"/>
+      <bootclasspath refid="utils.module.bootclasspath"/>
+      <classpath refid="utils.module.production.classpath"/>
+      <src refid="utils.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.utils"/>
+    </javac2>
+    
+    <copy todir="${utils.output.dir}">
+      <fileset dir="${module.utils.basedir}/utils/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.utils.tests" depends="register.custom.compilers,compile.module.utils.production" description="compile module utils; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.utils" description="cleanup module">
+    <delete dir="${utils.output.dir}"/>
+    <delete dir="${utils.testoutput.dir}"/>
+  </target>
+  
+  
+  <!-- Module kotlin -->
+  
+  <dirname property="module.kotlin.basedir" file="${ant.file}"/>
+  
+  
+  <property name="module.jdk.home.kotlin" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.kotlin" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.kotlin" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.kotlin" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  
+  <property name="kotlin.output.dir" value="${module.kotlin.basedir}/out/production/kotlin"/>
+  <property name="kotlin.testoutput.dir" value="${module.kotlin.basedir}/out/test/kotlin"/>
+  
+  <path id="kotlin.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="kotlin.module.production.classpath">
+    <path refid="${module.jdk.classpath.kotlin}"/>
+    <path refid="library.kotlinjavaruntime.classpath"/>
+    <path refid="library.org.knowm.xchange:xchange-core:4.3.9.classpath"/>
+    <path refid="library.org.knowm.xchange:xchange-bitmex:4.3.9.classpath"/>
+    <path refid="library.org.slf4j:slf4j-simple:1.7.25.classpath"/>
+    <path refid="library.org.jetbrains.kotlinx:kotlinx-coroutines-core:0.24.0.classpath"/>
+    <path refid="library.com.google.code.gson:gson:2.8.5.classpath"/>
+    <pathelement location="${utils.output.dir}"/>
+    <path refid="library.com.google.guava:guava:26.0-jre.classpath"/>
+  </path>
+  
+  <path id="kotlin.runtime.production.module.classpath">
+    <pathelement location="${kotlin.output.dir}"/>
+    <path refid="library.kotlinjavaruntime.classpath"/>
+    <path refid="library.org.knowm.xchange:xchange-core:4.3.9.classpath"/>
+    <path refid="library.org.knowm.xchange:xchange-bitmex:4.3.9.classpath"/>
+    <path refid="library.org.slf4j:slf4j-simple:1.7.25.classpath"/>
+    <path refid="library.org.jetbrains.kotlinx:kotlinx-coroutines-core:0.24.0.classpath"/>
+    <path refid="library.com.google.code.gson:gson:2.8.5.classpath"/>
+    <pathelement location="${utils.output.dir}"/>
+    <path refid="library.apache-codec:commons-codec:1.2.classpath"/>
+    <path refid="library.com.google.guava:guava:26.0-jre.classpath"/>
+  </path>
+  
+  <path id="kotlin.module.classpath">
+    <path refid="${module.jdk.classpath.kotlin}"/>
+    <pathelement location="${kotlin.output.dir}"/>
+    <path refid="library.kotlinjavaruntime.classpath"/>
+    <path refid="library.org.knowm.xchange:xchange-core:4.3.9.classpath"/>
+    <path refid="library.org.knowm.xchange:xchange-bitmex:4.3.9.classpath"/>
+    <path refid="library.org.slf4j:slf4j-simple:1.7.25.classpath"/>
+    <path refid="library.org.jetbrains.kotlinx:kotlinx-coroutines-core:0.24.0.classpath"/>
+    <path refid="library.com.google.code.gson:gson:2.8.5.classpath"/>
+    <path refid="library.junit:junit:4.12.classpath"/>
+    <pathelement location="${utils.testoutput.dir}"/>
+    <pathelement location="${utils.output.dir}"/>
+    <path refid="library.com.google.guava:guava:26.0-jre.classpath"/>
+  </path>
+  
+  <path id="kotlin.runtime.module.classpath">
+    <pathelement location="${kotlin.testoutput.dir}"/>
+    <pathelement location="${kotlin.output.dir}"/>
+    <path refid="library.kotlinjavaruntime.classpath"/>
+    <path refid="library.org.knowm.xchange:xchange-core:4.3.9.classpath"/>
+    <path refid="library.org.knowm.xchange:xchange-bitmex:4.3.9.classpath"/>
+    <path refid="library.org.slf4j:slf4j-simple:1.7.25.classpath"/>
+    <path refid="library.org.jetbrains.kotlinx:kotlinx-coroutines-core:0.24.0.classpath"/>
+    <path refid="library.com.google.code.gson:gson:2.8.5.classpath"/>
+    <path refid="library.junit:junit:4.12.classpath"/>
+    <pathelement location="${utils.testoutput.dir}"/>
+    <pathelement location="${utils.output.dir}"/>
+    <path refid="library.apache-codec:commons-codec:1.2.classpath"/>
+    <path refid="library.com.google.guava:guava:26.0-jre.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.kotlin">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.kotlin">
+    <patternset refid="excluded.from.module.kotlin"/>
+  </patternset>
+  
+  <path id="kotlin.module.sourcepath">
+    <dirset dir="${module.kotlin.basedir}/kotlin">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.kotlin" depends="compile.module.kotlin.production,compile.module.kotlin.tests" description="Compile module kotlin"/>
+  
+  <target name="compile.module.kotlin.production" depends="register.custom.compilers,compile.module.utils" description="Compile module kotlin; production classes">
+    <mkdir dir="${kotlin.output.dir}"/>
+    <javac2 destdir="${kotlin.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.kotlin}/javac">
+      <compilerarg line="${compiler.args.kotlin}"/>
+      <bootclasspath refid="kotlin.module.bootclasspath"/>
+      <classpath refid="kotlin.module.production.classpath"/>
+      <src refid="kotlin.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.kotlin"/>
+    </javac2>
+    
+    <copy todir="${kotlin.output.dir}">
+      <fileset dir="${module.kotlin.basedir}/kotlin/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.kotlin.tests" depends="register.custom.compilers,compile.module.kotlin.production" description="compile module kotlin; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.kotlin" description="cleanup module">
+    <delete dir="${kotlin.output.dir}"/>
+    <delete dir="${kotlin.testoutput.dir}"/>
+  </target>
+  
+  
+  <!-- Module BitmexHelper -->
+  
+  <dirname property="module.bitmexhelper.basedir" file="${ant.file}"/>
+  
+  
+  <property name="module.jdk.home.bitmexhelper" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.bitmexhelper" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.bitmexhelper" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.bitmexhelper" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  
+  <property name="bitmexhelper.output.dir" value="${module.bitmexhelper.basedir}/out/production/BitmexHelper"/>
+  <property name="bitmexhelper.testoutput.dir" value="${module.bitmexhelper.basedir}/out/test/BitmexHelper"/>
+  
+  <path id="bitmexhelper.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="bitmexhelper.module.production.classpath">
+    <path refid="${module.jdk.classpath.bitmexhelper}"/>
+    <pathelement location="${kotlin.output.dir}"/>
+  </path>
+  
+  <path id="bitmexhelper.runtime.production.module.classpath">
+    <pathelement location="${bitmexhelper.output.dir}"/>
+    <pathelement location="${kotlin.output.dir}"/>
+    <path refid="library.kotlinjavaruntime.classpath"/>
+    <path refid="library.org.knowm.xchange:xchange-core:4.3.9.classpath"/>
+    <path refid="library.org.knowm.xchange:xchange-bitmex:4.3.9.classpath"/>
+    <path refid="library.org.slf4j:slf4j-simple:1.7.25.classpath"/>
+    <path refid="library.org.jetbrains.kotlinx:kotlinx-coroutines-core:0.24.0.classpath"/>
+    <path refid="library.com.google.code.gson:gson:2.8.5.classpath"/>
+    <pathelement location="${utils.output.dir}"/>
+    <path refid="library.apache-codec:commons-codec:1.2.classpath"/>
+    <path refid="library.com.google.guava:guava:26.0-jre.classpath"/>
+  </path>
+  
+  <path id="bitmexhelper.module.classpath">
+    <path refid="${module.jdk.classpath.bitmexhelper}"/>
+    <pathelement location="${bitmexhelper.output.dir}"/>
+    <pathelement location="${kotlin.testoutput.dir}"/>
+    <pathelement location="${kotlin.output.dir}"/>
+  </path>
+  
+  <path id="bitmexhelper.runtime.module.classpath">
+    <pathelement location="${bitmexhelper.testoutput.dir}"/>
+    <pathelement location="${bitmexhelper.output.dir}"/>
+    <pathelement location="${kotlin.testoutput.dir}"/>
+    <pathelement location="${kotlin.output.dir}"/>
+    <path refid="library.kotlinjavaruntime.classpath"/>
+    <path refid="library.org.knowm.xchange:xchange-core:4.3.9.classpath"/>
+    <path refid="library.org.knowm.xchange:xchange-bitmex:4.3.9.classpath"/>
+    <path refid="library.org.slf4j:slf4j-simple:1.7.25.classpath"/>
+    <path refid="library.org.jetbrains.kotlinx:kotlinx-coroutines-core:0.24.0.classpath"/>
+    <path refid="library.com.google.code.gson:gson:2.8.5.classpath"/>
+    <path refid="library.junit:junit:4.12.classpath"/>
+    <pathelement location="${utils.testoutput.dir}"/>
+    <pathelement location="${utils.output.dir}"/>
+    <path refid="library.apache-codec:commons-codec:1.2.classpath"/>
+    <path refid="library.com.google.guava:guava:26.0-jre.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.bitmexhelper">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.bitmexhelper">
+    <patternset refid="excluded.from.module.bitmexhelper"/>
+  </patternset>
+  
+  <path id="bitmexhelper.module.sourcepath">
+    <dirset dir="${module.bitmexhelper.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.bitmexhelper" depends="compile.module.bitmexhelper.production,compile.module.bitmexhelper.tests" description="Compile module BitmexHelper"/>
+  
+  <target name="compile.module.bitmexhelper.production" depends="register.custom.compilers,compile.module.kotlin" description="Compile module BitmexHelper; production classes">
+    <mkdir dir="${bitmexhelper.output.dir}"/>
+    <javac2 destdir="${bitmexhelper.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.bitmexhelper}/javac">
+      <compilerarg line="${compiler.args.bitmexhelper}"/>
+      <bootclasspath refid="bitmexhelper.module.bootclasspath"/>
+      <classpath refid="bitmexhelper.module.production.classpath"/>
+      <src refid="bitmexhelper.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.bitmexhelper"/>
+    </javac2>
+    
+    <copy todir="${bitmexhelper.output.dir}">
+      <fileset dir="${module.bitmexhelper.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.bitmexhelper.tests" depends="register.custom.compilers,compile.module.bitmexhelper.production" description="compile module BitmexHelper; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.bitmexhelper" description="cleanup module">
+    <delete dir="${bitmexhelper.output.dir}"/>
+    <delete dir="${bitmexhelper.testoutput.dir}"/>
+  </target>
+  
+  <target name="init" description="Build initialization">
+    <!-- Perform any build initialization in this target -->
+  </target>
+  
+  <target name="clean" depends="clean.module.utils, clean.module.kotlin, clean.module.bitmexhelper" description="cleanup all"/>
+  
+  <target name="build.modules" depends="init, clean, compile.module.utils, compile.module.kotlin, compile.module.bitmexhelper" description="build all modules"/>
+  
+  <target name="init.artifacts">
+    <property name="artifacts.temp.dir" value="${basedir}/__artifacts_temp"/>
+    <property name="artifact.output.bitmexhelper:jar" value="${basedir}/out/artifacts/BitmexHelper_jar"/>
+    <mkdir dir="${artifacts.temp.dir}"/>
+    <property name="temp.jar.path.BitmexHelper.jar" value="${artifacts.temp.dir}/BitmexHelper.jar"/>
+  </target>
+  
+  <target name="artifact.bitmexhelper:jar" depends="init.artifacts, compile.module.bitmexhelper, compile.module.kotlin, compile.module.utils" description="Build &#39;BitmexHelper:jar&#39; artifact">
+    <property name="artifact.temp.output.bitmexhelper:jar" value="${artifacts.temp.dir}/BitmexHelper_jar"/>
+    <mkdir dir="${artifact.temp.output.bitmexhelper:jar}"/>
+    <jar destfile="${temp.jar.path.BitmexHelper.jar}" duplicate="preserve" filesetmanifest="mergewithoutmain">
+      <zipfileset dir="${bitmexhelper.output.dir}"/>
+      <zipfileset dir="${kotlin.output.dir}"/>
+      <zipfileset src="${path.variable.kotlin_bundled}/lib/kotlin-stdlib.jar"/>
+      <zipfileset src="${path.variable.kotlin_bundled}/lib/kotlin-reflect.jar"/>
+      <zipfileset src="${path.variable.kotlin_bundled}/lib/kotlin-test.jar"/>
+      <zipfileset src="${path.variable.kotlin_bundled}/lib/kotlin-stdlib-jdk7.jar"/>
+      <zipfileset src="${path.variable.kotlin_bundled}/lib/kotlin-stdlib-jdk8.jar"/>
+      <zipfileset src="${path.variable.maven_repository}/org/knowm/xchange/xchange-core/4.3.9/xchange-core-4.3.9.jar"/>
+      <zipfileset src="${path.variable.maven_repository}/com/github/mmazi/rescu/2.0.2/rescu-2.0.2.jar"/>
+      <zipfileset src="${path.variable.maven_repository}/com/fasterxml/jackson/core/jackson-databind/2.9.1/jackson-databind-2.9.1.jar"/>
+      <zipfileset src="${path.variable.maven_repository}/com/fasterxml/jackson/core/jackson-annotations/2.9.0/jackson-annotations-2.9.0.jar"/>
+      <zipfileset src="${path.variable.maven_repository}/com/fasterxml/jackson/core/jackson-core/2.9.1/jackson-core-2.9.1.jar"/>
+      <zipfileset src="${path.variable.maven_repository}/javax/ws/rs/javax.ws.rs-api/2.1/javax.ws.rs-api-2.1.jar"/>
+      <zipfileset src="${path.variable.maven_repository}/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar"/>
+      <zipfileset src="${path.variable.maven_repository}/oauth/signpost/signpost-core/1.2.1.2/signpost-core-1.2.1.2.jar"/>
+      <zipfileset src="${path.variable.maven_repository}/commons-io/commons-io/2.6/commons-io-2.6.jar"/>
+      <zipfileset src="${path.variable.maven_repository}/org/apache/commons/commons-lang3/3.7/commons-lang3-3.7.jar"/>
+      <zipfileset src="${path.variable.maven_repository}/org/slf4j/slf4j-api/1.7.25/slf4j-api-1.7.25.jar"/>
+      <zipfileset src="${path.variable.maven_repository}/javax/annotation/javax.annotation-api/1.3.2/javax.annotation-api-1.3.2.jar"/>
+      <zipfileset src="${path.variable.maven_repository}/com/google/code/gson/gson/2.8.5/gson-2.8.5.jar"/>
+      <zipfileset src="${path.variable.maven_repository}/org/slf4j/slf4j-simple/1.7.25/slf4j-simple-1.7.25.jar"/>
+      <zipfileset src="${path.variable.maven_repository}/org/knowm/xchange/xchange-bitmex/4.3.9/xchange-bitmex-4.3.9.jar"/>
+      <zipfileset src="${path.variable.maven_repository}/com/google/guava/guava/25.1-jre/guava-25.1-jre.jar"/>
+      <zipfileset src="${path.variable.maven_repository}/org/checkerframework/checker-qual/2.0.0/checker-qual-2.0.0.jar"/>
+      <zipfileset src="${path.variable.maven_repository}/com/google/errorprone/error_prone_annotations/2.1.3/error_prone_annotations-2.1.3.jar"/>
+      <zipfileset src="${path.variable.maven_repository}/com/google/j2objc/j2objc-annotations/1.1/j2objc-annotations-1.1.jar"/>
+      <zipfileset src="${path.variable.maven_repository}/org/codehaus/mojo/animal-sniffer-annotations/1.14/animal-sniffer-annotations-1.14.jar"/>
+      <zipfileset src="${path.variable.maven_repository}/org/jetbrains/kotlinx/kotlinx-coroutines-core/0.24.0/kotlinx-coroutines-core-0.24.0.jar"/>
+      <zipfileset src="${path.variable.maven_repository}/org/jetbrains/kotlin/kotlin-stdlib/1.2.51/kotlin-stdlib-1.2.51.jar"/>
+      <zipfileset src="${path.variable.maven_repository}/org/jetbrains/kotlin/kotlin-stdlib-common/1.2.51/kotlin-stdlib-common-1.2.51.jar"/>
+      <zipfileset src="${path.variable.maven_repository}/org/jetbrains/annotations/13.0/annotations-13.0.jar"/>
+      <zipfileset src="${path.variable.maven_repository}/org/jetbrains/kotlinx/kotlinx-coroutines-core-common/0.24.0/kotlinx-coroutines-core-common-0.24.0.jar"/>
+      <zipfileset src="${path.variable.maven_repository}/org/jetbrains/kotlinx/atomicfu-common/0.11.0/atomicfu-common-0.11.0.jar"/>
+      <zipfileset src="${path.variable.maven_repository}/apache-codec/commons-codec/1.2/commons-codec-1.2.jar"/>
+      <zipfileset dir="${utils.output.dir}"/>
+    </jar>
+    <copy file="${temp.jar.path.BitmexHelper.jar}" tofile="${artifact.temp.output.bitmexhelper:jar}/BitmexHelper.jar"/>
+  </target>
+  
+  <target name="build.all.artifacts" depends="artifact.bitmexhelper:jar" description="Build all artifacts">
+    <mkdir dir="${artifact.output.bitmexhelper:jar}"/>
+    <copy todir="${artifact.output.bitmexhelper:jar}">
+      <fileset dir="${artifact.temp.output.bitmexhelper:jar}"/>
+    </copy>
+    
+    <!-- Delete temporary files -->
+    <delete dir="${artifacts.temp.dir}"/>
+  </target>
+  
+  <target name="all" depends="build.modules, build.all.artifacts" description="build all"/>
+</project>

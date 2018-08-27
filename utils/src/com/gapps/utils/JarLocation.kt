@@ -8,7 +8,9 @@ object JarLocation {
     val directory: String
         get() = JarLocation::class.java.protectionDomain.codeSource.location.path.let { path ->
             val decoded = URLDecoder.decode(path, "UTF-8")
-            decoded.substring(0, decoded.lastIndexOf(File.separator))
+            var lastIndexOf = decoded.lastIndexOf(File.separator)
+            if (lastIndexOf < 0) lastIndexOf = decoded.lastIndexOf("/")
+            decoded.substring(0, lastIndexOf)
         }
 
     fun fileInSameDir(filename: String) = File("${JarLocation.directory}${File.separator}$filename")

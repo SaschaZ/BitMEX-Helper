@@ -2,28 +2,24 @@
 
 package com.gapps.bitmexhelper.kotlin.ui
 
-import com.gapps.bitmexhelper.kotlin.XChangeWrapper
-import com.gapps.bitmexhelper.kotlin.XChangeWrapper.BulkDistribution
-import com.gapps.bitmexhelper.kotlin.XChangeWrapper.OrderType
+import com.gapps.bitmexhelper.kotlin.*
 import com.gapps.bitmexhelper.kotlin.persistance.Constants
 import com.gapps.bitmexhelper.kotlin.persistance.Settings
 import com.gapps.bitmexhelper.kotlin.persistance.Settings.Companion.settings
-import com.gapps.bitmexhelper.kotlin.roundToMinimumStep
-import com.gapps.bitmexhelper.kotlin.toBitmexSymbol
-import com.gapps.bitmexhelper.kotlin.toCurrencyPair
 import javafx.application.Platform
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 import javafx.scene.control.*
+import javafx.scene.control.cell.CheckBoxTableCell
 import javafx.scene.control.cell.ComboBoxTableCell
 import javafx.scene.control.cell.PropertyValueFactory
 import javafx.util.Callback
 import javafx.util.StringConverter
 import javafx.util.converter.DoubleStringConverter
 import javafx.util.converter.IntegerStringConverter
-import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import org.knowm.xchange.bitmex.BitmexExchange
 import org.knowm.xchange.currency.CurrencyPair
@@ -108,8 +104,9 @@ object MainDelegate {
                 enableValueChangeOnScroll()
             }
             distribution.apply {
-                items = FXCollections.observableArrayList(Constants.distributions)
-                value = items[Constants.distributions.indexOf(settings.lastMode)]
+                val values = BulkDistribution.values().map { it.toString() }
+                items = FXCollections.observableArrayList(values)
+                value = items[values.indexOf(settings.lastMode)]
                 setOnAction { updateView() }
                 enableValueChangeOnScroll()
             }
@@ -159,7 +156,8 @@ object MainDelegate {
         controller.apply {
             exchange?.createBulkOrders(
                     pair = pair.value.toString().toCurrencyPair(),
-                    side = if (side.value.toString() == "BUY") BID else ASK,
+                    orderSide = if (side.value.toString() == "BUY") BID else ASK,
+                    type = OrderType.valueOf(orderType.value.toString().toUpperCase().replace("-", "_")),
                     amount = amount.value as Double,
                     minimumAmount = minAmount.value as Double,
                     priceLow = lowPrice.value as Double,
@@ -214,14 +212,12 @@ object MainDelegate {
         launch {
             var error: Throwable? = null
 
-            val result = async {
-                storeSelection()
-                try {
-                    executeOrder()
-                } catch (t: Throwable) {
-                    error = t
-                }
-            }.await()
+            storeSelection()
+            val result = try {
+                executeOrder()
+            } catch (t: Throwable) {
+                error = t
+            }
 
             Platform.runLater {
                 controller.changeInExecutionMode(false)
@@ -280,21 +276,27 @@ object MainDelegate {
                                private val orderType: SimpleStringProperty,
                                private val orderTypeParameter: SimpleDoubleProperty,
                                private val linkId: SimpleStringProperty,
-                               private val linkType: SimpleStringProperty) {
-        constructor(side: String,
-                    price: Double,
-                    amount: Int,
-                    orderType: OrderType,
-                    orderTypeParameter: Double,
-                    linkId: String,
-                    linkType: XChangeWrapper.OrderLinkType) : this(
+                               private val linkType: SimpleStringProperty,
+                               private val postOnly: SimpleBooleanProperty,
+                               private val reduceOnly: SimpleBooleanProperty) {
+        constructor(side: String = "Buy",
+                    price: Double = 0.0,
+                    amount: Int = 0,
+                    orderType: OrderType = OrderType.LIMIT,
+                    orderTypeParameter: Double = 0.0,
+                    linkId: String = "",
+                    linkType: OrderLinkType = OrderLinkType.NONE,
+                    postOnly: Boolean = false,
+                    reduceOnly: Boolean = false) : this(
                 SimpleStringProperty(side),
                 SimpleDoubleProperty(price),
                 SimpleIntegerProperty(amount),
                 SimpleStringProperty(orderType.toString()),
                 SimpleDoubleProperty(orderTypeParameter),
                 SimpleStringProperty(linkId),
-                SimpleStringProperty(linkType.toString()))
+                SimpleStringProperty(linkType.toString()),
+                SimpleBooleanProperty(postOnly),
+                SimpleBooleanProperty(reduceOnly))
 
         fun getSide(): String = side.get()
         fun setSide(value: String) = side.set(value)
@@ -310,6 +312,12 @@ object MainDelegate {
         fun setLinkId(value: String) = linkId.set(value)
         fun getLinkType(): String = linkType.get()
         fun setLinkType(value: String) = linkType.set(value)
+        fun getPostOnly(): Boolean = postOnly.get()
+        fun setPostOnly(value: Boolean) = postOnly.set(value)
+        fun getPostOnlyProperty() = postOnly
+        fun getReduceOnly(): Boolean = reduceOnly.get()
+        fun setReduceOnly(value: Boolean) = reduceOnly.set(value)
+        fun getReduceOnlyProperty() = reduceOnly
     }
 
     private fun initLinkedTable() {
@@ -343,8 +351,8 @@ object MainDelegate {
             }
 
             linkedOrderTypeColumn.apply {
-                cellValueFactory = PropertyValueFactory<LinkedTableItem, String>("orderType")
-                cellFactory = ComboBoxTableCell.forTableColumn(*XChangeWrapper.OrderType.values()
+                cellValueFactory = PropertyValueFactory<LinkedTableItem, String>("orderSide")
+                cellFactory = ComboBoxTableCell.forTableColumn(*OrderType.values()
                         .map { it.toString() }.toTypedArray())
                 setOnEditCommit { event ->
                     linkedOrders[event.tablePosition.row].setOrderType(event.newValue)
@@ -376,10 +384,26 @@ object MainDelegate {
 
             linkedLinkTypeColumn.apply {
                 cellValueFactory = PropertyValueFactory<LinkedTableItem, String>("linkType")
-                cellFactory = ComboBoxTableCell.forTableColumn(*XChangeWrapper.OrderLinkType.values()
+                cellFactory = ComboBoxTableCell.forTableColumn(*OrderLinkType.values()
                         .map { it.toString() }.toMutableList().toTypedArray())
                 setOnEditCommit { event ->
                     linkedOrders[event.tablePosition.row].setLinkType(event.newValue)
+                }
+            }
+
+            linkedPostOnlyColumn.apply {
+                setCellValueFactory { param -> param.value.getPostOnlyProperty() }
+                cellFactory = CheckBoxTableCell.forTableColumn(linkedPostOnlyColumn)
+                setOnEditCancel { event ->
+                    linkedOrders[event.tablePosition.row].setPostOnly(event.newValue)
+                }
+            }
+
+            linkedReduceOnlyColumn.apply {
+                setCellValueFactory { param -> param.value.getReduceOnlyProperty() }
+                cellFactory = CheckBoxTableCell.forTableColumn(linkedReduceOnlyColumn)
+                setOnEditCancel { event ->
+                    linkedOrders[event.tablePosition.row].setReduceOnly(event.newValue)
                 }
             }
         }
@@ -394,21 +418,27 @@ object MainDelegate {
     private val linkedOrders = ArrayList<LinkedTableItem>()
 
     fun onAddLinkedOrderClicked() {
-        linkedOrders.add(LinkedTableItem("Buy", 0.0, 0, OrderType.LIMIT, 0.0, "", XChangeWrapper.OrderLinkType.NONE))
+        linkedOrders.add(LinkedTableItem(postOnly = true))
         updateLinkedOrders()
     }
 
     fun onRemoveLinkedOrderClicked() {
         val row = controller.linkedOrdersTable.selectionModel.selectedCells.firstOrNull()?.row ?: linkedOrders.lastIndex
-        linkedOrders.removeAt(row)
-        updateLinkedOrders()
+        if (row in 0 .. linkedOrders.size) {
+            linkedOrders.removeAt(row)
+            updateLinkedOrders()
+        }
     }
 
     fun onExecuteLinkedOrdersClicked() {
         println(linkedOrders.map {
-            XChangeWrapper.BulkOrder(controller.linkedPair.value.toString().toCurrencyPair().toBitmexSymbol(),
-                    it.getSide(), it.getAmount(), it.getPrice(), null, null, it.getLinkId(),
-                    XChangeWrapper.OrderLinkType.valueOf(it.getLinkType()))
+            XChangeWrapper.BulkOrder(controller.linkedPair.value.toString().toCurrencyPair(),
+                    orderSide = if (it.getSide() == "Buy") BID else ASK,
+                    orderType = OrderType.valueOf(it.getOrderType()),
+                    orderQuantity = it.getAmount(),
+                    price = it.getPrice(),
+                    executionInstructions = createBitmexExecInstructions(it.getPostOnly(), it.getReduceOnly()),
+                    contingencyType = OrderLinkType.valueOf(it.getLinkType()).toParameter())
         })
     }
 }
@@ -417,7 +447,7 @@ object MainDelegate {
 fun Spinner<Double>.enableBetterListener() {
     editor.textProperty().addListener { _, _, new ->
         if (new.isNotBlank())
-            valueFactory.value = new.replace(",", ".").toDouble()
+            valueFactory.value = new.replace(",", ".").toDouble() // FIX datatype
     }
 }
 

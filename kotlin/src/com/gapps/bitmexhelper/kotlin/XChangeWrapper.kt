@@ -2,8 +2,8 @@
 
 package com.gapps.bitmexhelper.kotlin
 
-import com.gapps.bitmexhelper.kotlin.XChangeWrapper.BulkDistribution.*
-import com.gapps.bitmexhelper.kotlin.XChangeWrapper.OrderType.*
+import com.gapps.bitmexhelper.kotlin.BulkDistribution.*
+import com.gapps.bitmexhelper.kotlin.OrderType.*
 import com.gapps.bitmexhelper.kotlin.persistance.Constants
 import com.gapps.utils.TimeUnit
 import com.gapps.utils.catchAsync
@@ -145,7 +145,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
 
             (exchange.tradeService as BitmexTradeServiceRaw).placeLimitOrder(pair.toBitmexSymbol(),
                     amount.toBigDecimal(), price.toBigDecimal(), type.getSide(), null,
-                    execInstructions.joinToString(","), null, null).id
+                    execInstructions, null, null).id
         }
         else -> {
             exchange.tradeService.placeLimitOrder(LimitOrder.Builder(type, pair)
@@ -174,7 +174,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
             val execInstructions = createBitmexExecInstructions(false, reduceOnly)
 
             (exchange.tradeService as BitmexTradeServiceRaw).placeMarketOrder(pair.toBitmexSymbol(),
-                    type.getSide(), amount.toBigDecimal(), execInstructions.joinToString(",")).id
+                    type.getSide(), amount.toBigDecimal(), execInstructions).id
         }
         else -> {
             exchange.tradeService.placeMarketOrder(MarketOrder.Builder(type, pair)
@@ -205,7 +205,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
 
             (exchange.tradeService as BitmexTradeServiceRaw).placeStopOrder(pair.toBitmexSymbol(),
                     type.getSide(), amount.toBigDecimal(), stopPrice.toBigDecimal(),
-                    execInstructions.joinToString(","), null, null, null).id
+                    execInstructions, null, null, null).id
         }
         else -> {
             exchange.tradeService.placeStopOrder(StopOrder.Builder(type, pair)
@@ -213,37 +213,6 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                     .stopPrice(stopPrice.toBigDecimal())
                     .build())
         }
-    }
-
-    enum class OrderType {
-
-        LIMIT,
-        STOP,
-        STOP_LIMIT
-    }
-
-    enum class OrderLinkType {
-
-        OCO,
-        OTO,
-        OUOA,
-        OUOP,
-        NONE;
-
-        fun toParameter() = when(this) {
-            XChangeWrapper.OrderLinkType.OCO -> "OneCancelsTheOther"
-            XChangeWrapper.OrderLinkType.OTO -> "OneTriggersTheOther"
-            XChangeWrapper.OrderLinkType.OUOA -> "OneUpdatesTheOtherAbsolute"
-            XChangeWrapper.OrderLinkType.OUOP -> "OneUpdatesTheOtherProportional"
-            XChangeWrapper.OrderLinkType.NONE -> ""
-        }
-    }
-
-    enum class BulkDistribution {
-
-        FLAT,
-        MULT_MIN,
-        DIV_AMOUNT
     }
 
     fun placeBulkOrders(pair: CurrencyPair,
@@ -261,7 +230,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
         return when (exchange) {
             is BitmexExchange -> {
                 val orders = createBulkOrders(amount, distribution, distributionParameter, minimumAmount,
-                        postOnly, reduceOnly, priceLow, priceHigh, pair, side, reversed)
+                        postOnly, reduceOnly, priceLow, priceHigh, pair, side, type, reversed)
 
                 (exchange.tradeService as BitmexTradeServiceRaw).placeLimitOrderBulk(orders.map {
                     val price = when (type) {
@@ -275,11 +244,12 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                         else -> null
                     }?.toBigDecimal()
 
-                    Bitmex.PlaceOrderCommand(it.symbol, it.side, it.orderQuantity, price, stop, when (type) {
+                    Bitmex.PlaceOrderCommand(it.symbol.toBitmexSymbol(), it.orderSide.getSide().capitalized,
+                            it.orderQuantity, price, stop, when (it.orderType) {
                         LIMIT -> "Limit"
                         STOP -> "Stop"
                         else -> "StopLimit"
-                    }, it.clOrId, it.executionInstructions, it.clOrdLinkID, it.linkedType?.toParameter())
+                    }, it.clOrId, it.executionInstructions, it.clOrLinkId, it.contingencyType)
                 }).map {
                     LimitOrder.Builder(side, pair)
                             .limitPrice(it.price)
@@ -305,26 +275,27 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
         }
     }
 
-    data class BulkOrder(val symbol: String,
-                         val side: String?,
+    data class BulkOrder(val symbol: CurrencyPair,
+                         val orderSide: Order.OrderType,
+                         val orderType: OrderType,
                          var orderQuantity: Int,
                          val price: Double,
-                         val executionInstructions: String? = null,
                          val clOrId: String? = null,
-                         val clOrdLinkID: String? = null,
-                         val linkedType: OrderLinkType? = null)
+                         val executionInstructions: String? = null,
+                         val clOrLinkId: String? = null,
+                         val contingencyType: String? = null)
 
     fun createBulkOrders(amount: Double, distribution: BulkDistribution, distributionParameter: Double,
                          minimumAmount: Double, postOnly: Boolean, reduceOnly: Boolean, priceLow: Double, priceHigh: Double,
-                         pair: CurrencyPair, side: Order.OrderType, reversed: Boolean): List<BulkOrder> {
+                         pair: CurrencyPair, orderSide: Order.OrderType,
+                         type: OrderType, reversed: Boolean): List<BulkOrder> {
         var amounts = getBulkAmounts(amount, distribution, distributionParameter, minimumAmount)
         amounts = if (reversed) amounts.reversed() else amounts
         val execInstructions = createBitmexExecInstructions(postOnly, reduceOnly)
         val orders = amounts.mapIndexed { orderIndex, amountForOrder ->
             val priceForOrder = (priceLow + (priceHigh - priceLow) / (amounts.size - 1) * orderIndex).roundToMinimumStep(pair)
 
-            BulkOrder(pair.toBitmexSymbol(), side.getSide().capitalized,
-                    amountForOrder, priceForOrder, null, execInstructions.joinToString(","))
+            BulkOrder(pair, orderSide, type, amountForOrder, priceForOrder, null, execInstructions)
         }.toMutableList()
 
         val distinctOrders = ArrayList<BulkOrder>()
@@ -352,45 +323,40 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
 
         return (0 until maxOrderCount).map loop@{
             if (totalAmount >= amount) return@loop 0
-            when (distribution) {
+            lastAmount = when (distribution) {
                 FLAT -> {
-                    lastAmount = max(amount / maxOrderCount, minimumAmount).toInt()
-                    if (totalAmount + lastAmount > amount)
-                        0
-                    else {
-                        totalAmount += lastAmount
-                        lastAmount
-                    }
+                    max(amount / maxOrderCount, minimumAmount).toInt()
+                }
+                DCA -> {
+                    max(minimumAmount, totalAmount * distributionParameter).toInt()
                 }
                 DIV_AMOUNT -> {
-                    lastAmount = ((if (totalAmount == 0) amount.toInt() else lastAmount) / distributionParameter).toInt()
-                    if (totalAmount + lastAmount > amount || lastAmount < minimumAmount)
-                        0
-                    else {
-                        totalAmount += lastAmount
-                        lastAmount
-                    }
+                    ((if (totalAmount == 0) amount.toInt() else lastAmount) / distributionParameter).toInt()
                 }
                 MULT_MIN -> {
-                    lastAmount = max(minimumAmount, lastAmount * distributionParameter).toInt()
-                    if (totalAmount + lastAmount > amount)
-                        0
-                    else {
-                        totalAmount += lastAmount
-                        lastAmount
-                    }
+                    max(minimumAmount, lastAmount * distributionParameter).toInt()
+
                 }
             }
-        }.filter { it > 0 && it < Integer.MAX_VALUE }
-    }
-
-    private fun createBitmexExecInstructions(postOnly: Boolean, reduceOnly: Boolean): ArrayList<String> {
-        val execInstructions = ArrayList<String>()
-        if (postOnly)
-            execInstructions.add("ParticipateDoNotInitiate")
-        if (reduceOnly)
-            execInstructions.add("ReduceOnly")
-        return execInstructions
+            if (totalAmount + lastAmount > amount)
+                0
+            else {
+                totalAmount += lastAmount
+                lastAmount
+            }
+        }.filter { it > 0 && it < Integer.MAX_VALUE }.toMutableList().let { result ->
+            val sum = result.sum()
+            if (sum < amount && result.isNotEmpty()) {
+                val amountToAdd = ((amount - sum) / (result.size * 3)).toInt()
+                result.map { it + amountToAdd }.toMutableList().also { increasedResult ->
+                    val increasedSum = increasedResult.sum()
+                    if (increasedSum < amount) {
+                        increasedResult[increasedResult.lastIndex] += amount.toInt() - increasedSum
+                    }
+                }
+            } else
+                result
+        }
     }
 
     fun updateLeverage(pair: CurrencyPair, leverage: Double) {
@@ -474,4 +440,51 @@ internal fun CurrencyPair.toBitmexSymbol() = "${base.currencyCode}${counter.curr
 internal fun Order.OrderType.getSide() = when (this) {
     BID -> BitmexSide.BUY
     else -> BitmexSide.SELL
+}
+
+fun createBitmexExecInstructions(postOnly: Boolean, reduceOnly: Boolean): String {
+    val execInstructions = ArrayList<String>()
+    if (postOnly)
+        execInstructions.add("ParticipateDoNotInitiate")
+    if (reduceOnly)
+        execInstructions.add("ReduceOnly")
+    return execInstructions.joinToString(",")
+}
+
+enum class OrderType {
+
+    LIMIT,
+    STOP,
+    STOP_LIMIT
+}
+
+enum class OrderLinkType {
+
+    OCO,
+    OTO,
+    OUOA,
+    OUOP,
+    NONE;
+
+    fun toParameter() = when(this) {
+        OrderLinkType.OCO -> "OneCancelsTheOther"
+        OrderLinkType.OTO -> "OneTriggersTheOther"
+        OrderLinkType.OUOA -> "OneUpdatesTheOtherAbsolute"
+        OrderLinkType.OUOP -> "OneUpdatesTheOtherProportional"
+        OrderLinkType.NONE -> ""
+    }
+}
+
+enum class BulkDistribution {
+
+    FLAT,
+    DCA,
+    MULT_MIN,
+    DIV_AMOUNT
+}
+
+enum class ExecutionInstructions {
+
+    POST_ONLY,
+    REDUCE_ONLY;
 }

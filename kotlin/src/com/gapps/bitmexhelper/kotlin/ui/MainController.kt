@@ -63,6 +63,10 @@ class MainController {
     internal lateinit var linkedLinkIdColumn: TableColumn<MainDelegate.LinkedTableItem, String>
     @FXML
     internal lateinit var linkedLinkTypeColumn: TableColumn<MainDelegate.LinkedTableItem, String>
+    @FXML
+    internal lateinit var linkedPostOnlyColumn: TableColumn<MainDelegate.LinkedTableItem, Boolean>
+    @FXML
+    internal lateinit var linkedReduceOnlyColumn: TableColumn<MainDelegate.LinkedTableItem, Boolean>
 
     init {
         MainDelegate.onControllerAvailable(this)

@@ -5,7 +5,6 @@ import com.gapps.bitmexhelper.kotlin.ui.AppController;
 import com.gapps.bitmexhelper.kotlin.ui.AppDelegate;
 import com.gapps.bitmexhelper.kotlin.ui.MainDelegate;
 import com.gapps.bitmexhelper.kotlin.ui.SettingsDelegate;
-import com.sun.istack.internal.NotNull;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -20,7 +19,6 @@ public class App extends Application implements AppController {
     private final SettingsDelegate settingsDelegate = SettingsDelegate.INSTANCE;
     private final MainDelegate mainDelegate = MainDelegate.INSTANCE;
 
-    @NotNull
     private Stage stage;
 
     public App() {

@@ -4,10 +4,10 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="542.0" prefWidth="846.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gapps.bitmexhelper.kotlin.ui.MainController">
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="532.0" prefWidth="607.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gapps.bitmexhelper.kotlin.ui.MainController">
     <children>
-        <MenuBar VBox.vgrow="NEVER">
+        <MenuBar prefHeight="32.0" prefWidth="601.0" VBox.vgrow="NEVER">
             <menus>
             <Menu mnemonicParsing="false" text="App">
               <items>
@@ -47,7 +47,7 @@
                                           <Label text="Low Price:" GridPane.rowIndex="2" />
                                           <Spinner fx:id="lowPrice" amountToStepBy="0.5" editable="true" initialValue="3" max="100000000" min="0.5" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                           <Label text="Amount:" GridPane.rowIndex="3" />
-                                          <Spinner fx:id="amount" amountToStepBy="1" editable="true" initialValue="3" max="100000000" min="1" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                          <Spinner fx:id="amount" amountToStepBy="1.0" editable="true" initialValue="3" max="100000000" min="1" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                                           <Label text="Type:" GridPane.rowIndex="4" />
                                           <ComboBox fx:id="orderType" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                                           <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Distribution:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
@@ -133,30 +133,32 @@
                                     <RowConstraints maxHeight="33.0" minHeight="33.0" prefHeight="33.0" vgrow="NEVER" />
                                  </rowConstraints>
                                  <FlowPane.margin>
-                                    <Insets left="315.0" />
+                                    <Insets left="550.0" />
                                  </FlowPane.margin>
                               </GridPane>
-                              <TableView fx:id="linkedOrdersTable" editable="true" prefHeight="363.0" prefWidth="607.0">
+                              <TableView fx:id="linkedOrdersTable" editable="true" fixedCellSize="30.0" prefHeight="363.0" prefWidth="842.0">
                                 <columns>
                                     <TableColumn fx:id="linkedSideColumn" prefWidth="71.0" sortable="false" text="Side" />
-                                  <TableColumn fx:id="linkedPriceColumn" prefWidth="73.0" sortable="false" text="Price" />
-                                  <TableColumn fx:id="linkedAmountColumn" prefWidth="93.0" sortable="false" text="Amount" />
-                                    <TableColumn fx:id="linkedOrderTypeColumn" prefWidth="71.0" sortable="false" text="Type" />
-                                    <TableColumn fx:id="linkedOrderTypeParameterColumn" prefWidth="86.0" sortable="false" text="Stop" />
-                                    <TableColumn fx:id="linkedLinkIdColumn" prefWidth="99.0" sortable="false" text="Link ID" />
-                                    <TableColumn fx:id="linkedLinkTypeColumn" prefWidth="112.0" sortable="false" text="Link Type" />
+                                  <TableColumn fx:id="linkedPriceColumn" prefWidth="96.0" sortable="false" text="Price" />
+                                  <TableColumn fx:id="linkedAmountColumn" prefWidth="115.0" sortable="false" text="Amount" />
+                                    <TableColumn fx:id="linkedOrderTypeColumn" prefWidth="132.0" sortable="false" text="Type" />
+                                    <TableColumn fx:id="linkedOrderTypeParameterColumn" prefWidth="98.0" sortable="false" text="Stop" />
+                                    <TableColumn fx:id="linkedLinkIdColumn" prefWidth="130.0" sortable="false" text="Link ID" />
+                                    <TableColumn fx:id="linkedLinkTypeColumn" prefWidth="126.0" sortable="false" text="Link Type" />
+                                    <TableColumn fx:id="linkedPostOnlyColumn" prefWidth="27.0" sortable="false" text="PO" />
+                                    <TableColumn fx:id="linkedReduceOnlyColumn" prefWidth="29.0" sortable="false" text="RO" />
                                 </columns>
                               </TableView>
-                              <GridPane prefHeight="33.0" prefWidth="601.0">
+                              <GridPane prefHeight="34.0" prefWidth="824.0">
                                 <columnConstraints>
-                                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="535.0" minWidth="10.0" prefWidth="528.0" />
-                                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="293.0" minWidth="10.0" prefWidth="75.0" />
+                                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="756.0" minWidth="10.0" prefWidth="723.0" />
+                                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="293.0" minWidth="10.0" prefWidth="101.0" />
                                 </columnConstraints>
                                 <rowConstraints>
                                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                 </rowConstraints>
                                  <children>
-                                    <Button mnemonicParsing="false" onAction="#onExecuteLinkedOrdersClicked" text="Execute" GridPane.columnIndex="1" />
+                                    <Button mnemonicParsing="false" onAction="#onExecuteLinkedOrdersClicked" prefHeight="30.0" prefWidth="300.0" text="Execute" GridPane.columnIndex="1" />
                                  </children>
                               </GridPane>
                            </children>
