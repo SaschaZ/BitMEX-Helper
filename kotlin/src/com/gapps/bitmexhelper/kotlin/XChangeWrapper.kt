@@ -145,7 +145,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
 
             (exchange.tradeService as BitmexTradeServiceRaw).placeLimitOrder(pair.toBitmexSymbol(),
                     amount.toBigDecimal(), price.toBigDecimal(), type.getSide(), null,
-                    execInstructions.joinToString(",")).id
+                    execInstructions.joinToString(","), null, null).id
         }
         else -> {
             exchange.tradeService.placeLimitOrder(LimitOrder.Builder(type, pair)
@@ -205,7 +205,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
 
             (exchange.tradeService as BitmexTradeServiceRaw).placeStopOrder(pair.toBitmexSymbol(),
                     type.getSide(), amount.toBigDecimal(), stopPrice.toBigDecimal(),
-                    execInstructions.joinToString(","), null).id
+                    execInstructions.joinToString(","), null, null, null).id
         }
         else -> {
             exchange.tradeService.placeStopOrder(StopOrder.Builder(type, pair)
@@ -259,11 +259,12 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                         else -> null
                     }?.toBigDecimal()
 
-                    Bitmex.PlaceOrderCommand(it.symbol, it.side, it.orderQuantity, price, stop, when (type) {
+                    Bitmex.PlaceOrderCommand(it.symbol.toBitmexSymbol(), it.orderType.getSide().capitalized,
+                            it.orderQuantity, price, stop, when (type) {
                         LIMIT -> "Limit"
                         STOP -> "Stop"
                         else -> "StopLimit"
-                    }, it.clOrId, it.executionInstructions)
+                    }, it.clOrId, it.executionInstructions, it.clOrLinkId, it.contingencyType)
                 }).map {
                     LimitOrder.Builder(side, pair)
                             .limitPrice(it.price)
@@ -289,23 +290,25 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
         }
     }
 
-    data class BulkOrder(val symbol: String,
-                         val side: String?,
+    data class BulkOrder(val symbol: CurrencyPair,
+                         val orderType: Order.OrderType,
                          var orderQuantity: Int,
                          val price: Double,
-                         val clOrId: String?,
-                         val executionInstructions: String?)
+                         val clOrId: String? = null,
+                         val executionInstructions: String? = null,
+                         val clOrLinkId: String? = null,
+                         val contingencyType: String? = null)
 
     fun createBulkOrders(amount: Double, distribution: BulkDistribution, distributionParameter: Double,
                          minimumAmount: Double, postOnly: Boolean, reduceOnly: Boolean, priceLow: Double, priceHigh: Double,
-                         pair: CurrencyPair, side: Order.OrderType, reversed: Boolean): List<BulkOrder> {
+                         pair: CurrencyPair, orderType: Order.OrderType, reversed: Boolean): List<BulkOrder> {
         var amounts = getBulkAmounts(amount, distribution, distributionParameter, minimumAmount)
         amounts = if (reversed) amounts.reversed() else amounts
         val execInstructions = createBitmexExecInstructions(postOnly, reduceOnly)
         val orders = amounts.mapIndexed { orderIndex, amountForOrder ->
             val priceForOrder = (priceLow + (priceHigh - priceLow) / (amounts.size - 1) * orderIndex).roundToMinimumStep(pair)
 
-            BulkOrder(pair.toBitmexSymbol(), side.getSide().capitalized,
+            BulkOrder(pair, orderType,
                     amountForOrder, priceForOrder, null, execInstructions.joinToString(","))
         }.toMutableList()
 
