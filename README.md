@@ -5,14 +5,14 @@ Java application to execute bulk orders on the BitMEX exchange.
 * Uses native bulk order feature which is only available via the BitMEX Api.
 * From the BitMEX Api documentation: `Bulk orders require fewer risk checks in the trading engine and thus are ratelimited at 1/10 the normal rate.`
 * Place up to 100 orders with one call.
-* Offers three methods of amount distribution:
+* Offers four methods of amount distribution:
 
-| Order |     FLAT    |       MULT_MIN                     |        DIV_AMOUNT                  |
-|:-----:| ----------- | ---------------------------------- | ---------------------------------- |
-|   1   | min. amount | min. amount                        | total amount / parameter           |
-|   2   | min. amount | amount of first order * parameter  | amount of first order / parameter  |
-|   3   | min. amount | amount of second order * parameter | amount of second order / parameter |
-|  ...  | ...         | ...                                | ...                                |
+| Order |     FLAT    |       MULT_MIN                     |        DIV_AMOUNT                  |      DCA (Dollar Cost Average)       |
+|:-----:| ----------- | ---------------------------------- | ---------------------------------- | ------------------------------------ |
+|   1   | min. amount | min. amount                        | total amount / parameter           | min. amount                          |
+|   2   | min. amount | amount of first order * parameter  | amount of first order / parameter  | total after first order * parameter  |
+|   3   | min. amount | amount of second order * parameter | amount of second order / parameter | total after second order * parameter |
+|  ...  | ...         | ...                                | ...                                | ...                                  |
 * Support for `postOnly` and `reduceOnly` order modifications.
 * Realtime bulk order review.
 * Supports `LIMIT`, `STOP` and `STOP_LIMIT` order types. The limit price for a `STOP_LIMIT` order is always one step
