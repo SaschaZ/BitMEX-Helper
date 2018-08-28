@@ -221,9 +221,11 @@ object MainDelegate {
 
             Platform.runLater {
                 controller.changeInExecutionMode(false)
-                if (result == null || error != null)
+                if (result == null || error != null) {
+                    error?.printStackTrace()
                     AppDelegate.showError(((error as? UndeclaredThrowableException)?.undeclaredThrowable as? HttpStatusIOException)?.httpBody
                             ?: "Something went wrong.")
+                }
             }
         }
     }

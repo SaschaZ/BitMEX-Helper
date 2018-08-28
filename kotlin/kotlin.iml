@@ -14,8 +14,8 @@
     <orderEntry type="library" name="com.google.code.gson:gson:2.8.5" level="project" />
     <orderEntry type="library" scope="TEST" name="junit:junit:4.12" level="project" />
     <orderEntry type="module" module-name="utils" />
-    <orderEntry type="library" name="org.knowm.xchange:xchange-bitmex:4.3.10-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="org.knowm.xchange:xchange-core:4.3.10-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="org.knowm.xchange:xchange-bitmex:Latest" level="project" />
+    <orderEntry type="library" name="org.knowm.xchange:xchange-core:Latest" level="project" />
     <orderEntry type="library" name="com.google.guava:guava:26.0-jre" level="project" />
   </component>
 </module>

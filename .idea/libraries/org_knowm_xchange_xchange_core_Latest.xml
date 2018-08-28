@@ -1,6 +1,6 @@
 <component name="libraryTable">
-  <library name="org.knowm.xchange:xchange-core:4.3.10-SNAPSHOT" type="repository">
-    <properties maven-id="org.knowm.xchange:xchange-core:4.3.10-SNAPSHOT" />
+  <library name="org.knowm.xchange:xchange-core:Latest" type="repository">
+    <properties maven-id="org.knowm.xchange:xchange-core:LATEST" />
     <CLASSES>
       <root url="jar://$MAVEN_REPOSITORY$/org/knowm/xchange/xchange-core/4.3.10-SNAPSHOT/xchange-core-4.3.10-SNAPSHOT.jar!/" />
       <root url="jar://$MAVEN_REPOSITORY$/com/github/mmazi/rescu/2.0.2/rescu-2.0.2.jar!/" />

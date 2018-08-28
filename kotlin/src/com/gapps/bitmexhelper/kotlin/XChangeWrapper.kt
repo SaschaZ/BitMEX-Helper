@@ -244,12 +244,21 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                         else -> null
                     }?.toBigDecimal()
 
-                    Bitmex.PlaceOrderCommand(it.symbol.toBitmexSymbol(), it.orderSide.getSide().capitalized,
-                            it.orderQuantity, price, stop, when (it.orderType) {
-                        LIMIT -> "Limit"
-                        STOP -> "Stop"
-                        else -> "StopLimit"
-                    }, it.clOrId, it.executionInstructions, it.clOrLinkId, it.contingencyType)
+                    Bitmex.PlaceOrderCommand(
+                            it.symbol.toBitmexSymbol(),
+                            it.orderSide.getSide().capitalized,
+                            it.orderQuantity,
+                            price,
+                            stop,
+                            when (it.orderType) {
+                                LIMIT -> "Limit"
+                                STOP -> "Stop"
+                                else -> "StopLimit"
+                            },
+                            it.clOrId,
+                            it.executionInstructions,
+                            it.clOrLinkId,
+                            it.contingencyType)
                 }).map {
                     LimitOrder.Builder(side, pair)
                             .limitPrice(it.price)
