@@ -6,6 +6,7 @@ import com.gapps.bitmexhelper.kotlin.*
 import com.gapps.bitmexhelper.kotlin.persistance.Constants
 import com.gapps.bitmexhelper.kotlin.persistance.Settings
 import com.gapps.bitmexhelper.kotlin.persistance.Settings.Companion.settings
+import com.gapps.utils.whenNotNull
 import javafx.application.Platform
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleDoubleProperty
@@ -21,14 +22,15 @@ import javafx.util.StringConverter
 import javafx.util.converter.DoubleStringConverter
 import javafx.util.converter.IntegerStringConverter
 import kotlinx.coroutines.experimental.launch
+import org.knowm.xchange.bitmex.BitmexException
 import org.knowm.xchange.bitmex.BitmexExchange
+import org.knowm.xchange.bitmex.dto.trade.BitmexContingencyType
+import org.knowm.xchange.bitmex.dto.trade.BitmexPlaceOrderParameters
 import org.knowm.xchange.currency.CurrencyPair
 import org.knowm.xchange.dto.Order
 import org.knowm.xchange.dto.Order.OrderType.ASK
 import org.knowm.xchange.dto.Order.OrderType.BID
 import org.knowm.xchange.dto.marketdata.Ticker
-import si.mazi.rescu.HttpStatusIOException
-import java.lang.reflect.UndeclaredThrowableException
 
 
 object MainDelegate {
@@ -130,8 +132,8 @@ object MainDelegate {
             reduceOnly.setOnAction { updateView() }
 
             review.columnResizePolicy = TableView.CONSTRAINED_RESIZE_POLICY
-            reviewPriceColumn.cellValueFactory = PropertyValueFactory<ReviewItem, Double>("price")
-            reviewAmountColumn.cellValueFactory = PropertyValueFactory<ReviewItem, Int>("amount")
+            reviewPriceColumn.cellValueFactory = PropertyValueFactory<PreviewItem, Double>("price")
+            reviewAmountColumn.cellValueFactory = PropertyValueFactory<PreviewItem, Int>("amount")
 
             initLinkedTable()
         }
@@ -157,7 +159,7 @@ object MainDelegate {
             exchange?.createBulkOrders(
                     pair = pair.value.toString().toCurrencyPair(),
                     orderSide = if (side.value.toString() == "BUY") BID else ASK,
-                    type = OrderType.valueOf(orderType.value.toString().toUpperCase().replace("-", "_")),
+                    type = BulkOrderType.valueOf(orderType.value.toString().toUpperCase().replace("-", "_")),
                     amount = amount.value as Double,
                     minimumAmount = minAmount.value as Double,
                     priceLow = lowPrice.value as Double,
@@ -177,33 +179,37 @@ object MainDelegate {
     }
 
     @Suppress("unused")
-    internal data class ReviewItem(private val price: SimpleDoubleProperty, private val amount: SimpleIntegerProperty) {
+    internal data class PreviewItem(private val price: SimpleDoubleProperty, private val amount: SimpleIntegerProperty) {
         constructor(price: Double, amount: Int) : this(SimpleDoubleProperty(price), SimpleIntegerProperty(amount))
 
         fun getPrice(): Double = price.get()
         fun getAmount(): Int = amount.get()
     }
 
-    private fun updatePreview(orders: List<XChangeWrapper.BulkOrder>) {
+    private fun updatePreview(orders: List<BitmexPlaceOrderParameters>) {
         controller.apply {
-            review.items = FXCollections.observableArrayList<ReviewItem>(
-                    orders.sortedByDescending { it.price }.map { ReviewItem(it.price, it.orderQuantity) }
+            review.items = FXCollections.observableArrayList<PreviewItem>(
+                    orders.sortedByDescending { it.price }.mapNotNull {
+                        whenNotNull(it.price, it.orderQuantity) { price, quantity ->
+                            PreviewItem(price.toDouble(), quantity.toInt())
+                        }
+                    }
             )
             reviewPriceColumn.sortType = javafx.scene.control.TableColumn.SortType.ASCENDING
         }
     }
 
-    private fun updateStats(orders: List<XChangeWrapper.BulkOrder>) {
+    private fun updateStats(orders: List<BitmexPlaceOrderParameters>) {
         if (orders.isNotEmpty()) {
-            val sum = orders.sumBy { it.orderQuantity }
-            val averagePrice = orders.sumByDouble { it.price * it.orderQuantity / sum }
+            val sum = orders.sumBy { it.orderQuantity?.toInt() ?: 0 }
+            val averagePrice = orders.sumByDouble { (it.price?.toDouble() ?: 0.0) * (it.orderQuantity?.toDouble() ?: 0.0) / sum }
 
             controller.stats.text = " total bulk order amount: " + sum + "\n" +
                     " average price: ${averagePrice.roundToMinimumStep(controller.pair.value.toString().toCurrencyPair())}\n" +
                     " order count: ${orders.size}\n" +
-                    " min. order amount: ${orders.minBy { it.orderQuantity }?.orderQuantity}\n" +
+                    " min. order amount: ${orders.minBy { it.orderQuantity?.toDouble() ?: Double.MAX_VALUE }?.orderQuantity}\n" +
                     " average order amount: ${String.format("%.1f", sum.toDouble() / orders.size)}\n" +
-                    " max. order amount: ${orders.maxBy { it.orderQuantity }?.orderQuantity}\n"
+                    " max. order amount: ${orders.maxBy { it.orderQuantity?.toDouble() ?: 0.0 }?.orderQuantity}\n"
         } else controller.stats.text = ""
     }
 
@@ -223,8 +229,7 @@ object MainDelegate {
                 controller.changeInExecutionMode(false)
                 if (result == null || error != null) {
                     error?.printStackTrace()
-                    AppDelegate.showError(((error as? UndeclaredThrowableException)?.undeclaredThrowable as? HttpStatusIOException)?.httpBody
-                            ?: "Something went wrong.")
+                    AppDelegate.showError((error as? BitmexException)?.message ?: "Something went wrong.")
                 }
             }
         }
@@ -254,8 +259,8 @@ object MainDelegate {
         controller.apply {
             return exchange?.placeBulkOrders(
                     pair = pair.value.toString().toCurrencyPair(),
-                    side = if (side.value.toString() == "BUY") BID else ASK,
-                    type = OrderType.valueOf(orderType.value.toString().toUpperCase().replace("-", "_")),
+                    orderSide = if (side.value.toString() == "BUY") BID else ASK,
+                    type = BulkOrderType.valueOf(orderType.value.toString().toUpperCase().replace("-", "_")),
                     amount = amount.value as Double,
                     minimumAmount = minAmount.value as Double,
                     priceLow = lowPrice.value as Double,
@@ -284,10 +289,10 @@ object MainDelegate {
         constructor(side: String = "Buy",
                     price: Double = 0.0,
                     amount: Int = 0,
-                    orderType: OrderType = OrderType.LIMIT,
+                    orderType: BulkOrderType = BulkOrderType.LIMIT,
                     orderTypeParameter: Double = 0.0,
                     linkId: String = "",
-                    linkType: OrderLinkType = OrderLinkType.NONE,
+                    linkType: BitmexContingencyType? = null,
                     postOnly: Boolean = false,
                     reduceOnly: Boolean = false) : this(
                 SimpleStringProperty(side),
@@ -354,7 +359,7 @@ object MainDelegate {
 
             linkedOrderTypeColumn.apply {
                 cellValueFactory = PropertyValueFactory<LinkedTableItem, String>("orderSide")
-                cellFactory = ComboBoxTableCell.forTableColumn(*OrderType.values()
+                cellFactory = ComboBoxTableCell.forTableColumn(*BulkOrderType.values()
                         .map { it.toString() }.toTypedArray())
                 setOnEditCommit { event ->
                     linkedOrders[event.tablePosition.row].setOrderType(event.newValue)
@@ -386,7 +391,7 @@ object MainDelegate {
 
             linkedLinkTypeColumn.apply {
                 cellValueFactory = PropertyValueFactory<LinkedTableItem, String>("linkType")
-                cellFactory = ComboBoxTableCell.forTableColumn(*OrderLinkType.values()
+                cellFactory = ComboBoxTableCell.forTableColumn(*BitmexContingencyType.values()
                         .map { it.toString() }.toMutableList().toTypedArray())
                 setOnEditCommit { event ->
                     linkedOrders[event.tablePosition.row].setLinkType(event.newValue)
@@ -433,15 +438,21 @@ object MainDelegate {
     }
 
     fun onExecuteLinkedOrdersClicked() {
-        println(linkedOrders.map {
-            XChangeWrapper.BulkOrder(controller.linkedPair.value.toString().toCurrencyPair(),
-                    orderSide = if (it.getSide() == "Buy") BID else ASK,
-                    orderType = OrderType.valueOf(it.getOrderType()),
-                    orderQuantity = it.getAmount(),
-                    price = it.getPrice(),
-                    executionInstructions = createBitmexExecInstructions(it.getPostOnly(), it.getReduceOnly()),
-                    contingencyType = OrderLinkType.valueOf(it.getLinkType()).toParameter())
-        })
+//        println(linkedOrders.map {
+//            BitmexPlaceOrderParameters(
+//                    controller.linkedPair.value.toString().toCurrencyPair().toBitmexSymbol(),
+//                    it.getAmount().toBigDecimal(),
+//                    null,
+//                    null,
+//                    it.getPrice().toBigDecimal(),
+//                    null,
+//                    BitmexSide.valueOf(it.getSide()),
+//                    BulkOrderType.valueOf(it.getOrderType()),
+//                    orderQuantity = it.getAmount(),
+//                    price = it.getPrice(),
+//                    executionInstructions = createBitmexExecInstructions(it.getPostOnly(), it.getReduceOnly()),
+//                    contingencyType = OrderLinkType.valueOf(it.getLinkType()).toParameter())
+//        })
     }
 }
 

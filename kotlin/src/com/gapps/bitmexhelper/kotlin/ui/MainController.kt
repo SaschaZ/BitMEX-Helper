@@ -35,9 +35,9 @@ class MainController {
     @FXML
     internal lateinit var review: TableView<*>
     @FXML
-    internal lateinit var reviewPriceColumn: TableColumn<MainDelegate.ReviewItem, Double>
+    internal lateinit var reviewPriceColumn: TableColumn<MainDelegate.PreviewItem, Double>
     @FXML
-    internal lateinit var reviewAmountColumn: TableColumn<MainDelegate.ReviewItem, Int>
+    internal lateinit var reviewAmountColumn: TableColumn<MainDelegate.PreviewItem, Int>
     @FXML
     internal lateinit var stats: TextArea
     @FXML
