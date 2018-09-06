@@ -36,7 +36,8 @@
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/apache-codec/commons-codec/1.2/commons-codec-1.2.jar" path-in-jar="/" />
       <element id="module-output" name="utils" />
       <element id="extracted-dir" path="$PROJECT_DIR$/../XChange/xchange-core/target/xchange-core-4.3.10-SNAPSHOT.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/../XChange/xchange-bitmex/target/xchange-bitmex-4.3.10-SNAPSHOT.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/knowm/xchange/xchange-core/4.3.10-SNAPSHOT/xchange-core-4.3.10-SNAPSHOT.jar" path-in-jar="/" />
+      <element id="module-output" name="xchange-bitmex" />
     </root>
   </artifact>
 </component>

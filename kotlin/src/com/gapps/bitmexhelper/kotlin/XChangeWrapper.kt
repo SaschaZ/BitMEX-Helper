@@ -10,6 +10,7 @@ import com.gapps.utils.TimeUnit
 import com.gapps.utils.catchAsync
 import com.gapps.utils.launchInterval
 import com.gapps.utils.toMs
+import kotlinx.coroutines.experimental.runBlocking
 import org.knowm.xchange.ExchangeFactory
 import org.knowm.xchange.bitmex.Bitmex
 import org.knowm.xchange.bitmex.BitmexExchange
@@ -44,6 +45,19 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
     companion object {
 
         const val BITMEX_CROSS_LEVERAGE = 0.0
+
+        @JvmStatic
+        fun main(args: Array<String>) = runBlocking {
+            println("XChangeWrapper Test\n")
+
+            val exchange = XChangeWrapper(BitmexExchange::class,
+                    "NS8kaKqDhYrAMH1b3nYiPord",
+                    "pwwJcHV7PRkbX3c0Yw_XaUql2GaBwO2fqCy53eTMKqCAFVXt")
+
+            val orderResult = exchange.limitOrder(BID, CurrencyPair("XBT", "USD"), 100.0,
+                    6100.0, true, false)
+            println("orderResult: $orderResult")
+        }
     }
 
     init {

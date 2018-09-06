@@ -8,11 +8,9 @@ import javafx.scene.input.KeyEvent
 import javafx.util.StringConverter
 
 
-class EditCell<S, T>(// Converter for converting the text in the text field to the user type, and vice-versa:
+class EditCell<S, T>(
         private val converter: StringConverter<T>) : TableCell<S, T>() {
 
-    // Text field for editing
-    // TODO: allow this to be a plugable control.
     private val textField = TextField()
 
     init {
@@ -60,8 +58,6 @@ class EditCell<S, T>(// Converter for converting the text in the text field to t
         }
     }
 
-
-    // set the text of the text field and display the graphic
     override fun startEdit() {
         super.startEdit()
         textField.text = converter.toString(item)
@@ -69,13 +65,11 @@ class EditCell<S, T>(// Converter for converting the text in the text field to t
         textField.requestFocus()
     }
 
-    // revert to text display
     override fun cancelEdit() {
         super.cancelEdit()
         contentDisplay = ContentDisplay.TEXT_ONLY
     }
 
-    // commits the edit. Update property if possible and revert to text display
     override fun commitEdit(item: T?) {
 
         // This block is necessary to support commit on losing focus, because the baked-in mechanism
@@ -99,9 +93,6 @@ class EditCell<S, T>(// Converter for converting the text in the text field to t
 
     companion object {
 
-        /**
-         * Convenience converter that does nothing (converts Strings to themselves and vice-versa...).
-         */
         private val IDENTITY_CONVERTER: StringConverter<String> = object : StringConverter<String>() {
 
             override fun toString(`object`: String): String {
@@ -114,10 +105,6 @@ class EditCell<S, T>(// Converter for converting the text in the text field to t
 
         }
 
-        /**
-         * Convenience method for creating an EditCell for a String value.
-         * @return
-         */
         @Suppress("unused")
         fun <S> createStringEditCell(): EditCell<S, String> {
             return EditCell(IDENTITY_CONVERTER)
