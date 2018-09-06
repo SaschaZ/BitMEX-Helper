@@ -22,15 +22,15 @@ import javafx.util.StringConverter
 import javafx.util.converter.DoubleStringConverter
 import javafx.util.converter.IntegerStringConverter
 import kotlinx.coroutines.experimental.launch
-import org.knowm.xchange.bitmex.BitmexException
 import org.knowm.xchange.bitmex.BitmexExchange
+import org.knowm.xchange.bitmex.dto.marketdata.BitmexPrivateOrder
 import org.knowm.xchange.bitmex.dto.trade.BitmexContingencyType
 import org.knowm.xchange.bitmex.dto.trade.BitmexPlaceOrderParameters
 import org.knowm.xchange.currency.CurrencyPair
-import org.knowm.xchange.dto.Order
 import org.knowm.xchange.dto.Order.OrderType.ASK
 import org.knowm.xchange.dto.Order.OrderType.BID
 import org.knowm.xchange.dto.marketdata.Ticker
+import org.knowm.xchange.exceptions.ExchangeException
 
 
 object MainDelegate {
@@ -202,12 +202,16 @@ object MainDelegate {
     private fun updateStats(orders: List<BitmexPlaceOrderParameters>) {
         if (orders.isNotEmpty()) {
             val sum = orders.sumBy { it.orderQuantity?.toInt() ?: 0 }
-            val averagePrice = orders.sumByDouble { (it.price?.toDouble() ?: 0.0) * (it.orderQuantity?.toDouble() ?: 0.0) / sum }
+            val averagePrice = orders.sumByDouble {
+                (it.price?.toDouble() ?: 0.0) * (it.orderQuantity?.toDouble() ?: 0.0) / sum
+            }
 
             controller.stats.text = " total bulk order amount: " + sum + "\n" +
                     " average price: ${averagePrice.roundToMinimumStep(controller.pair.value.toString().toCurrencyPair())}\n" +
                     " order count: ${orders.size}\n" +
-                    " min. order amount: ${orders.minBy { it.orderQuantity?.toDouble() ?: Double.MAX_VALUE }?.orderQuantity}\n" +
+                    " min. order amount: ${orders.minBy {
+                        it.orderQuantity?.toDouble() ?: Double.MAX_VALUE
+                    }?.orderQuantity}\n" +
                     " average order amount: ${String.format("%.1f", sum.toDouble() / orders.size)}\n" +
                     " max. order amount: ${orders.maxBy { it.orderQuantity?.toDouble() ?: 0.0 }?.orderQuantity}\n"
         } else controller.stats.text = ""
@@ -223,13 +227,19 @@ object MainDelegate {
                 executeOrder()
             } catch (t: Throwable) {
                 error = t
+                null
             }
 
             Platform.runLater {
                 controller.changeInExecutionMode(false)
                 if (result == null || error != null) {
                     error?.printStackTrace()
-                    AppDelegate.showError((error as? BitmexException)?.message ?: "Something went wrong.")
+                    AppDelegate.showError((error as? ExchangeException)?.message
+                            ?: error?.localizedMessage
+                            ?: "unknown error")
+                } else {
+                    // TODO report cancelled orders
+                    println(result.joinToString("\n"))
                 }
             }
         }
@@ -255,7 +265,7 @@ object MainDelegate {
         }
     }
 
-    private fun executeOrder(): List<Order>? {
+    private fun executeOrder(): List<BitmexPrivateOrder>? {
         controller.apply {
             return exchange?.placeBulkOrders(
                     pair = pair.value.toString().toCurrencyPair(),
@@ -431,7 +441,7 @@ object MainDelegate {
 
     fun onRemoveLinkedOrderClicked() {
         val row = controller.linkedOrdersTable.selectionModel.selectedCells.firstOrNull()?.row ?: linkedOrders.lastIndex
-        if (row in 0 .. linkedOrders.size) {
+        if (row in 0..linkedOrders.size) {
             linkedOrders.removeAt(row)
             updateLinkedOrders()
         }

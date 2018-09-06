@@ -16,7 +16,9 @@ import org.knowm.xchange.bitmex.Bitmex
 import org.knowm.xchange.bitmex.BitmexExchange
 import org.knowm.xchange.bitmex.BitmexPrompt
 import org.knowm.xchange.bitmex.dto.marketdata.BitmexPrivateOrder
+import org.knowm.xchange.bitmex.dto.trade.BitmexContingencyType.OCO
 import org.knowm.xchange.bitmex.dto.trade.BitmexExecutionInstruction
+import org.knowm.xchange.bitmex.dto.trade.BitmexOrderType
 import org.knowm.xchange.bitmex.dto.trade.BitmexPlaceOrderParameters
 import org.knowm.xchange.bitmex.dto.trade.BitmexSide.BUY
 import org.knowm.xchange.bitmex.dto.trade.BitmexSide.SELL
@@ -54,9 +56,29 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                     "NS8kaKqDhYrAMH1b3nYiPord",
                     "pwwJcHV7PRkbX3c0Yw_XaUql2GaBwO2fqCy53eTMKqCAFVXt")
 
-            val orderResult = exchange.limitOrder(BID, CurrencyPair("XBT", "USD"), 100.0,
-                    6100.0, true, false)
-            println("orderResult: $orderResult")
+//            val orderResult = exchange.limitOrder(BID, CurrencyPair("XBT", "USD"), 100.0,
+//                    6100.0, true, false)
+//            println("orderResult: $orderResult")
+
+            val currencyPair = CurrencyPair("XBT", "USD")
+            val symbol = currencyPair.toBitmexSymbol()
+            val orders = listOf(
+                    BitmexPlaceOrderParameters.Builder(symbol)
+                            .setOrderQuantity(600.toBigDecimal())
+                            .setPrice(6587.5.toBigDecimal())
+                            .setStopPrice(6588.toBigDecimal())
+                            .setOrderType(BitmexOrderType.STOP_LIMIT)
+                            .setClOrdLinkId("fooboo")
+                            .setContingencyType(OCO)
+                            .build(),
+                    BitmexPlaceOrderParameters.Builder(symbol)
+                            .setOrderQuantity(300.toBigDecimal())
+                            .setStopPrice(6589.toBigDecimal())
+                            .setClOrdLinkId("fooboo")
+                            .setContingencyType(OCO)
+                            .build())
+            exchange.placeBulkOrders(orders)
+            Unit
         }
     }
 
@@ -193,6 +215,11 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                     .build())
     }
 
+    fun placeBulkOrders(orders: List<BitmexPlaceOrderParameters>): List<BitmexPrivateOrder>? =
+            (exchange.tradeService as BitmexTradeServiceRaw).placeOrderBulk(orders.map {
+                Bitmex.PlaceOrderCommand(it)
+            })
+
     fun placeBulkOrders(pair: CurrencyPair,
                         orderSide: Order.OrderType,
                         type: BulkOrderType,
@@ -204,30 +231,12 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                         minimumAmount: Double,
                         postOnly: Boolean = false,
                         reduceOnly: Boolean = false,
-                        reversed: Boolean = false): List<Order>? {
+                        reversed: Boolean = false): List<BitmexPrivateOrder>? {
         return when (exchange) {
             is BitmexExchange -> {
                 val orders = createBulkOrders(pair, orderSide, type, amount, priceHigh, priceLow, distribution,
                         distributionParameter, minimumAmount, postOnly, reduceOnly, reversed)
-                (exchange.tradeService as BitmexTradeServiceRaw).placeOrderBulk(orders.map {
-                    Bitmex.PlaceOrderCommand(it)
-                }).map {
-                    LimitOrder.Builder(orderSide, pair)
-                            .limitPrice(it.price)
-                            .averagePrice(it.avgPx)
-                            .cumulativeAmount(it.cumQty)
-                            .id(it.id)
-                            .orderStatus(when (it.orderStatus!!) {
-                                BitmexPrivateOrder.OrderStatus.New -> Order.OrderStatus.NEW
-                                BitmexPrivateOrder.OrderStatus.Filled -> Order.OrderStatus.FILLED
-                                BitmexPrivateOrder.OrderStatus.Canceled -> Order.OrderStatus.CANCELED
-                                BitmexPrivateOrder.OrderStatus.PartiallyFilled -> Order.OrderStatus.PARTIALLY_FILLED
-                                BitmexPrivateOrder.OrderStatus.Rejected -> Order.OrderStatus.REJECTED
-                                BitmexPrivateOrder.OrderStatus.Replaced -> Order.OrderStatus.REPLACED
-                            })
-                            .timestamp(it.timestamp)
-                            .build()
-                }
+                placeBulkOrders(orders)
             }
             else -> {
                 System.err.println("Can not execute bulk order for exchange ${exchange.javaClass.simpleName}.")
