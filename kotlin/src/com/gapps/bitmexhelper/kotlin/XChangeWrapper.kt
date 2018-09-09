@@ -47,39 +47,6 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
     companion object {
 
         const val BITMEX_CROSS_LEVERAGE = 0.0
-
-        @JvmStatic
-        fun main(args: Array<String>) = runBlocking {
-            println("XChangeWrapper Test\n")
-
-            val exchange = XChangeWrapper(BitmexExchange::class,
-                    "NS8kaKqDhYrAMH1b3nYiPord",
-                    "pwwJcHV7PRkbX3c0Yw_XaUql2GaBwO2fqCy53eTMKqCAFVXt")
-
-//            val orderResult = exchange.limitOrder(BID, CurrencyPair("XBT", "USD"), 100.0,
-//                    6100.0, true, false)
-//            println("orderResult: $orderResult")
-
-            val currencyPair = CurrencyPair("XBT", "USD")
-            val symbol = currencyPair.toBitmexSymbol()
-            val orders = listOf(
-                    BitmexPlaceOrderParameters.Builder(symbol)
-                            .setOrderQuantity(600.toBigDecimal())
-                            .setPrice(6587.5.toBigDecimal())
-                            .setStopPrice(6588.toBigDecimal())
-                            .setOrderType(BitmexOrderType.STOP_LIMIT)
-                            .setClOrdLinkId("fooboo")
-                            .setContingencyType(OCO)
-                            .build(),
-                    BitmexPlaceOrderParameters.Builder(symbol)
-                            .setOrderQuantity(300.toBigDecimal())
-                            .setStopPrice(6589.toBigDecimal())
-                            .setClOrdLinkId("fooboo")
-                            .setContingencyType(OCO)
-                            .build())
-            exchange.placeBulkOrders(orders)
-            Unit
-        }
     }
 
     init {
