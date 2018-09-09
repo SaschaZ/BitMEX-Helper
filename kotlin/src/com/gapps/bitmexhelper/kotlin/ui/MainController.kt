@@ -8,6 +8,8 @@ import javafx.scene.control.*
 
 class MainController {
 
+    private val delegate = MainDelegate
+
     @FXML
     internal lateinit var pair: ComboBox<*>
     @FXML
@@ -35,38 +37,15 @@ class MainController {
     @FXML
     internal lateinit var review: TableView<*>
     @FXML
-    internal lateinit var reviewPriceColumn: TableColumn<MainDelegate.PreviewItem, Double>
+    internal lateinit var reviewPriceColumn: TableColumn<MainDelegate.ReviewItem, Double>
     @FXML
-    internal lateinit var reviewAmountColumn: TableColumn<MainDelegate.PreviewItem, Int>
+    internal lateinit var reviewAmountColumn: TableColumn<MainDelegate.ReviewItem, Int>
     @FXML
     internal lateinit var stats: TextArea
     @FXML
     internal lateinit var execute: Button
     @FXML
     internal lateinit var progress: ProgressIndicator
-
-    @FXML
-    internal lateinit var linkedPair: ComboBox<*>
-    @FXML
-    internal lateinit var linkedOrdersTable: TableView<*>
-    @FXML
-    internal lateinit var linkedSideColumn: TableColumn<MainDelegate.LinkedTableItem, String>
-    @FXML
-    internal lateinit var linkedPriceColumn: TableColumn<MainDelegate.LinkedTableItem, Double>
-    @FXML
-    internal lateinit var linkedAmountColumn: TableColumn<MainDelegate.LinkedTableItem, Int>
-    @FXML
-    internal lateinit var linkedOrderTypeColumn: TableColumn<MainDelegate.LinkedTableItem, String>
-    @FXML
-    internal lateinit var linkedOrderTypeParameterColumn: TableColumn<MainDelegate.LinkedTableItem, Double>
-    @FXML
-    internal lateinit var linkedLinkIdColumn: TableColumn<MainDelegate.LinkedTableItem, String>
-    @FXML
-    internal lateinit var linkedLinkTypeColumn: TableColumn<MainDelegate.LinkedTableItem, String>
-    @FXML
-    internal lateinit var linkedPostOnlyColumn: TableColumn<MainDelegate.LinkedTableItem, Boolean>
-    @FXML
-    internal lateinit var linkedReduceOnlyColumn: TableColumn<MainDelegate.LinkedTableItem, Boolean>
 
     init {
         MainDelegate.onControllerAvailable(this)
@@ -89,20 +68,5 @@ class MainController {
     internal fun changeInExecutionMode(show: Boolean) {
         progress.isVisible = show
         execute.isDisable = show
-    }
-
-    @FXML
-    private fun onAddLinkedOrderClicked() {
-        MainDelegate.onAddLinkedOrderClicked()
-    }
-
-    @FXML
-    private fun onRemoveLinkedOrderClicked() {
-        MainDelegate.onRemoveLinkedOrderClicked()
-    }
-
-    @FXML
-    private fun onExecuteLinkedOrdersClicked() {
-        MainDelegate.onExecuteLinkedOrdersClicked()
     }
 }

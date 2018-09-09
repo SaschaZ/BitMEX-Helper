@@ -1,6 +1,6 @@
 package com.gapps.bitmexhelper.kotlin.persistance
 
-import com.gapps.bitmexhelper.kotlin.BulkDistribution
+import com.gapps.bitmexhelper.kotlin.XChangeWrapper
 import com.gapps.utils.*
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -15,7 +15,7 @@ data class Settings(private var bitmexApiKey: String = "",
                     var lastHighPrice: Double = 0.0,
                     var lastAmount: Int = 1,
                     var lastMinAmount: Int = 26,
-                    var lastMode: String = BulkDistribution.FLAT.toString(),
+                    var lastMode: String = XChangeWrapper.BulkDistribution.FLAT.toString(),
                     var lastDistributionParameter: Double = 2.0,
                     var lastPostOnly: Boolean = true,
                     var lastReduceOnly: Boolean = false,
