@@ -144,7 +144,7 @@ object MainDelegate {
         controller.apply {
             exchange?.createBulkOrders(
                     pair = pair.value.toString().toCurrencyPair(),
-                    side = if (side.value.toString() == "BUY") BID else ASK,
+                    orderType = if (side.value.toString() == "BUY") BID else ASK,
                     amount = amount.value as Double,
                     minimumAmount = minAmount.value as Double,
                     priceLow = lowPrice.value as Double,
