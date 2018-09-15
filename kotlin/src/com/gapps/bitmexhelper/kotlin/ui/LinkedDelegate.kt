@@ -20,7 +20,6 @@ import javafx.scene.control.cell.ComboBoxTableCell
 import javafx.scene.control.cell.PropertyValueFactory
 import javafx.util.Callback
 import javafx.util.StringConverter
-import org.knowm.xchange.bitmex.dto.marketdata.BitmexPrivateOrder
 import org.knowm.xchange.bitmex.dto.trade.*
 import org.knowm.xchange.bitmex.dto.trade.BitmexExecutionInstruction.*
 import org.knowm.xchange.exceptions.ExchangeException
@@ -289,7 +288,8 @@ object LinkedDelegate {
                     .setStopPrice(stop?.let { if (it < 0) null else it.toBigDecimal() })
                     .setSide(BitmexSide.fromString(item.getSide()))
                     .setOrderType(orderType.toBitmexOrderType())
-                    .setExecutionInstructions(fromParameter(item.getPostOnly(), item.getReduceOnly()))
+                    .setExecutionInstructions(BitmexExecutionInstruction.Builder().setPostOnly(item.getPostOnly())
+                            .setReduceOnly(item.getReduceOnly()).setLastPrice(orderType == TRAILING_STOP).build())
                     .setContingencyType(LinkType.valueOf(item.getLinkType()).toBitmexContingencyType())
                     .setClOrdLinkId(item.getLinkId().let { if (it.isBlank()) null else it })
                     .setPegPriceType(pegPriceType)
@@ -335,7 +335,7 @@ object LinkedDelegate {
                         BitmexContingencyType.OUOA -> LinkType.OUOA
                         else -> LinkType.NONE
                     },
-                    postOnly = order.executionInstructions?.contains(PARTICIPATE_DO_NOT_INITIATE_FOO) ?: false,
+                    postOnly = order.executionInstructions?.contains(PARTICIPATE_DO_NOT_INITIATE) ?: false,
                     reduceOnly = order.executionInstructions?.contains(REDUCE_ONLY) ?: false
             ))
         }

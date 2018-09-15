@@ -17,6 +17,7 @@ import org.knowm.xchange.bitmex.BitmexPrompt
 import org.knowm.xchange.bitmex.dto.marketdata.BitmexPrivateOrder
 import org.knowm.xchange.bitmex.dto.trade.BitmexExecutionInstruction
 import org.knowm.xchange.bitmex.dto.trade.BitmexOrderType
+import org.knowm.xchange.bitmex.dto.trade.BitmexPegPriceType
 import org.knowm.xchange.bitmex.dto.trade.BitmexPlaceOrderParameters
 import org.knowm.xchange.bitmex.dto.trade.BitmexSide.BUY
 import org.knowm.xchange.bitmex.dto.trade.BitmexSide.SELL
@@ -136,7 +137,8 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                     .setSide(type.getSide())
                     .setOrderQuantity(amount.toBigDecimal())
                     .setPrice(price.toBigDecimal())
-                    .setExecutionInstructions(BitmexExecutionInstruction.fromParameter(postOnly, reduceOnly))
+                    .setExecutionInstructions(BitmexExecutionInstruction.Builder().setPostOnly(postOnly)
+                            .setReduceOnly(reduceOnly).build())
                     .build()).id
         else ->
             exchange.tradeService.placeLimitOrder(LimitOrder.Builder(type, pair)
@@ -171,7 +173,8 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                     .setSide(type.getSide())
                     .setOrderQuantity(amount.toBigDecimal())
                     .setStopPrice(stopPrice.toBigDecimal())
-                    .setExecutionInstructions(BitmexExecutionInstruction.fromParameter(false, reduceOnly))
+                    .setExecutionInstructions(BitmexExecutionInstruction.Builder().setPostOnly(false)
+                            .setReduceOnly(reduceOnly).build())
                     .build()).id
         else ->
             exchange.tradeService.placeStopOrder(StopOrder.Builder(type, pair)
@@ -225,7 +228,8 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
         var amounts = getBulkAmounts(amount, distribution, distributionParameter, minimumAmount)
         amounts = if (reversed) amounts.reversed() else amounts
         val orders = amounts.asSequence().mapIndexed { orderIndex, amountForOrder ->
-            val priceForOrder = (priceLow + (priceHigh - priceLow) / amounts.size * orderIndex).roundToMinimumStep(pair)
+            val priceForOrder = (if (amounts.size == 1) priceLow + (priceHigh - priceLow) / 2
+            else priceLow + (priceHigh - priceLow) / (amounts.size - 1) * orderIndex).roundToMinimumStep(pair)
             val builder = BitmexPlaceOrderParameters.Builder(pair.toBitmexSymbol())
             when (type) {
                 LIMIT -> {
@@ -250,7 +254,8 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
             builder
                     .setSide(orderSide.getSide())
                     .setOrderQuantity(amountForOrder.toBigDecimal())
-                    .setExecutionInstructions(BitmexExecutionInstruction.fromParameter(postOnly, reduceOnly))
+                    .setExecutionInstructions(BitmexExecutionInstruction.Builder().setPostOnly(postOnly)
+                            .setReduceOnly(reduceOnly).setLastPrice(type == TRAILING_STOP).build())
                     .build()
         }.toMutableList()
 
@@ -319,7 +324,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                 result.asSequence().map { it + amountToAdd }.toMutableList().also { increasedResult ->
                     val increasedSum = increasedResult.sum()
                     if (increasedSum < amount) {
-                        increasedResult[increasedResult.lastIndex] += amount- increasedSum
+                        increasedResult[increasedResult.lastIndex] += amount - increasedSum
                     }
                 }
             } else
