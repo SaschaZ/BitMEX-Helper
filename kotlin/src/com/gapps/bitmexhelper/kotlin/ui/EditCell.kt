@@ -3,8 +3,6 @@ package com.gapps.bitmexhelper.kotlin.ui
 import javafx.event.Event
 import javafx.scene.control.*
 import javafx.scene.control.TableColumn.CellEditEvent
-import javafx.scene.input.KeyCode.*
-import javafx.scene.input.KeyEvent
 import javafx.util.StringConverter
 
 
@@ -25,36 +23,9 @@ class EditCell<S, T>(
         graphic = textField
         contentDisplay = ContentDisplay.TEXT_ONLY
 
-        textField.setOnAction { _ -> commitEdit(this.converter.fromString(textField.text)) }
+        textField.setOnAction { _ -> commitEdit() }
         textField.focusedProperty().addListener { _, _, isNowFocused ->
-            if (!isNowFocused) {
-                commitEdit(this.converter.fromString(textField.text))
-            }
-        }
-        textField.addEventFilter(KeyEvent.KEY_PRESSED) { event ->
-            when {
-                event.code == ESCAPE -> {
-                    textField.text = converter.toString(item)
-                    cancelEdit()
-                    event.consume()
-                }
-                event.code == RIGHT -> {
-                    tableView.selectionModel.selectRightCell()
-                    event.consume()
-                }
-                event.code == LEFT -> {
-                    tableView.selectionModel.selectLeftCell()
-                    event.consume()
-                }
-                event.code == UP -> {
-                    tableView.selectionModel.selectAboveCell()
-                    event.consume()
-                }
-                event.code == DOWN -> {
-                    tableView.selectionModel.selectBelowCell()
-                    event.consume()
-                }
-            }
+            if (!isNowFocused) commitEdit()
         }
     }
 
@@ -69,6 +40,8 @@ class EditCell<S, T>(
         super.cancelEdit()
         contentDisplay = ContentDisplay.TEXT_ONLY
     }
+
+    private fun commitEdit() = commitEdit(this.converter.fromString(textField.text))
 
     override fun commitEdit(item: T?) {
 

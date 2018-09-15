@@ -418,7 +418,14 @@ enum class BulkOrderType {
     LIMIT,
     STOP,
     STOP_LIMIT,
-    TRAILING_STOP
+    TRAILING_STOP;
+
+    fun toBitmexOrderType() = when (this) {
+        LIMIT -> BitmexOrderType.LIMIT
+        STOP -> BitmexOrderType.STOP
+        STOP_LIMIT -> BitmexOrderType.STOP_LIMIT
+        TRAILING_STOP -> BitmexOrderType.PEGGED
+    }
 }
 
 enum class BulkDistribution {

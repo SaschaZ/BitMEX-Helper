@@ -35,9 +35,9 @@ class MainController {
     @FXML
     internal lateinit var review: TableView<*>
     @FXML
-    internal lateinit var reviewPriceColumn: TableColumn<MainDelegate.PreviewItem, Double>
+    internal lateinit var reviewPriceColumn: TableColumn<BulkDelegate.PreviewItem, Double>
     @FXML
-    internal lateinit var reviewAmountColumn: TableColumn<MainDelegate.PreviewItem, Int>
+    internal lateinit var reviewAmountColumn: TableColumn<BulkDelegate.PreviewItem, Int>
     @FXML
     internal lateinit var stats: TextArea
     @FXML
@@ -50,23 +50,23 @@ class MainController {
     @FXML
     internal lateinit var linkedOrdersTable: TableView<*>
     @FXML
-    internal lateinit var linkedSideColumn: TableColumn<MainDelegate.LinkedTableItem, String>
+    internal lateinit var linkedSideColumn: TableColumn<LinkedDelegate.LinkedTableItem, String>
     @FXML
-    internal lateinit var linkedPriceColumn: TableColumn<MainDelegate.LinkedTableItem, Double>
+    internal lateinit var linkedPriceColumn: TableColumn<LinkedDelegate.LinkedTableItem, Double>
     @FXML
-    internal lateinit var linkedAmountColumn: TableColumn<MainDelegate.LinkedTableItem, Int>
+    internal lateinit var linkedAmountColumn: TableColumn<LinkedDelegate.LinkedTableItem, Int>
     @FXML
-    internal lateinit var linkedOrderTypeColumn: TableColumn<MainDelegate.LinkedTableItem, String>
+    internal lateinit var linkedOrderTypeColumn: TableColumn<LinkedDelegate.LinkedTableItem, String>
     @FXML
-    internal lateinit var linkedOrderTypeParameterColumn: TableColumn<MainDelegate.LinkedTableItem, Double>
+    internal lateinit var linkedOrderTypeParameterColumn: TableColumn<LinkedDelegate.LinkedTableItem, Double>
     @FXML
-    internal lateinit var linkedLinkIdColumn: TableColumn<MainDelegate.LinkedTableItem, String>
+    internal lateinit var linkedLinkIdColumn: TableColumn<LinkedDelegate.LinkedTableItem, String>
     @FXML
-    internal lateinit var linkedLinkTypeColumn: TableColumn<MainDelegate.LinkedTableItem, String>
+    internal lateinit var linkedLinkTypeColumn: TableColumn<LinkedDelegate.LinkedTableItem, String>
     @FXML
-    internal lateinit var linkedPostOnlyColumn: TableColumn<MainDelegate.LinkedTableItem, Boolean>
+    internal lateinit var linkedPostOnlyColumn: TableColumn<LinkedDelegate.LinkedTableItem, Boolean>
     @FXML
-    internal lateinit var linkedReduceOnlyColumn: TableColumn<MainDelegate.LinkedTableItem, Boolean>
+    internal lateinit var linkedReduceOnlyColumn: TableColumn<LinkedDelegate.LinkedTableItem, Boolean>
 
     init {
         MainDelegate.onControllerAvailable(this)
@@ -79,7 +79,7 @@ class MainController {
 
     @FXML
     private fun onExecuteClicked() {
-        MainDelegate.onExecuteClicked()
+        BulkDelegate.onExecuteClicked()
     }
 
     internal fun exitApp() {
@@ -93,16 +93,16 @@ class MainController {
 
     @FXML
     private fun onAddLinkedOrderClicked() {
-        MainDelegate.onAddLinkedOrderClicked()
+        LinkedDelegate.onAddLinkedOrderClicked()
     }
 
     @FXML
     private fun onRemoveLinkedOrderClicked() {
-        MainDelegate.onRemoveLinkedOrderClicked()
+        LinkedDelegate.onRemoveLinkedOrderClicked()
     }
 
     @FXML
     private fun onExecuteLinkedOrdersClicked() {
-        MainDelegate.onExecuteLinkedOrdersClicked()
+        LinkedDelegate.onExecuteLinkedOrdersClicked()
     }
 }

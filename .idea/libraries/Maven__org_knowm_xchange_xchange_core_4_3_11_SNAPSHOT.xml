@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.knowm.xchange:xchange-core:4.3.11-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/knowm/xchange/xchange-core/4.3.11-SNAPSHOT/xchange-core-4.3.11-20180914.110731-4.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/knowm/xchange/xchange-core/4.3.11-SNAPSHOT/xchange-core-4.3.11-20180914.110731-4-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/knowm/xchange/xchange-core/4.3.11-SNAPSHOT/xchange-core-4.3.11-20180914.110731-4-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -10,10 +10,10 @@ import java.text.ParseException
 import kotlin.math.max
 import kotlin.math.min
 
-class CustomSpinnerValueFactory(_min: Double,
-                                _max: Double,
-                                _initial: Double,
-                                _step: Double) : SpinnerValueFactory<Double>() {
+open class SmallDoubleValueFactory(_min: Double,
+                                   _max: Double,
+                                   _initial: Double,
+                                   _step: Double) : SpinnerValueFactory<Double>() {
 
     private val min = object : SimpleDoubleProperty(this, "min") {
         override fun invalidated() {
