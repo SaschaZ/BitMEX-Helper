@@ -8,10 +8,7 @@ import javafx.application.Platform
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.collections.FXCollections
-import javafx.scene.control.ComboBox
-import javafx.scene.control.SmallDoubleValueFactory
-import javafx.scene.control.Spinner
-import javafx.scene.control.TableView
+import javafx.scene.control.*
 import javafx.scene.control.cell.PropertyValueFactory
 import kotlinx.coroutines.experimental.launch
 import org.knowm.xchange.bitmex.dto.marketdata.BitmexPrivateOrder
@@ -132,6 +129,20 @@ object BulkDelegate {
     }
 
     private fun updateView() {
+        val isSame = BulkDistribution.valueOf(controller.distribution.value.toString()) == BulkDistribution.SAME
+        (controller.parameter.valueFactory as? SpinnerValueFactory.DoubleSpinnerValueFactory)?.apply {
+            min = if (isSame) 1.0 else 0.01
+            max = if (isSame) 100.0 else 10.0
+            amountToStepBy = if (isSame) 1.0 else 0.01
+        }
+        controller.parameter.editor.text = controller.parameter.editor.text?.let { text ->
+            if (isSame) text.substring(0, text.indexOf(".").let { index ->
+                if (index < 0) text.indexOf(",").let { index2 ->
+                    if (index2 < 0) text.length else index2
+                } else index
+            }) else text
+        }
+
         createOrders()?.also { orders ->
             updatePreview(orders)
             updateStats(orders)
@@ -228,7 +239,7 @@ object BulkDelegate {
                     pair = pair.value.toString().toCurrencyPair(),
                     orderSide = if (BitmexSide.fromString(side.value.toString()) == BitmexSide.BUY) BID else ASK,
                     type = BulkOrderType.valueOf(orderType.value.toString().toUpperCase().replace("-", "_")),
-                    amount = amount.value as Double,
+                    amount = (amount.value as Double).toInt(),
                     minimumAmount = minAmount.value as Double,
                     priceLow = lowPrice.value as Double,
                     priceHigh = highPirce.value as Double,

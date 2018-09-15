@@ -188,7 +188,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
     fun placeBulkOrders(pair: CurrencyPair,
                         orderSide: Order.OrderType,
                         type: BulkOrderType,
-                        amount: Double,
+                        amount: Int,
                         priceHigh: Double,
                         priceLow: Double,
                         distribution: BulkDistribution,
@@ -213,7 +213,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
     fun createBulkOrders(pair: CurrencyPair,
                          orderSide: Order.OrderType,
                          type: BulkOrderType,
-                         amount: Double,
+                         amount: Int,
                          priceHigh: Double,
                          priceLow: Double,
                          distribution: BulkDistribution,
@@ -225,7 +225,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
         var amounts = getBulkAmounts(amount, distribution, distributionParameter, minimumAmount)
         amounts = if (reversed) amounts.reversed() else amounts
         val orders = amounts.asSequence().mapIndexed { orderIndex, amountForOrder ->
-            val priceForOrder = (priceLow + (priceHigh - priceLow) / (amounts.size - 1) * orderIndex).roundToMinimumStep(pair)
+            val priceForOrder = (priceLow + (priceHigh - priceLow) / amounts.size * orderIndex).roundToMinimumStep(pair)
             val builder = BitmexPlaceOrderParameters.Builder(pair.toBitmexSymbol())
             when (type) {
                 LIMIT -> {
@@ -237,7 +237,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                     builder.setOrderType(BitmexOrderType.STOP)
                 }
                 STOP_LIMIT -> {
-                    builder.setPrice((priceForOrder + (minimumPriceSteps[pair]!! * if (orderSide == BUY) 1 else -1)).toBigDecimal())
+                    builder.setPrice((priceForOrder + (minimumPriceSteps[pair]!! * if (orderSide == BID) -1 else 1)).toBigDecimal())
                     builder.setStopPrice(priceForOrder.toBigDecimal())
                     builder.setOrderType(BitmexOrderType.STOP_LIMIT)
                 }
@@ -287,7 +287,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                 this.text)
     }
 
-    private fun getBulkAmounts(amount: Double,
+    private fun getBulkAmounts(amount: Int,
                                distribution: BulkDistribution,
                                distributionParameter: Double,
                                minimumAmount: Double): List<Int> {
@@ -295,27 +295,18 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
             return emptyList()
 
         val maxOrderCount = 100
-        var lastAmount = 0
+        var lastAmount: Int
         var totalAmount = 0
 
         return (0 until maxOrderCount).map loop@{
-            if (totalAmount >= amount) return@loop 0
+            if (distribution == SAME && it >= distributionParameter
+                    || distribution != SAME && totalAmount >= amount) return@loop 0
             lastAmount = when (distribution) {
-                FLAT -> {
-                    max(amount / maxOrderCount, minimumAmount).toInt()
-                }
-                DCA -> {
-                    max(minimumAmount, totalAmount * distributionParameter).toInt()
-                }
-                DIV_AMOUNT -> {
-                    ((if (totalAmount == 0) amount.toInt() else lastAmount) / distributionParameter).toInt()
-                }
-                MULT_MIN -> {
-                    max(minimumAmount, lastAmount * distributionParameter).toInt()
-
-                }
+                FLAT -> max(amount.toDouble() / maxOrderCount, minimumAmount).toInt()
+                DCA -> max(minimumAmount, totalAmount * distributionParameter).toInt()
+                SAME -> amount
             }
-            if (totalAmount + lastAmount > amount)
+            if (distribution != SAME && totalAmount + lastAmount > amount)
                 0
             else {
                 totalAmount += lastAmount
@@ -324,11 +315,11 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
         }.filter { it > 0 && it < Integer.MAX_VALUE }.toMutableList().let { result ->
             val sum = result.sum()
             if (sum < amount && result.isNotEmpty()) {
-                val amountToAdd = ((amount - sum) / (result.size * 3)).toInt()
-                result.map { it + amountToAdd }.toMutableList().also { increasedResult ->
+                val amountToAdd = (amount - sum) / (result.size * 3)
+                result.asSequence().map { it + amountToAdd }.toMutableList().also { increasedResult ->
                     val increasedSum = increasedResult.sum()
                     if (increasedSum < amount) {
-                        increasedResult[increasedResult.lastIndex] += amount.toInt() - increasedSum
+                        increasedResult[increasedResult.lastIndex] += amount- increasedSum
                     }
                 }
             } else
@@ -445,6 +436,5 @@ enum class BulkDistribution {
 
     FLAT,
     DCA,
-    MULT_MIN,
-    DIV_AMOUNT
+    SAME
 }
