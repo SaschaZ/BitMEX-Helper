@@ -10,13 +10,11 @@ import com.gapps.utils.TimeUnit
 import com.gapps.utils.catchAsync
 import com.gapps.utils.launchInterval
 import com.gapps.utils.toMs
-import kotlinx.coroutines.experimental.runBlocking
 import org.knowm.xchange.ExchangeFactory
 import org.knowm.xchange.bitmex.Bitmex
 import org.knowm.xchange.bitmex.BitmexExchange
 import org.knowm.xchange.bitmex.BitmexPrompt
 import org.knowm.xchange.bitmex.dto.marketdata.BitmexPrivateOrder
-import org.knowm.xchange.bitmex.dto.trade.BitmexContingencyType.OCO
 import org.knowm.xchange.bitmex.dto.trade.BitmexExecutionInstruction
 import org.knowm.xchange.bitmex.dto.trade.BitmexOrderType
 import org.knowm.xchange.bitmex.dto.trade.BitmexPlaceOrderParameters
@@ -226,17 +224,25 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                          reversed: Boolean = false): List<BitmexPlaceOrderParameters> {
         var amounts = getBulkAmounts(amount, distribution, distributionParameter, minimumAmount)
         amounts = if (reversed) amounts.reversed() else amounts
-        val orders = amounts.mapIndexed { orderIndex, amountForOrder ->
+        val orders = amounts.asSequence().mapIndexed { orderIndex, amountForOrder ->
             val priceForOrder = (priceLow + (priceHigh - priceLow) / (amounts.size - 1) * orderIndex).roundToMinimumStep(pair)
             val builder = BitmexPlaceOrderParameters.Builder(pair.toBitmexSymbol())
             when (type) {
-                LIMIT -> builder.setPrice(priceForOrder.toBigDecimal())
-                STOP -> builder.setStopPrice(priceForOrder.toBigDecimal())
+                LIMIT -> {
+                    builder.setPrice(priceForOrder.toBigDecimal())
+                    builder.setOrderType(BitmexOrderType.LIMIT)
+                }
+                STOP -> {
+                    builder.setStopPrice(priceForOrder.toBigDecimal())
+                    builder.setOrderType(BitmexOrderType.STOP)
+                }
                 STOP_LIMIT -> {
                     builder.setPrice((priceForOrder + (minimumPriceSteps[pair]!! * if (orderSide == BUY) 1 else -1)).toBigDecimal())
                     builder.setStopPrice(priceForOrder.toBigDecimal())
+                    builder.setOrderType(BitmexOrderType.STOP_LIMIT)
                 }
                 TRAILING_STOP -> {
+                    builder.setOrderType(BitmexOrderType.PEGGED)
                     // Not used for automatic bulk creation
                 }
             }
@@ -251,7 +257,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
         val distinctOrders = ArrayList<BitmexPlaceOrderParameters>()
         orders.forEach { order ->
             distinctOrders.lastOrNull()?.also { last ->
-                if (last.price == order.price)
+                if (last.hasSamePrice(order))
                     distinctOrders[distinctOrders.lastIndex] = last.changeQuantity(order.orderQuantity
                             ?: order.simpleOrderQuantity!!)
                 else
@@ -411,6 +417,13 @@ internal fun CurrencyPair.toBitmexSymbol() = "${base.currencyCode}${counter.curr
 internal fun Order.OrderType.getSide() = when (this) {
     BID -> BUY
     else -> SELL
+}
+
+internal fun BitmexPlaceOrderParameters.hasSamePrice(other: BitmexPlaceOrderParameters) = when {
+    price != null && stopPrice != null && other.price != null && other.stopPrice != null -> price == other.price && stopPrice == other.stopPrice
+    price != null && other.price != null -> price == other.price
+    stopPrice != null && other.stopPrice != null -> stopPrice == other.stopPrice
+    else -> false
 }
 
 enum class BulkOrderType {

@@ -41,6 +41,8 @@ class MainController {
     @FXML
     internal lateinit var stats: TextArea
     @FXML
+    internal lateinit var moveToLinked: Button
+    @FXML
     internal lateinit var execute: Button
     @FXML
     internal lateinit var progress: ProgressIndicator
@@ -73,18 +75,12 @@ class MainController {
     }
 
     @FXML
-    private fun onSettingsClicked() {
-        MainDelegate.onSettingsClicked()
-    }
+    private fun onSettingsClicked() = MainDelegate.onSettingsClicked()
 
     @FXML
-    private fun onExecuteClicked() {
-        BulkDelegate.onExecuteClicked()
-    }
+    private fun onExecuteClicked() = BulkDelegate.onExecuteClicked()
 
-    internal fun exitApp() {
-        Platform.exit()
-    }
+    internal fun exitApp() = Platform.exit()
 
     internal fun changeInExecutionMode(show: Boolean) {
         progress.isVisible = show
@@ -92,17 +88,14 @@ class MainController {
     }
 
     @FXML
-    private fun onAddLinkedOrderClicked() {
-        LinkedDelegate.onAddLinkedOrderClicked()
-    }
+    private fun onAddLinkedOrderClicked() = LinkedDelegate.onAddLinkedOrderClicked()
 
     @FXML
-    private fun onRemoveLinkedOrderClicked() {
-        LinkedDelegate.onRemoveLinkedOrderClicked()
-    }
+    private fun onRemoveLinkedOrderClicked() = LinkedDelegate.onRemoveLinkedOrderClicked()
 
     @FXML
-    private fun onExecuteLinkedOrdersClicked() {
-        LinkedDelegate.onExecuteLinkedOrdersClicked()
-    }
+    private fun onExecuteLinkedOrdersClicked() = LinkedDelegate.onExecuteLinkedOrdersClicked()
+
+    @FXML
+    private fun onMoveToLinkedClicked() = MainDelegate.onMoveToLinkedClicked()
 }

@@ -22,6 +22,7 @@ import javafx.util.Callback
 import javafx.util.StringConverter
 import org.knowm.xchange.bitmex.dto.marketdata.BitmexPrivateOrder
 import org.knowm.xchange.bitmex.dto.trade.*
+import org.knowm.xchange.bitmex.dto.trade.BitmexExecutionInstruction.*
 import org.knowm.xchange.exceptions.ExchangeException
 
 object LinkedDelegate {
@@ -55,10 +56,10 @@ object LinkedDelegate {
                                private val reduceOnly: SimpleBooleanProperty) {
 
         constructor(side: String = "Buy",
-                    price: Double = 0.0,
+                    price: Double = -1.0,
                     amount: Int = 1,
                     orderType: BulkOrderType = LIMIT,
-                    orderTypeParameter: Double = 0.0,
+                    orderTypeParameter: Double = -1.0,
                     linkId: String = "",
                     linkType: LinkType = LinkType.NONE,
                     postOnly: Boolean = false,
@@ -78,7 +79,7 @@ object LinkedDelegate {
                     getSide(),
                     getPrice(),
                     getAmount(),
-                    valueOf(getOrderType()),
+                    BulkOrderType.valueOf(getOrderType()),
                     getOrderTypeParameter(),
                     getLinkId(),
                     LinkType.valueOf(getLinkType()),
@@ -136,8 +137,10 @@ object LinkedDelegate {
                     linkedOrders = ArrayList<LinkedTableItem>().also { list ->
                         list.addAll(elements = linkedOrders.asSequence().map { item ->
                             item.copy(
-                                    price = item.getPriceProperty().also { it.value = it.value - it.value % minStep },
-                                    orderTypeParameter = item.getOrderTypeParameterProperty().also { it.value = it.value - it.value % minStep })
+                                    price = item.getPriceProperty()
+                                            .also { if (it.value > 0) it.value = it.value - it.value % minStep else it.value },
+                                    orderTypeParameter = item.getOrderTypeParameterProperty()
+                                            .also { if (it.value > 0) it.value = it.value - it.value % minStep else it.value })
                         })
                     }
                 }
@@ -172,7 +175,7 @@ object LinkedDelegate {
 
             linkedOrderTypeColumn.apply {
                 cellValueFactory = PropertyValueFactory<LinkedTableItem, String>("orderType")
-                cellFactory = ComboBoxTableCell.forTableColumn(*values()
+                cellFactory = ComboBoxTableCell.forTableColumn(*BulkOrderType.values()
                         .map { it.toString() }.toTypedArray())
                 setOnEditCommit { event ->
                     linkedOrders[event.tablePosition.row].setOrderType(event.newValue)
@@ -258,6 +261,8 @@ object LinkedDelegate {
     }
 
     fun onExecuteLinkedOrdersClicked() {
+        controller.changeInExecutionMode(true)
+
         val orderParameters = linkedOrders.map { item ->
             val orderType = BulkOrderType.valueOf(item.getOrderType())
             val price = when (orderType) {
@@ -282,36 +287,58 @@ object LinkedDelegate {
                     .setOrderQuantity(item.getAmount().toBigDecimal())
                     .setPrice(price?.let { if (it < 0) null else it.toBigDecimal() })
                     .setStopPrice(stop?.let { if (it < 0) null else it.toBigDecimal() })
-                    .setSide(BitmexSide.valueOf(item.getSide().toUpperCase()))
+                    .setSide(BitmexSide.fromString(item.getSide()))
                     .setOrderType(orderType.toBitmexOrderType())
-                    .setExecutionInstructions(BitmexExecutionInstruction.fromParameter(item.getPostOnly(), item.getReduceOnly()))
+                    .setExecutionInstructions(fromParameter(item.getPostOnly(), item.getReduceOnly()))
                     .setContingencyType(LinkType.valueOf(item.getLinkType()).toBitmexContingencyType())
                     .setClOrdLinkId(item.getLinkId().let { if (it.isBlank()) null else it })
                     .setPegPriceType(pegPriceType)
                     .setPegOffsetValue(pegPriceAmount?.let { if (it < 0) null else it.toBigDecimal() })
                     .build()
         }
-        println(orderParameters.joinToString("\n"))
+
         var error: ExchangeException? = null
-        var result: List<BitmexPrivateOrder>? = null
-        try {
-            result = exchange.placeBulkOrders(orderParameters)
+        val result = try {
+            exchange.placeBulkOrders(orderParameters)
         } catch (ee: ExchangeException) {
             error = ee
+            null
         }
 
         Platform.runLater {
             controller.changeInExecutionMode(false)
-            if (result == null || error != null) {
-                error?.printStackTrace()
-                AppDelegate.showError(error?.message
-                        ?: error?.localizedMessage
-                        ?: "unknown error")
-            } else {
-                // TODO report cancelled orders
-                println(result.joinToString("\n"))
-            }
+            if (result == null || error != null)
+                MainDelegate.reportError(error)
+            else
+                MainDelegate.reportCanceledOrders(result)
         }
+    }
 
+    fun addOrders(orders: List<BitmexPlaceOrderParameters>) {
+        orders.forEach { order ->
+            linkedOrders.add(LinkedTableItem(
+                    side = order.side?.capitalized!!,
+                    price = order.price?.toDouble() ?: -1.0,
+                    amount = order.orderQuantity?.toInt() ?: 0,
+                    orderType = when (order.orderType) {
+                        BitmexOrderType.STOP -> STOP
+                        BitmexOrderType.STOP_LIMIT -> STOP_LIMIT
+                        BitmexOrderType.PEGGED -> TRAILING_STOP
+                        else -> LIMIT
+                    },
+                    orderTypeParameter = order.stopPrice?.toDouble() ?: -1.0,
+                    linkId = order.clOrdLinkId ?: "",
+                    linkType = when (order.contingencyType) {
+                        BitmexContingencyType.OCO -> LinkType.OCO
+                        BitmexContingencyType.OTO -> LinkType.OTO
+                        BitmexContingencyType.OUOP -> LinkType.OUOP
+                        BitmexContingencyType.OUOA -> LinkType.OUOA
+                        else -> LinkType.NONE
+                    },
+                    postOnly = order.executionInstructions?.contains(PARTICIPATE_DO_NOT_INITIATE_FOO) ?: false,
+                    reduceOnly = order.executionInstructions?.contains(REDUCE_ONLY) ?: false
+            ))
+        }
+        updateLinkedOrders()
     }
 }

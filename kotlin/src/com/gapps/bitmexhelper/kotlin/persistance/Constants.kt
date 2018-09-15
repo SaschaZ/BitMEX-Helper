@@ -28,8 +28,8 @@ object Constants {
     )
 
     val sides = listOf(
-            "BUY",
-            "SELL"
+            "Buy",
+            "Sell"
     )
 
     val minimumPriceSteps = mapOf(

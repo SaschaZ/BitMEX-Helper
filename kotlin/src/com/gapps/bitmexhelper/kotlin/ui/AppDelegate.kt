@@ -2,6 +2,7 @@ package com.gapps.bitmexhelper.kotlin.ui
 
 import com.gapps.bitmexhelper.kotlin.persistance.Settings
 import javafx.scene.control.Alert
+import javafx.scene.layout.Region
 
 object AppDelegate {
 
@@ -26,10 +27,15 @@ object AppDelegate {
     internal fun openSettings() = controller.openSettings(true)
 
     internal fun showError(message: String) {
-        val alert = Alert(Alert.AlertType.ERROR)
-        alert.title = "ERROR"
-        alert.headerText = null
-        alert.contentText = message
-        alert.showAndWait()
+        Alert(Alert.AlertType.ERROR).apply {
+            dialogPane.apply {
+                minWidth = Region.USE_PREF_SIZE
+                minHeight = Region.USE_PREF_SIZE
+            }
+            title = "ERROR"
+            headerText = null
+            contentText = message
+            showAndWait()
+        }
     }
 }

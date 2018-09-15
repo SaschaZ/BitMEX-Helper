@@ -43,7 +43,7 @@
                      <children>
                         <FlowPane>
                            <children>
-                                  <GridPane minHeight="215.0" minWidth="578.0">
+                                  <GridPane>
                                       <columnConstraints>
                                           <ColumnConstraints hgrow="NEVER" maxWidth="117.0" minWidth="117.0" prefWidth="117.0" />
                                           <ColumnConstraints hgrow="NEVER" maxWidth="171.0" minWidth="171.0" prefWidth="171.0" />
@@ -55,8 +55,8 @@
                                           <RowConstraints maxHeight="33.0" minHeight="33.0" prefHeight="33.0" vgrow="NEVER" />
                                           <RowConstraints maxHeight="33.0" minHeight="33.0" prefHeight="33.0" vgrow="NEVER" />
                                           <RowConstraints maxHeight="33.0" minHeight="33.0" prefHeight="33.0" vgrow="NEVER" />
-                                          <RowConstraints maxHeight="33.0" minHeight="33.0" prefHeight="33.0" vgrow="NEVER" />
-                                          <RowConstraints maxHeight="50.0" minHeight="50.0" prefHeight="50.0" vgrow="NEVER" />
+                                          <RowConstraints maxHeight="48.0" minHeight="33.0" prefHeight="33.0" vgrow="NEVER" />
+                                          <RowConstraints vgrow="NEVER" />
                                       </rowConstraints>
                                       <children>
                                           <Label text="Pair:" />
@@ -77,11 +77,22 @@
                                           <ComboBox fx:id="distribution" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
                                           <Spinner fx:id="parameter" amountToStepBy="0.01" editable="true" initialValue="2" max="10" min="0.01" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
                                           <Spinner fx:id="minAmount" amountToStepBy="1.0" editable="true" initialValue="3" max="100000000" min="0.5" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="3" />
-                                          <Button fx:id="execute" alignment="CENTER" contentDisplay="RIGHT" mnemonicParsing="false" onMouseClicked="#onExecuteClicked" text="Execute" textAlignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="5">
+                                    <GridPane prefHeight="55.0" prefWidth="140.0" GridPane.columnIndex="3" GridPane.rowIndex="5">
                                        <GridPane.margin>
-                                          <Insets left="50.0" />
+                                          <Insets bottom="10.0" />
                                        </GridPane.margin>
-                                    </Button>
+                                       <columnConstraints>
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="80.0" minWidth="80.0" prefWidth="80.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="80.0" minWidth="80.0" prefWidth="80.0" />
+                                       </columnConstraints>
+                                       <rowConstraints>
+                                          <RowConstraints maxHeight="55.0" minHeight="10.0" prefHeight="55.0" vgrow="SOMETIMES" />
+                                       </rowConstraints>
+                                       <children>
+                                                <Button fx:id="execute" alignment="CENTER" contentDisplay="RIGHT" mnemonicParsing="false" onMouseClicked="#onExecuteClicked" prefHeight="55.0" prefWidth="89.0" text="Execute" textAlignment="CENTER" GridPane.columnIndex="1" />
+                                          <Button fx:id="moveToLinked" alignment="CENTER" contentDisplay="RIGHT" mnemonicParsing="false" onMouseClicked="#onMoveToLinkedClicked" prefHeight="55.0" prefWidth="100.0" text="Move to Linked" textAlignment="CENTER" wrapText="true" />
+                                       </children>
+                                    </GridPane>
                                           <CheckBox fx:id="reversed" mnemonicParsing="false" text="reversed" GridPane.rowIndex="5" />
                                           <CheckBox fx:id="postOnly" mnemonicParsing="false" text="post only" GridPane.columnIndex="1" GridPane.rowIndex="5">
                                        <GridPane.margin>
@@ -92,7 +103,7 @@
                                     <ProgressIndicator fx:id="progress" visible="false" GridPane.columnIndex="3" GridPane.rowIndex="4" />
                                       </children>
                                  <padding>
-                                    <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                    <Insets bottom="15.0" left="15.0" right="5.0" top="15.0" />
                                  </padding>
                                   </GridPane>
                            </children>
@@ -103,7 +114,7 @@
                             <TableColumn fx:id="reviewAmountColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="-Infinity" prefWidth="164.0" resizable="false" sortType="DESCENDING" sortable="false" style="-fx-alignment: CENTER;" text="Amount" />
                           </columns>
                         </TableView>
-                        <TextArea fx:id="stats" editable="false" layoutY="229.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="145.0" prefWidth="619.0" />
+                        <TextArea fx:id="stats" editable="false" layoutY="244.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="130.0" prefWidth="619.0" />
                      </children>
                   </AnchorPane>
                </content>

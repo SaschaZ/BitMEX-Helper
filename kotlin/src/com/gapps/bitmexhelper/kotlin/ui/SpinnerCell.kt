@@ -42,7 +42,6 @@ class SpinnerCell<S, T : Any>(private val min: T, private val max: T, private va
     }
 
     fun setStep(step: T) {
-        println("setStep() step=$step")
         this.step = step
         @Suppress("UNCHECKED_CAST")
         spinner.valueFactory = when (initial) {

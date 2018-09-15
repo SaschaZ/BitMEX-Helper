@@ -16,8 +16,10 @@ import javafx.scene.control.cell.PropertyValueFactory
 import kotlinx.coroutines.experimental.launch
 import org.knowm.xchange.bitmex.dto.marketdata.BitmexPrivateOrder
 import org.knowm.xchange.bitmex.dto.trade.BitmexPlaceOrderParameters
+import org.knowm.xchange.bitmex.dto.trade.BitmexSide
 import org.knowm.xchange.currency.CurrencyPair
 import org.knowm.xchange.dto.Order
+import org.knowm.xchange.dto.Order.OrderType.*
 import org.knowm.xchange.dto.marketdata.Ticker
 import org.knowm.xchange.exceptions.ExchangeException
 
@@ -130,23 +132,9 @@ object BulkDelegate {
     }
 
     private fun updateView() {
-        controller.apply {
-            exchange.createBulkOrders(
-                    pair = pair.value.toString().toCurrencyPair(),
-                    orderSide = if (side.value.toString() == "BUY") Order.OrderType.BID else Order.OrderType.ASK,
-                    type = BulkOrderType.valueOf(orderType.value.toString().toUpperCase().replace("-", "_")),
-                    amount = amount.value as Double,
-                    minimumAmount = minAmount.value as Double,
-                    priceLow = lowPrice.value as Double,
-                    priceHigh = highPirce.value as Double,
-                    distribution = BulkDistribution.valueOf(distribution.value.toString()),
-                    distributionParameter = parameter.value as Double,
-                    postOnly = postOnly.isSelected,
-                    reduceOnly = reduceOnly.isSelected,
-                    reversed = reversed.isSelected).also { orders ->
-                updatePreview(orders)
-                updateStats(orders)
-            }
+        createOrders()?.also { orders ->
+            updatePreview(orders)
+            updateStats(orders)
         }
     }
 
@@ -161,8 +149,8 @@ object BulkDelegate {
     private fun updatePreview(orders: List<BitmexPlaceOrderParameters>) {
         controller.apply {
             review.items = FXCollections.observableArrayList<PreviewItem>(
-                    orders.asSequence().sortedByDescending { it.price }.mapNotNull {
-                        whenNotNull(it.price, it.orderQuantity) { price, quantity ->
+                    orders.asSequence().sortedByDescending { it.price ?: it.stopPrice }.mapNotNull {
+                        whenNotNull(it.price ?: it.stopPrice, it.orderQuantity) { price, quantity ->
                             PreviewItem(price.toDouble(), quantity.toInt())
                         }
                     }.toList()
@@ -175,7 +163,7 @@ object BulkDelegate {
         if (orders.isNotEmpty()) {
             val sum = orders.sumBy { it.orderQuantity?.toInt() ?: 0 }
             val averagePrice = orders.sumByDouble {
-                (it.price?.toDouble() ?: 0.0) * (it.orderQuantity?.toDouble() ?: 0.0) / sum
+                (it.price?.toDouble() ?: it.stopPrice?.toDouble() ?: 0.0) * (it.orderQuantity?.toDouble() ?: 0.0) / sum
             }
 
             controller.stats.text = " total bulk order amount: " + sum + "\n" +
@@ -192,7 +180,7 @@ object BulkDelegate {
     internal fun onExecuteClicked() {
         controller.changeInExecutionMode(true)
         launch {
-            var error: Throwable? = null
+            var error: ExchangeException? = null
 
             storeSelection()
             val result = try {
@@ -204,15 +192,10 @@ object BulkDelegate {
 
             Platform.runLater {
                 controller.changeInExecutionMode(false)
-                if (result == null || error != null) {
-                    error?.printStackTrace()
-                    AppDelegate.showError(error?.message
-                            ?: error?.localizedMessage
-                            ?: "unknown error")
-                } else {
-                    // TODO report cancelled orders
-                    println(result.joinToString("\n"))
-                }
+                if (result == null || error != null)
+                    MainDelegate.reportError(error)
+                else
+                    MainDelegate.reportCanceledOrders(result)
             }
         }
     }
@@ -237,11 +220,13 @@ object BulkDelegate {
         }
     }
 
-    private fun executeOrder(): List<BitmexPrivateOrder>? {
+    private fun executeOrder() = createOrders()?.let { exchange.placeBulkOrders(it) }
+
+    fun createOrders(): List<BitmexPlaceOrderParameters>? {
         controller.apply {
-            return exchange.placeBulkOrders(
+            return exchange.createBulkOrders(
                     pair = pair.value.toString().toCurrencyPair(),
-                    orderSide = if (side.value.toString() == "BUY") Order.OrderType.BID else Order.OrderType.ASK,
+                    orderSide = if (BitmexSide.fromString(side.value.toString()) == BitmexSide.BUY) BID else ASK,
                     type = BulkOrderType.valueOf(orderType.value.toString().toUpperCase().replace("-", "_")),
                     amount = amount.value as Double,
                     minimumAmount = minAmount.value as Double,
