@@ -46,9 +46,7 @@ object BulkDelegate {
                 items = FXCollections.observableArrayList(Constants.pairs)
                 value = items[Constants.pairs.indexOf(Settings.settings.lastPair).let { if (it < 0) 0 else it }]
                 setOnAction {
-                    val currencyPair = value.toString().toCurrencyPair()
-                    configureSpinnerParameters(currencyPair)
-                    linkedPair.value = currencyPair
+                    configureSpinnerParameters(value.toString().toCurrencyPair())
                     updateView()
                 }
                 enableValueChangeOnScroll()
