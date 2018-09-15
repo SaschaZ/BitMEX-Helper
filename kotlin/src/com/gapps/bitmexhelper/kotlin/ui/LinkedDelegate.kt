@@ -129,7 +129,8 @@ object LinkedDelegate {
                 items = FXCollections.observableArrayList(Constants.pairs)
                 value = items[Constants.pairs.indexOf(Settings.settings.lastPair).let { if (it < 0) 0 else it }]
                 setOnAction { _ ->
-                    val minStep = Constants.minimumPriceSteps[value.toString().toCurrencyPair()]!!
+                    val currencyPair = value.toString().toCurrencyPair()
+                    val minStep = Constants.minimumPriceSteps[currencyPair]!!
                     priceSpinners.forEach { it.setStep(minStep) }
                     linkedPriceColumn.initSpinnerCellValueFactory(minStep)
                     linkedOrderTypeParameterColumn.initSpinnerCellValueFactory(minStep)
@@ -140,6 +141,7 @@ object LinkedDelegate {
                                     orderTypeParameter = item.getOrderTypeParameterProperty().also { it.value = it.value - it.value % minStep })
                         })
                     }
+                    pair.value = currencyPair
                 }
                 enableValueChangeOnScroll()
             }

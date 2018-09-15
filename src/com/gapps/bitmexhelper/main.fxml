@@ -110,7 +110,7 @@
           </Tab>
           <Tab text="Linked">
             <content>
-              <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity">
+              <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="375.0" prefWidth="941.0">
                      <children>
                         <FlowPane prefHeight="471.0" prefWidth="941.0">
                            <children>
@@ -151,10 +151,10 @@
                                   <TableColumn fx:id="linkedAmountColumn" prefWidth="124.0" sortable="false" text="Amount" />
                                     <TableColumn fx:id="linkedOrderTypeColumn" prefWidth="158.0" sortable="false" text="Type" />
                                     <TableColumn fx:id="linkedOrderTypeParameterColumn" prefWidth="129.0" sortable="false" text="Stop" />
-                                    <TableColumn fx:id="linkedLinkIdColumn" minWidth="0.0" prefWidth="137.0" sortable="false" text="Link ID" />
-                                    <TableColumn fx:id="linkedLinkTypeColumn" prefWidth="111.0" sortable="false" text="Link Type" />
-                                    <TableColumn fx:id="linkedPostOnlyColumn" minWidth="0.0" prefWidth="33.0" sortable="false" text="PO" />
-                                    <TableColumn fx:id="linkedReduceOnlyColumn" prefWidth="29.0" sortable="false" text="RO" />
+                                    <TableColumn fx:id="linkedLinkIdColumn" minWidth="0.0" prefWidth="108.0" sortable="false" text="Link ID" />
+                                    <TableColumn fx:id="linkedLinkTypeColumn" prefWidth="124.0" sortable="false" text="Link Type" />
+                                    <TableColumn fx:id="linkedPostOnlyColumn" minWidth="0.0" prefWidth="27.0" sortable="false" text="PO" />
+                                    <TableColumn fx:id="linkedReduceOnlyColumn" prefWidth="30.0" sortable="false" text="RO" />
                                 </columns>
                               </TableView>
                               <GridPane prefHeight="43.0" prefWidth="938.0">
