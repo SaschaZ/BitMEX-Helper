@@ -11,11 +11,9 @@ import javafx.collections.FXCollections
 import javafx.scene.control.*
 import javafx.scene.control.cell.PropertyValueFactory
 import kotlinx.coroutines.experimental.launch
-import org.knowm.xchange.bitmex.dto.marketdata.BitmexPrivateOrder
 import org.knowm.xchange.bitmex.dto.trade.BitmexPlaceOrderParameters
 import org.knowm.xchange.bitmex.dto.trade.BitmexSide
 import org.knowm.xchange.currency.CurrencyPair
-import org.knowm.xchange.dto.Order
 import org.knowm.xchange.dto.Order.OrderType.*
 import org.knowm.xchange.dto.marketdata.Ticker
 import org.knowm.xchange.exceptions.ExchangeException
@@ -99,6 +97,12 @@ object BulkDelegate {
                 enableBetterListener()
                 enableValueChangeOnScroll()
             }
+            slDistance.apply {
+                valueFactory.value = Settings.settings.lastSlDistance.toDouble()
+                valueProperty().addListener { _, _, _ -> updateView() }
+                enableBetterListener()
+                enableValueChangeOnScroll()
+            }
             reversed.isSelected = Settings.settings.lastReversed
             reversed.setOnAction { updateView() }
             postOnly.isSelected = Settings.settings.lastPostOnly
@@ -129,18 +133,24 @@ object BulkDelegate {
     }
 
     private fun updateView() {
-        val isSame = BulkDistribution.valueOf(controller.distribution.value.toString()) == BulkDistribution.SAME
-        (controller.parameter.valueFactory as? SpinnerValueFactory.DoubleSpinnerValueFactory)?.apply {
-            min = if (isSame) 1.0 else 0.01
-            max = if (isSame) 100.0 else 10.0
-            amountToStepBy = if (isSame) 1.0 else 0.01
-        }
-        controller.parameter.editor.text = controller.parameter.editor.text?.let { text ->
-            if (isSame) text.substring(0, text.indexOf(".").let { index ->
-                if (index < 0) text.indexOf(",").let { index2 ->
-                    if (index2 < 0) text.length else index2
-                } else index
-            }) else text
+        controller.apply {
+            val isDistributionSame = BulkDistribution.valueOf(controller.distribution.value.toString()) == BulkDistribution.SAME
+            (parameter.valueFactory as? SpinnerValueFactory.DoubleSpinnerValueFactory)?.apply {
+                min = if (isDistributionSame) 1.0 else 0.01
+                max = if (isDistributionSame) 100.0 else 10.0
+                amountToStepBy = if (isDistributionSame) 1.0 else 0.01
+            }
+            parameter.editor.text = controller.parameter.editor.text?.let { text ->
+                if (isDistributionSame) text.substring(0, text.indexOf(".").let { index ->
+                    if (index < 0) text.indexOf(",").let { index2 ->
+                        if (index2 < 0) text.length else index2
+                    } else index
+                }) else text
+            }
+            val isStopLimit = orderType.value.toString().toLowerCase().replace("-", "_") ==
+                    BulkOrderType.STOP_LIMIT.toString().toLowerCase()
+            slDistance.isVisible = isStopLimit
+            slDistanceLabel.isVisible = isStopLimit
         }
 
         createOrders()?.also { orders ->
@@ -223,6 +233,7 @@ object BulkDelegate {
                 lastMode = distribution.value.toString()
                 lastDistributionParameter = parameter.value as Double
                 lastMinAmount = (minAmount.value as Double).toInt()
+                lastSlDistance = (slDistance.value as Double).toInt()
                 lastReversed = reversed.isSelected
                 lastPostOnly = postOnly.isSelected
                 lastReduceOnly = reduceOnly.isSelected
@@ -241,6 +252,7 @@ object BulkDelegate {
                     type = BulkOrderType.valueOf(orderType.value.toString().toUpperCase().replace("-", "_")),
                     amount = (amount.value as Double).toInt(),
                     minimumAmount = minAmount.value as Double,
+                    slDistance = (slDistance.value as Double).toInt(),
                     priceLow = lowPrice.value as Double,
                     priceHigh = highPirce.value as Double,
                     distribution = BulkDistribution.valueOf(distribution.value.toString()),

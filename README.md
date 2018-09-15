@@ -7,12 +7,12 @@ Java application to execute bulk orders on the BitMEX exchange.
 * Place up to 100 orders with one call.
 * Offers four methods of amount distribution:
 
-| Order |     FLAT    |       MULT_MIN                     |        DIV_AMOUNT                  |      DCA (Dollar Cost Average)       |
-|:-----:| ----------- | ---------------------------------- | ---------------------------------- | ------------------------------------ |
-|   1   | min. amount | min. amount                        | total amount / parameter           | min. amount                          |
-|   2   | min. amount | amount of first order * parameter  | amount of first order / parameter  | total after first order * parameter  |
-|   3   | min. amount | amount of second order * parameter | amount of second order / parameter | total after second order * parameter |
-|  ...  | ...         | ...                                | ...                                | ...                                  |
+| Order |     FLAT    |      DCA (Dollar Cost Average)       |  SAME  |
+| ----- | ----------- | ------------------------------------ | ------ |
+|  1    | min. amount | min. amount                          | amount |
+|  2    | min. amount | total after first order * parameter  | amount |
+|  3    | min. amount | total after second order * parameter | amount |
+|  ...  | ...         | ...                                  | ...    |
 * Support for `postOnly` and `reduceOnly` order modifications.
 * Realtime bulk order review.
 * Supports `LIMIT`, `STOP` and `STOP_LIMIT` order types. The limit price for a `STOP_LIMIT` order is always one step

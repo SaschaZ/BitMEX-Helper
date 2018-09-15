@@ -17,6 +17,7 @@ data class Settings(private var bitmexApiKey: String = "",
                     var lastMinAmount: Int = 26,
                     var lastMode: String = BulkDistribution.FLAT.toString(),
                     var lastDistributionParameter: Double = 2.0,
+                    var lastSlDistance: Int = 2,
                     var lastPostOnly: Boolean = true,
                     var lastReduceOnly: Boolean = false,
                     var lastReversed: Boolean = false) {

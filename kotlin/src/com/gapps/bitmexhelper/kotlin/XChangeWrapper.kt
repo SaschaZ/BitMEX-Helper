@@ -17,7 +17,6 @@ import org.knowm.xchange.bitmex.BitmexPrompt
 import org.knowm.xchange.bitmex.dto.marketdata.BitmexPrivateOrder
 import org.knowm.xchange.bitmex.dto.trade.BitmexExecutionInstruction
 import org.knowm.xchange.bitmex.dto.trade.BitmexOrderType
-import org.knowm.xchange.bitmex.dto.trade.BitmexPegPriceType
 import org.knowm.xchange.bitmex.dto.trade.BitmexPlaceOrderParameters
 import org.knowm.xchange.bitmex.dto.trade.BitmexSide.BUY
 import org.knowm.xchange.bitmex.dto.trade.BitmexSide.SELL
@@ -197,13 +196,14 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                         distribution: BulkDistribution,
                         distributionParameter: Double,
                         minimumAmount: Double,
+                        slDistance: Int,
                         postOnly: Boolean = false,
                         reduceOnly: Boolean = false,
                         reversed: Boolean = false): List<BitmexPrivateOrder>? {
         return when (exchange) {
             is BitmexExchange -> {
                 val orders = createBulkOrders(pair, orderSide, type, amount, priceHigh, priceLow, distribution,
-                        distributionParameter, minimumAmount, postOnly, reduceOnly, reversed)
+                        distributionParameter, minimumAmount, slDistance, postOnly, reduceOnly, reversed)
                 placeBulkOrders(orders)
             }
             else -> {
@@ -222,6 +222,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                          distribution: BulkDistribution,
                          distributionParameter: Double,
                          minimumAmount: Double,
+                         slDistance: Int,
                          postOnly: Boolean = false,
                          reduceOnly: Boolean = false,
                          reversed: Boolean = false): List<BitmexPlaceOrderParameters> {
@@ -241,7 +242,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                     builder.setOrderType(BitmexOrderType.STOP)
                 }
                 STOP_LIMIT -> {
-                    builder.setPrice((priceForOrder + (minimumPriceSteps[pair]!! * if (orderSide == BID) -1 else 1)).toBigDecimal())
+                    builder.setPrice((priceForOrder + (minimumPriceSteps[pair]!! * slDistance * if (orderSide == BID) -1 else 1)).toBigDecimal())
                     builder.setStopPrice(priceForOrder.toBigDecimal())
                     builder.setOrderType(BitmexOrderType.STOP_LIMIT)
                 }

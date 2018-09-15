@@ -101,6 +101,8 @@
                                     </CheckBox>
                                           <CheckBox fx:id="reduceOnly" mnemonicParsing="false" text="reduce only" GridPane.columnIndex="2" GridPane.rowIndex="5" />
                                     <ProgressIndicator fx:id="progress" visible="false" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+                                    <Text fx:id="slDistanceLabel" strokeType="OUTSIDE" strokeWidth="0.0" text="SL distance:" visible="false" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                                    <Spinner fx:id="slDistance" amountToStepBy="1.0" editable="true" initialValue="1" max="100" min="1" prefWidth="150.0" visible="false" GridPane.columnIndex="3" GridPane.rowIndex="4" />
                                       </children>
                                  <padding>
                                     <Insets bottom="15.0" left="15.0" right="5.0" top="15.0" />

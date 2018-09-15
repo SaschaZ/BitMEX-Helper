@@ -5,6 +5,7 @@ package com.gapps.bitmexhelper.kotlin.ui
 import javafx.application.Platform
 import javafx.fxml.FXML
 import javafx.scene.control.*
+import javafx.scene.text.Text
 
 class MainController {
 
@@ -24,6 +25,10 @@ class MainController {
     internal lateinit var distribution: ComboBox<*>
     @FXML
     internal lateinit var parameter: Spinner<Double>
+    @FXML
+    internal lateinit var slDistance: Spinner<Double>
+    @FXML
+    internal lateinit var slDistanceLabel: Text
     @FXML
     internal lateinit var minAmount: Spinner<Double>
     @FXML
