@@ -4,13 +4,10 @@ import com.gapps.bitmexhelper.kotlin.persistance.Settings
 
 object SettingsDelegate {
 
-    private lateinit var controller: SettingsController
+    private lateinit var controller: MainController
 
-    fun onControllerAvailable(settingsController: SettingsController) {
-        controller = settingsController
-    }
-
-    fun onSceneSet() {
+    fun onSceneSet(mainController: MainController) {
+        controller = mainController
         controller.apiKey.text = Settings.getBitmexApiKey()
         controller.apiSecret.text = Settings.getBitmexApiSecret()
     }
@@ -22,7 +19,7 @@ object SettingsDelegate {
             Settings.setBitmexApiKey(apiKey)
             Settings.setBitmexApiSecret(apiSecret)
             Settings.store()
-            AppDelegate.openMain()
+            AppDelegate.showInfo("Settings were stored.")
         }
     }
 }

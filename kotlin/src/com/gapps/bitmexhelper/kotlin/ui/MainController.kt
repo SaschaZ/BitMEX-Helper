@@ -10,6 +10,8 @@ import javafx.scene.text.Text
 class MainController {
 
     @FXML
+    internal lateinit var tabPane: TabPane
+    @FXML
     internal lateinit var pair: ComboBox<*>
     @FXML
     internal lateinit var highPirce: Spinner<Double>
@@ -75,12 +77,17 @@ class MainController {
     @FXML
     internal lateinit var linkedReduceOnlyColumn: TableColumn<LinkedDelegate.LinkedTableItem, Boolean>
 
+    @FXML
+    internal lateinit var apiKey: TextField
+    @FXML
+    internal lateinit var apiSecret: TextField
+
+    @FXML
+    private fun onStoreClicked() = SettingsDelegate.onStoreClicked(apiKey.text, apiSecret.text)
+
     init {
         MainDelegate.onControllerAvailable(this)
     }
-
-    @FXML
-    private fun onSettingsClicked() = MainDelegate.onSettingsClicked()
 
     @FXML
     private fun onExecuteClicked() = BulkDelegate.onExecuteClicked()

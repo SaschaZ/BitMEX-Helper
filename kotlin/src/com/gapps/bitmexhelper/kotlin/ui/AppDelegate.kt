@@ -14,17 +14,14 @@ object AppDelegate {
     }
 
     fun onStarted() {
+        Settings.load()
         if (Settings.hasCredentials)
-            controller.openMain(false)
+            controller.openMain()
         else
-            controller.openSettings(false)
+            MainDelegate.openSettings()
     }
 
     fun onStopped() {}
-
-    internal fun openMain() = controller.openMain(true)
-
-    internal fun openSettings() = controller.openSettings(true)
 
     internal fun showError(message: String) {
         Alert(Alert.AlertType.ERROR).apply {
@@ -33,6 +30,19 @@ object AppDelegate {
                 minHeight = Region.USE_PREF_SIZE
             }
             title = "ERROR"
+            headerText = null
+            contentText = message
+            showAndWait()
+        }
+    }
+
+    fun showInfo(message: String) {
+        Alert(Alert.AlertType.INFORMATION).apply {
+            dialogPane.apply {
+                minWidth = Region.USE_PREF_SIZE
+                minHeight = Region.USE_PREF_SIZE
+            }
+            title = "INFORMATION"
             headerText = null
             contentText = message
             showAndWait()

@@ -5,9 +5,6 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Menu?>
-<?import javafx.scene.control.MenuBar?>
-<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.Tab?>
@@ -15,182 +12,163 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="436.0" prefWidth="939.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gapps.bitmexhelper.kotlin.ui.MainController">
+<VBox minHeight="500.0" minWidth="945.0" prefHeight="500.0" prefWidth="945.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gapps.bitmexhelper.kotlin.ui.MainController">
 
     <children>
-        <MenuBar prefHeight="29.0" prefWidth="872.0" VBox.vgrow="NEVER">
-            <menus>
-            <Menu mnemonicParsing="false" text="App">
-              <items>
-                <MenuItem mnemonicParsing="false" onAction="#onSettingsClicked" text="Settings" />
-              </items>
-            </Menu>
-            </menus>
-        </MenuBar>
-      <TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="406.0" prefWidth="938.0" tabClosingPolicy="UNAVAILABLE">
+      <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
         <tabs>
-          <Tab text="Bulk">
+            <Tab text="Bulk">
                <content>
-                  <AnchorPane prefHeight="366.0" prefWidth="940.0">
+                  <GridPane prefHeight="349.0" prefWidth="945.0">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="402.0" minWidth="10.0" prefWidth="102.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="492.0" minWidth="10.0" prefWidth="150.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="430.0" minWidth="10.0" prefWidth="116.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="284.0" minWidth="0.0" prefWidth="71.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="252.0" minWidth="0.0" prefWidth="81.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="473.0" minWidth="10.0" prefWidth="425.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints maxHeight="35.0" minHeight="35.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="35.0" minHeight="35.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="35.0" minHeight="35.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="30.0" minHeight="35.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="35.0" minHeight="30.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="48.0" minHeight="30.0" prefHeight="39.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="1.7976931348623157E308" vgrow="SOMETIMES" />
+                    </rowConstraints>
                      <children>
-                        <FlowPane>
-                           <children>
-                                  <GridPane>
-                                      <columnConstraints>
-                                          <ColumnConstraints hgrow="NEVER" maxWidth="117.0" minWidth="117.0" prefWidth="117.0" />
-                                          <ColumnConstraints hgrow="NEVER" maxWidth="171.0" minWidth="171.0" prefWidth="171.0" />
-                                          <ColumnConstraints hgrow="NEVER" maxWidth="117.0" minWidth="117.0" prefWidth="117.0" />
-                                          <ColumnConstraints hgrow="NEVER" maxWidth="171.0" minWidth="171.0" prefWidth="171.0" />
-                                      </columnConstraints>
-                                      <rowConstraints>
-                                          <RowConstraints maxHeight="33.0" minHeight="33.0" prefHeight="33.0" vgrow="NEVER" />
-                                          <RowConstraints maxHeight="33.0" minHeight="33.0" prefHeight="33.0" vgrow="NEVER" />
-                                          <RowConstraints maxHeight="33.0" minHeight="33.0" prefHeight="33.0" vgrow="NEVER" />
-                                          <RowConstraints maxHeight="33.0" minHeight="33.0" prefHeight="33.0" vgrow="NEVER" />
-                                          <RowConstraints maxHeight="48.0" minHeight="33.0" prefHeight="33.0" vgrow="NEVER" />
-                                          <RowConstraints vgrow="NEVER" />
-                                      </rowConstraints>
-                                      <children>
-                                          <Label text="Pair:" />
-                                          <ComboBox fx:id="pair" prefWidth="150.0" GridPane.columnIndex="1" />
-                                          <Label text="High Price:" GridPane.rowIndex="1" />
-                                          <Spinner fx:id="highPirce" amountToStepBy="0.5" editable="true" initialValue="3" max="100000000" min="0.5" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                          <Label text="Low Price:" GridPane.rowIndex="2" />
-                                          <Spinner fx:id="lowPrice" amountToStepBy="0.5" editable="true" initialValue="3" max="100000000" min="0.5" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                          <Label text="Amount:" GridPane.rowIndex="3" />
-                                          <Spinner fx:id="amount" amountToStepBy="1.0" editable="true" initialValue="3" max="100000000" min="1" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                                          <Label text="Type:" GridPane.rowIndex="4" />
-                                          <ComboBox fx:id="orderType" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                                          <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Distribution:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                                          <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Parameter:" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                                          <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Min. Amount:" GridPane.columnIndex="2" GridPane.rowIndex="3" />
-                                          <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Side:" GridPane.columnIndex="2" />
-                                          <ComboBox fx:id="side" prefWidth="150.0" GridPane.columnIndex="3" />
-                                          <ComboBox fx:id="distribution" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-                                          <Spinner fx:id="parameter" amountToStepBy="0.01" editable="true" initialValue="2" max="10" min="0.01" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
-                                          <Spinner fx:id="minAmount" amountToStepBy="1.0" editable="true" initialValue="3" max="100000000" min="0.5" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="3" />
-                                    <GridPane prefHeight="55.0" prefWidth="140.0" GridPane.columnIndex="3" GridPane.rowIndex="5">
-                                       <GridPane.margin>
-                                          <Insets bottom="10.0" />
-                                       </GridPane.margin>
-                                       <columnConstraints>
-                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="80.0" minWidth="80.0" prefWidth="80.0" />
-                                          <ColumnConstraints hgrow="SOMETIMES" maxWidth="80.0" minWidth="80.0" prefWidth="80.0" />
-                                       </columnConstraints>
-                                       <rowConstraints>
-                                          <RowConstraints maxHeight="55.0" minHeight="10.0" prefHeight="55.0" vgrow="SOMETIMES" />
-                                       </rowConstraints>
-                                       <children>
-                                                <Button fx:id="execute" alignment="CENTER" contentDisplay="RIGHT" mnemonicParsing="false" onMouseClicked="#onExecuteClicked" prefHeight="55.0" prefWidth="89.0" text="Execute" textAlignment="CENTER" GridPane.columnIndex="1" />
-                                          <Button fx:id="moveToLinked" alignment="CENTER" contentDisplay="RIGHT" mnemonicParsing="false" onMouseClicked="#onMoveToLinkedClicked" prefHeight="55.0" prefWidth="100.0" text="Move to Linked" textAlignment="CENTER" wrapText="true" />
-                                       </children>
-                                    </GridPane>
-                                          <CheckBox fx:id="reversed" mnemonicParsing="false" text="reversed" GridPane.rowIndex="5" />
-                                          <CheckBox fx:id="postOnly" mnemonicParsing="false" text="post only" GridPane.columnIndex="1" GridPane.rowIndex="5">
-                                       <GridPane.margin>
-                                          <Insets left="30.0" />
-                                       </GridPane.margin>
-                                    </CheckBox>
-                                          <CheckBox fx:id="reduceOnly" mnemonicParsing="false" text="reduce only" GridPane.columnIndex="2" GridPane.rowIndex="5" />
-                                    <ProgressIndicator fx:id="progress" visible="false" GridPane.columnIndex="3" GridPane.rowIndex="4" />
-                                    <Text fx:id="slDistanceLabel" strokeType="OUTSIDE" strokeWidth="0.0" text="SL distance:" visible="false" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-                                    <Spinner fx:id="slDistance" amountToStepBy="1.0" editable="true" initialValue="1" max="100" min="1" prefWidth="150.0" visible="false" GridPane.columnIndex="3" GridPane.rowIndex="4" />
-                                      </children>
-                                 <padding>
-                                    <Insets bottom="15.0" left="15.0" right="5.0" top="15.0" />
-                                 </padding>
-                                  </GridPane>
-                           </children>
-                        </FlowPane>
-                        <TableView fx:id="review" layoutX="617.0" layoutY="-2.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="376.0" prefWidth="323.0">
-                          <columns>
-                            <TableColumn fx:id="reviewPriceColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="-Infinity" prefWidth="135.0" resizable="false" style="-fx-alignment: CENTER;" text="Price" />
-                            <TableColumn fx:id="reviewAmountColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="-Infinity" prefWidth="164.0" resizable="false" sortType="DESCENDING" sortable="false" style="-fx-alignment: CENTER;" text="Amount" />
-                          </columns>
+                        <Label text="Pair:">
+                           <GridPane.margin>
+                              <Insets left="10.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <ComboBox fx:id="pair" maxWidth="130.0" minWidth="130.0" prefWidth="130.0" GridPane.columnIndex="1" />
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Side:" GridPane.columnIndex="2" />
+                        <ComboBox fx:id="side" maxWidth="130.0" minWidth="130.0" prefWidth="130.0" GridPane.columnIndex="3" GridPane.columnSpan="2" />
+                        <TableView fx:id="review" GridPane.columnIndex="5" GridPane.columnSpan="2147483647" GridPane.hgrow="ALWAYS" GridPane.rowSpan="2147483647" GridPane.vgrow="ALWAYS">
+                           <columns>
+                              <TableColumn fx:id="reviewPriceColumn" editable="false" maxWidth="200.0" minWidth="-Infinity" prefWidth="200.0" sortType="DESCENDING" sortable="false" style="-fx-alignment: CENTER;" text="Price" />
+                              <TableColumn fx:id="reviewAmountColumn" editable="false" maxWidth="200.0" minWidth="-Infinity" prefWidth="200.0" sortType="DESCENDING" sortable="false" style="-fx-alignment: CENTER;" text="Amount" />
+                           </columns>
                         </TableView>
-                        <TextArea fx:id="stats" editable="false" layoutY="244.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="130.0" prefWidth="619.0" />
+                        <Label text="High Price:" GridPane.rowIndex="1">
+                           <GridPane.margin>
+                              <Insets left="10.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <Spinner fx:id="highPirce" amountToStepBy="0.5" editable="true" initialValue="3" max="100000000" maxWidth="130.0" min="0.5" minWidth="130.0" prefWidth="130.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Distribution:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                        <ComboBox fx:id="distribution" maxWidth="130.0" minWidth="130.0" prefWidth="130.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                        <Label text="Low Price:" GridPane.rowIndex="2">
+                           <GridPane.margin>
+                              <Insets left="10.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <Spinner fx:id="lowPrice" amountToStepBy="0.5" editable="true" initialValue="3" max="100000000" maxWidth="130.0" min="0.5" minWidth="130.0" prefWidth="130.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Parameter:" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                        <Spinner fx:id="parameter" amountToStepBy="0.01" editable="true" initialValue="2" max="10" maxWidth="130.0" min="0.01" minWidth="130.0" prefWidth="130.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                        <Label text="Amount:" GridPane.rowIndex="3">
+                           <GridPane.margin>
+                              <Insets left="10.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <Label text="Type:" GridPane.rowIndex="4">
+                           <GridPane.margin>
+                              <Insets left="10.0" />
+                           </GridPane.margin>
+                        </Label>
+                        <Spinner fx:id="amount" amountToStepBy="1.0" editable="true" initialValue="3" max="100000000" maxWidth="130.0" min="1" minWidth="130.0" prefWidth="130.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        <ComboBox fx:id="orderType" maxWidth="130.0" minWidth="130.0" prefWidth="130.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Min. Amount:" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                        <Spinner fx:id="minAmount" amountToStepBy="1.0" editable="true" initialValue="3" max="100000000" maxWidth="130.0" min="0.5" minWidth="130.0" prefWidth="130.0" GridPane.columnIndex="3" GridPane.columnSpan="2" GridPane.rowIndex="3" />
+                        <CheckBox fx:id="reversed" mnemonicParsing="false" text="reversed" GridPane.rowIndex="5">
+                           <GridPane.margin>
+                              <Insets left="10.0" />
+                           </GridPane.margin>
+                        </CheckBox>
+                        <CheckBox fx:id="postOnly" mnemonicParsing="false" text="post only" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                        <CheckBox fx:id="reduceOnly" mnemonicParsing="false" text="reduce only" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+                        <Button fx:id="moveToLinked" alignment="CENTER" contentDisplay="RIGHT" maxHeight="42.0" maxWidth="71.0" minHeight="42.0" minWidth="71.0" mnemonicParsing="false" onMouseClicked="#onMoveToLinkedClicked" prefHeight="42.0" prefWidth="71.0" text="Move to Linked" textAlignment="CENTER" wrapText="true" GridPane.columnIndex="3" GridPane.rowIndex="5" />
+                        <Button fx:id="execute" alignment="CENTER" contentDisplay="RIGHT" maxHeight="42.0" maxWidth="71.0" minHeight="42.0" minWidth="71.0" mnemonicParsing="false" onMouseClicked="#onExecuteClicked" prefHeight="42.0" prefWidth="71.0" text="Execute" textAlignment="CENTER" GridPane.columnIndex="4" GridPane.rowIndex="5" />
+                        <TextArea fx:id="stats" editable="false" prefHeight="179.0" prefWidth="617.0" GridPane.columnSpan="5" GridPane.rowIndex="6" />
+                        <ProgressIndicator fx:id="progress" prefHeight="35.0" prefWidth="107.0" GridPane.columnIndex="3" GridPane.columnSpan="2" GridPane.rowIndex="5" />
+                        <Text fx:id="slDistanceLabel" strokeType="OUTSIDE" strokeWidth="0.0" text="SL Distance:" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                        <Spinner fx:id="slDistance" amountToStepBy="1.0" editable="true" initialValue="1" max="100" maxWidth="130.0" min="1" minWidth="130.0" prefWidth="130.0" GridPane.columnIndex="3" GridPane.columnSpan="2" GridPane.rowIndex="4" />
                      </children>
-                  </AnchorPane>
+                  </GridPane>
                </content>
-          </Tab>
-          <Tab text="Linked">
-            <content>
-              <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="375.0" prefWidth="941.0">
+            </Tab>
+            <Tab text="Linked">
+               <content>
+                  <GridPane gridLinesVisible="true">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints fillHeight="false" maxHeight="50.0" minHeight="50.0" prefHeight="50.0" vgrow="NEVER" />
+                      <RowConstraints maxHeight="1.7976931348623157E308" vgrow="SOMETIMES" />
+                    </rowConstraints>
                      <children>
-                        <FlowPane prefHeight="471.0" prefWidth="941.0">
+                        <Pane>
                            <children>
-                              <Button mnemonicParsing="false" onAction="#onAddLinkedOrderClicked" text="+">
-                                 <FlowPane.margin>
-                                    <Insets left="15.0" />
-                                 </FlowPane.margin></Button>
-                              <Button mnemonicParsing="false" onAction="#onRemoveLinkedOrderClicked" text="-" />
-                              <GridPane minHeight="40.0" minWidth="213.0" prefHeight="47.0" prefWidth="220.0">
-                                 <children>
-                                    <Label prefHeight="45.0" prefWidth="61.0" text="Pair:">
-                                       <padding>
-                                          <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-                                       </padding>
-                                       <GridPane.margin>
-                                          <Insets top="12.0" />
-                                       </GridPane.margin></Label>
-                                    <ComboBox fx:id="linkedPair" prefWidth="150.0" GridPane.columnIndex="1">
-                                       <GridPane.margin>
-                                          <Insets top="12.0" />
-                                       </GridPane.margin></ComboBox>
-                                 </children>
-                                 <columnConstraints>
-                                    <ColumnConstraints hgrow="NEVER" maxWidth="-Infinity" minWidth="-Infinity" />
-                                    <ColumnConstraints hgrow="NEVER" maxWidth="-Infinity" minWidth="-Infinity" />
-                                 </columnConstraints>
-                                 <rowConstraints>
-                                    <RowConstraints maxHeight="33.0" minHeight="33.0" prefHeight="33.0" vgrow="NEVER" />
-                                 </rowConstraints>
-                                 <FlowPane.margin>
-                                    <Insets left="650.0" />
-                                 </FlowPane.margin>
-                              </GridPane>
-                              <TableView fx:id="linkedOrdersTable" editable="true" fixedCellSize="30.0" prefHeight="269.0" prefWidth="939.0">
-                                <columns>
-                                    <TableColumn fx:id="linkedSideColumn" prefWidth="83.0" sortable="false" text="Side" />
-                                  <TableColumn fx:id="linkedPriceColumn" prefWidth="133.0" sortable="false" text="Price" />
-                                  <TableColumn fx:id="linkedAmountColumn" prefWidth="124.0" sortable="false" text="Amount" />
-                                    <TableColumn fx:id="linkedOrderTypeColumn" prefWidth="158.0" sortable="false" text="Type" />
-                                    <TableColumn fx:id="linkedOrderTypeParameterColumn" prefWidth="129.0" sortable="false" text="Stop" />
-                                    <TableColumn fx:id="linkedLinkIdColumn" minWidth="0.0" prefWidth="108.0" sortable="false" text="Link ID" />
-                                    <TableColumn fx:id="linkedLinkTypeColumn" prefWidth="124.0" sortable="false" text="Link Type" />
-                                    <TableColumn fx:id="linkedPostOnlyColumn" minWidth="0.0" prefWidth="27.0" sortable="false" text="PO" />
-                                    <TableColumn fx:id="linkedReduceOnlyColumn" prefWidth="30.0" sortable="false" text="RO" />
-                                </columns>
-                              </TableView>
-                              <GridPane prefHeight="43.0" prefWidth="938.0">
-                                <columnConstraints>
-                                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="773.0" minWidth="10.0" prefWidth="767.0" />
-                                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="293.0" minWidth="10.0" prefWidth="171.0" />
-                                </columnConstraints>
-                                <rowConstraints>
-                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                </rowConstraints>
-                                 <children>
-                                    <Button mnemonicParsing="false" onAction="#onExecuteLinkedOrdersClicked" prefHeight="30.0" prefWidth="162.0" text="Execute" GridPane.columnIndex="1" />
-                                 </children>
-                              </GridPane>
+                              <Button layoutX="14.0" layoutY="-1.0" mnemonicParsing="false" onMouseClicked="#onAddLinkedOrderClicked" prefHeight="30.0" prefWidth="30.0" text="+" />
+                              <Button layoutX="44.0" layoutY="-1.0" mnemonicParsing="false" onMouseClicked="#onRemoveLinkedOrderClicked" prefHeight="30.0" prefWidth="30.0" text="-" />
+                              <Label layoutX="142.0" layoutY="6.0" text="Pair:" />
+                              <ComboBox fx:id="linkedPair" layoutX="183.0" layoutY="-1.0" minHeight="30.0" minWidth="110.0" prefHeight="30.0" prefWidth="110.0" />
+                              <Button layoutX="856.0" layoutY="1.0" mnemonicParsing="false" onMouseClicked="#onExecuteLinkedOrdersClicked" text="Execute" />
                            </children>
-                           <padding>
-                              <Insets top="15.0" />
-                           </padding>
-                        </FlowPane>
+                        </Pane>
+                        <TableView fx:id="linkedOrdersTable" editable="true" fixedCellSize="30.0" GridPane.rowIndex="1">
+                           <columns>
+                              <TableColumn fx:id="linkedSideColumn" maxWidth="1.7976931348623157E308" minWidth="80.0" sortable="false" text="Side" />
+                              <TableColumn fx:id="linkedPriceColumn" maxWidth="1.7976931348623157E308" minWidth="130.0" prefWidth="130.0" sortable="false" text="Price" />
+                              <TableColumn fx:id="linkedAmountColumn" maxWidth="1.7976931348623157E308" minWidth="130.0" prefWidth="130.0" sortable="false" text="Amount" />
+                              <TableColumn fx:id="linkedOrderTypeColumn" maxWidth="1.7976931348623157E308" minWidth="160.0" prefWidth="160.0" sortable="false" text="Type" />
+                              <TableColumn fx:id="linkedOrderTypeParameterColumn" maxWidth="1.7976931348623157E308" minWidth="130.0" prefWidth="130.0" sortable="false" text="Stop" />
+                              <TableColumn fx:id="linkedLinkIdColumn" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="100.0" sortable="false" text="Link ID" />
+                              <TableColumn fx:id="linkedLinkTypeColumn" maxWidth="1.7976931348623157E308" minWidth="130.0" prefWidth="130.0" sortable="false" text="Link Type" />
+                              <TableColumn fx:id="linkedPostOnlyColumn" maxWidth="1.7976931348623157E308" minWidth="30.0" prefWidth="30.0" sortable="false" text="PO" />
+                              <TableColumn fx:id="linkedReduceOnlyColumn" maxWidth="1.7976931348623157E308" minWidth="30.0" prefWidth="30.0" sortable="false" text="RO" />
+                           </columns>
+                        </TableView>
                      </children>
-                  </AnchorPane>
-            </content>
-          </Tab>
+                  </GridPane>
+               </content>
+            </Tab>
+            <Tab text="Settings">
+               <content>
+                  <GridPane>
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="209.0" minWidth="10.0" prefWidth="102.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="714.0" prefWidth="813.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints maxHeight="40.0" minHeight="40.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="40.0" minHeight="40.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="1.7976931348623157E308" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                     <children>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="API-Key:" />
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="API-Secret:" GridPane.rowIndex="1" />
+                        <TextField fx:id="apiKey" GridPane.columnIndex="1" />
+                        <TextField fx:id="apiSecret" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <Button mnemonicParsing="false" onMouseClicked="#onStoreClicked" text="Store" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="2" GridPane.valignment="TOP" />
+                     </children>
+                     <padding>
+                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                     </padding>
+                  </GridPane>
+               </content>
+            </Tab>
         </tabs>
       </TabPane>
     </children>

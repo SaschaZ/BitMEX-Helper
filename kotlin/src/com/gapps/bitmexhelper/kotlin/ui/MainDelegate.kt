@@ -22,9 +22,8 @@ object MainDelegate {
     fun onSceneSet() {
         BulkDelegate.onSceneSet(controller, exchange)
         LinkedDelegate.onSceneSet(controller, exchange)
+        SettingsDelegate.onSceneSet(controller)
     }
-
-    fun onSettingsClicked() = AppDelegate.openSettings()
 
     fun onMoveToLinkedClicked() {
         BulkDelegate.createOrders()?.let { LinkedDelegate.addOrders(it) }
@@ -50,4 +49,6 @@ object MainDelegate {
                 ?: error?.message
                 ?: "unknown error")
     }
+
+    fun openSettings() = controller.tabPane.selectionModel.selectLast()
 }
