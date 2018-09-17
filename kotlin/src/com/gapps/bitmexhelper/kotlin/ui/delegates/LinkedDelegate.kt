@@ -269,6 +269,7 @@ object LinkedDelegate {
         controller.changeInExecutionMode(true)
 
         val orderParameters = linkedOrders.map { item ->
+            val side = BitmexSide.fromString(item.getSide())
             val orderType = BulkOrderType.valueOf(item.getOrderType())
             val price = when (orderType) {
                 LIMIT,
@@ -285,21 +286,21 @@ object LinkedDelegate {
                 else -> null
             }
             val pegPriceAmount = when (orderType) {
-                TRAILING_STOP -> item.getOrderTypeParameter()
+                TRAILING_STOP -> item.getOrderTypeParameter() * if (side == BitmexSide.BUY) 1 else -1
                 else -> null
             }
             BitmexPlaceOrderParameters.Builder(controller.linkedPair.value.toString().toCurrencyPair().toBitmexSymbol())
                     .setOrderQuantity(item.getAmount().toBigDecimal())
                     .setPrice(price?.let { if (it < 0) null else it.toBigDecimal() })
                     .setStopPrice(stop?.let { if (it < 0) null else it.toBigDecimal() })
-                    .setSide(BitmexSide.fromString(item.getSide()))
+                    .setSide(side)
                     .setOrderType(orderType.toBitmexOrderType())
                     .setExecutionInstructions(BitmexExecutionInstruction.Builder().setPostOnly(item.getPostOnly())
                             .setReduceOnly(item.getReduceOnly()).setLastPrice(orderType == TRAILING_STOP).build())
                     .setContingencyType(LinkType.valueOf(item.getLinkType()).toBitmexContingencyType())
                     .setClOrdLinkId(item.getLinkId().let { if (it.isBlank()) null else it })
                     .setPegPriceType(pegPriceType)
-                    .setPegOffsetValue(pegPriceAmount?.let { if (it < 0) null else it.toBigDecimal() })
+                    .setPegOffsetValue(pegPriceAmount?.toBigDecimal())
                     .build()
         }
 
