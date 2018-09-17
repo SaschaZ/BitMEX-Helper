@@ -24,9 +24,13 @@ import javafx.scene.control.cell.ComboBoxTableCell
 import javafx.scene.control.cell.PropertyValueFactory
 import javafx.util.Callback
 import javafx.util.StringConverter
+import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.launch
+import org.knowm.xchange.bitmex.BitmexException
 import org.knowm.xchange.bitmex.dto.trade.*
 import org.knowm.xchange.bitmex.dto.trade.BitmexExecutionInstruction.*
 import org.knowm.xchange.exceptions.ExchangeException
+import java.lang.Exception
 
 object LinkedDelegate {
 
@@ -268,56 +272,58 @@ object LinkedDelegate {
     fun onExecuteLinkedOrdersClicked() {
         controller.changeInExecutionMode(true)
 
-        val orderParameters = linkedOrders.map { item ->
-            val side = BitmexSide.fromString(item.getSide())
-            val orderType = BulkOrderType.valueOf(item.getOrderType())
-            val price = when (orderType) {
-                LIMIT,
-                STOP_LIMIT -> item.getPrice()
-                else -> null
+        launch {
+            val orderParameters = linkedOrders.map { item ->
+                val side = BitmexSide.fromString(item.getSide())
+                val orderType = BulkOrderType.valueOf(item.getOrderType())
+                val price = when (orderType) {
+                    LIMIT,
+                    STOP_LIMIT -> item.getPrice()
+                    else -> null
+                }
+                val stop = when (orderType) {
+                    STOP_LIMIT,
+                    STOP -> item.getOrderTypeParameter()
+                    else -> null
+                }
+                val pegPriceType = when (orderType) {
+                    TRAILING_STOP -> BitmexPegPriceType.TRAILING_STOP_PEG
+                    else -> null
+                }
+                val pegPriceAmount = when (orderType) {
+                    TRAILING_STOP -> item.getOrderTypeParameter() * if (side == BitmexSide.BUY) 1 else -1
+                    else -> null
+                }
+                BitmexPlaceOrderParameters.Builder(controller.linkedPair.value.toString().toCurrencyPair().toBitmexSymbol())
+                        .setOrderQuantity(item.getAmount().toBigDecimal())
+                        .setPrice(price?.let { if (it < 0) null else it.toBigDecimal() })
+                        .setStopPrice(stop?.let { if (it < 0) null else it.toBigDecimal() })
+                        .setSide(side)
+                        .setOrderType(orderType.toBitmexOrderType())
+                        .setExecutionInstructions(BitmexExecutionInstruction.Builder().setPostOnly(item.getPostOnly())
+                                .setReduceOnly(item.getReduceOnly()).setLastPrice(orderType == TRAILING_STOP).build())
+                        .setContingencyType(LinkType.valueOf(item.getLinkType()).toBitmexContingencyType())
+                        .setClOrdLinkId(item.getLinkId().let { if (it.isBlank()) null else it })
+                        .setPegPriceType(pegPriceType)
+                        .setPegOffsetValue(pegPriceAmount?.toBigDecimal())
+                        .build()
             }
-            val stop = when (orderType) {
-                STOP_LIMIT,
-                STOP -> item.getOrderTypeParameter()
-                else -> null
-            }
-            val pegPriceType = when (orderType) {
-                TRAILING_STOP -> BitmexPegPriceType.TRAILING_STOP_PEG
-                else -> null
-            }
-            val pegPriceAmount = when (orderType) {
-                TRAILING_STOP -> item.getOrderTypeParameter() * if (side == BitmexSide.BUY) 1 else -1
-                else -> null
-            }
-            BitmexPlaceOrderParameters.Builder(controller.linkedPair.value.toString().toCurrencyPair().toBitmexSymbol())
-                    .setOrderQuantity(item.getAmount().toBigDecimal())
-                    .setPrice(price?.let { if (it < 0) null else it.toBigDecimal() })
-                    .setStopPrice(stop?.let { if (it < 0) null else it.toBigDecimal() })
-                    .setSide(side)
-                    .setOrderType(orderType.toBitmexOrderType())
-                    .setExecutionInstructions(BitmexExecutionInstruction.Builder().setPostOnly(item.getPostOnly())
-                            .setReduceOnly(item.getReduceOnly()).setLastPrice(orderType == TRAILING_STOP).build())
-                    .setContingencyType(LinkType.valueOf(item.getLinkType()).toBitmexContingencyType())
-                    .setClOrdLinkId(item.getLinkId().let { if (it.isBlank()) null else it })
-                    .setPegPriceType(pegPriceType)
-                    .setPegOffsetValue(pegPriceAmount?.toBigDecimal())
-                    .build()
-        }
 
-        var error: ExchangeException? = null
-        val result = try {
-            exchange.placeBulkOrders(orderParameters)
-        } catch (ee: ExchangeException) {
-            error = ee
-            null
-        }
+            var error: ExchangeException? = null
+            val result = try {
+                exchange.placeBulkOrders(orderParameters)
+            } catch (e: ExchangeException) {
+                error = e
+                null
+            }
 
-        Platform.runLater {
-            controller.changeInExecutionMode(false)
-            if (result == null || error != null)
-                MainDelegate.reportError(error)
-            else
-                MainDelegate.reportCanceledOrders(result)
+            Platform.runLater {
+                controller.changeInExecutionMode(false)
+                if (result == null || error != null)
+                    MainDelegate.reportError(error)
+                else
+                    MainDelegate.reportCanceledOrders(result)
+            }
         }
     }
 

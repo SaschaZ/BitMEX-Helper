@@ -434,7 +434,7 @@ enum class BulkOrderType {
         LIMIT -> BitmexOrderType.LIMIT
         STOP -> BitmexOrderType.STOP
         STOP_LIMIT -> BitmexOrderType.STOP_LIMIT
-        TRAILING_STOP -> BitmexOrderType.MARKET_IF_TOUCHED
+        TRAILING_STOP -> BitmexOrderType.STOP
     }
 }
 

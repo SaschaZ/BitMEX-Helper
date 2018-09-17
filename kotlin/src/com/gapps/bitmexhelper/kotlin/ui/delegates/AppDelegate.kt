@@ -24,13 +24,13 @@ object AppDelegate {
 
     fun onStopped() {}
 
-    internal fun showError(message: String) {
+    internal fun showError(message: String, type: String? = null) {
         Alert(Alert.AlertType.ERROR).apply {
             dialogPane.apply {
                 minWidth = Region.USE_PREF_SIZE
                 minHeight = Region.USE_PREF_SIZE
             }
-            title = "ERROR"
+            title = type ?: "ERROR"
             headerText = null
             contentText = message
             showAndWait()

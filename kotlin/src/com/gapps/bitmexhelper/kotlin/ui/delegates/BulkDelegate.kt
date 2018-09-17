@@ -12,12 +12,14 @@ import javafx.collections.FXCollections
 import javafx.scene.control.*
 import javafx.scene.control.cell.PropertyValueFactory
 import kotlinx.coroutines.experimental.launch
+import org.knowm.xchange.bitmex.BitmexException
 import org.knowm.xchange.bitmex.dto.trade.BitmexPlaceOrderParameters
 import org.knowm.xchange.bitmex.dto.trade.BitmexSide
 import org.knowm.xchange.currency.CurrencyPair
 import org.knowm.xchange.dto.Order.OrderType.*
 import org.knowm.xchange.dto.marketdata.Ticker
 import org.knowm.xchange.exceptions.ExchangeException
+import java.lang.Exception
 
 object BulkDelegate {
 
@@ -210,10 +212,11 @@ object BulkDelegate {
             storeSelection()
             val result = try {
                 executeOrder()
-            } catch (ee: ExchangeException) {
-                error = ee
+            } catch (e: ExchangeException) {
+                error = e
                 null
             }
+
 
             Platform.runLater {
                 controller.changeInExecutionMode(false)

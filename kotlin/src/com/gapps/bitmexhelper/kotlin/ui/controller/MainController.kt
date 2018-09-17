@@ -10,6 +10,7 @@ import javafx.application.Platform
 import javafx.fxml.FXML
 import javafx.scene.control.*
 import javafx.scene.text.Text
+import kotlinx.coroutines.experimental.launch
 
 class MainController {
 
@@ -80,6 +81,10 @@ class MainController {
     internal lateinit var linkedPostOnlyColumn: TableColumn<LinkedDelegate.LinkedTableItem, Boolean>
     @FXML
     internal lateinit var linkedReduceOnlyColumn: TableColumn<LinkedDelegate.LinkedTableItem, Boolean>
+    @FXML
+    internal lateinit var linkedExecute: Button
+    @FXML
+    internal lateinit var linkedProgress: ProgressIndicator
 
     @FXML
     internal lateinit var apiKey: TextField
@@ -101,6 +106,8 @@ class MainController {
     internal fun changeInExecutionMode(show: Boolean) {
         progress.isVisible = show
         execute.isDisable = show
+        linkedProgress.isVisible = show
+        linkedExecute.isDisable = show
     }
 
     @FXML

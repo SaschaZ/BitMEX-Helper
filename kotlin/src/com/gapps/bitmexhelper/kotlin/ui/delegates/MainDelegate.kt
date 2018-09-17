@@ -5,9 +5,11 @@ package com.gapps.bitmexhelper.kotlin.ui.delegates
 import com.gapps.bitmexhelper.kotlin.*
 import com.gapps.bitmexhelper.kotlin.persistance.Settings
 import com.gapps.bitmexhelper.kotlin.ui.controller.MainController
+import org.knowm.xchange.bitmex.BitmexException
 import org.knowm.xchange.bitmex.BitmexExchange
 import org.knowm.xchange.bitmex.dto.marketdata.BitmexPrivateOrder
 import org.knowm.xchange.exceptions.ExchangeException
+import java.lang.Exception
 
 
 object MainDelegate {
@@ -47,8 +49,8 @@ object MainDelegate {
     fun reportError(error: ExchangeException?) {
         error?.printStackTrace()
         AppDelegate.showError(error?.localizedMessage
-                ?: error?.message
-                ?: "unknown error")
+                        ?: error?.message
+                        ?: "unknown error", (error?.cause as? BitmexException)?.errorName)
     }
 
     fun openSettings() = controller.tabPane.selectionModel.selectLast()
