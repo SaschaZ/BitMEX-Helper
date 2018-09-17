@@ -1,8 +1,9 @@
-package com.gapps.bitmexhelper.kotlin.ui
+package com.gapps.bitmexhelper.kotlin.ui.delegates
 
 import com.gapps.bitmexhelper.kotlin.*
 import com.gapps.bitmexhelper.kotlin.persistance.Constants
 import com.gapps.bitmexhelper.kotlin.persistance.Settings
+import com.gapps.bitmexhelper.kotlin.ui.controller.MainController
 import com.gapps.utils.whenNotNull
 import javafx.application.Platform
 import javafx.beans.property.SimpleDoubleProperty
@@ -26,8 +27,8 @@ object BulkDelegate {
     private var tickers: Map<CurrencyPair, Ticker>? = null
 
     fun onSceneSet(controller: MainController, exchange: XChangeWrapper) {
-        this.controller = controller
-        this.exchange = exchange
+        BulkDelegate.controller = controller
+        BulkDelegate.exchange = exchange
 
         controller.changeInExecutionMode(true)
         launch {
@@ -110,7 +111,10 @@ object BulkDelegate {
             reduceOnly.isSelected = Settings.settings.lastReduceOnly
             reduceOnly.setOnAction { updateView() }
 
-            review.columnResizePolicy = TableView.CONSTRAINED_RESIZE_POLICY
+            review.apply {
+                columnResizePolicy = TableView.CONSTRAINED_RESIZE_POLICY
+                setPlaceholder(Label("Current parameters do not return any orders."))
+            }
             reviewPriceColumn.cellValueFactory = PropertyValueFactory<PreviewItem, Double>("price")
             reviewAmountColumn.cellValueFactory = PropertyValueFactory<PreviewItem, Int>("amount")
         }

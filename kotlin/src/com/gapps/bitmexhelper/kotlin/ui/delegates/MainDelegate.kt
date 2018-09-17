@@ -1,9 +1,10 @@
 @file:Suppress("EXPERIMENTAL_FEATURE_WARNING")
 
-package com.gapps.bitmexhelper.kotlin.ui
+package com.gapps.bitmexhelper.kotlin.ui.delegates
 
 import com.gapps.bitmexhelper.kotlin.*
 import com.gapps.bitmexhelper.kotlin.persistance.Settings
+import com.gapps.bitmexhelper.kotlin.ui.controller.MainController
 import org.knowm.xchange.bitmex.BitmexExchange
 import org.knowm.xchange.bitmex.dto.marketdata.BitmexPrivateOrder
 import org.knowm.xchange.exceptions.ExchangeException

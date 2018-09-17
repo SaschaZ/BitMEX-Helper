@@ -1,7 +1,11 @@
 @file:Suppress("unused")
 
-package com.gapps.bitmexhelper.kotlin.ui
+package com.gapps.bitmexhelper.kotlin.ui.controller
 
+import com.gapps.bitmexhelper.kotlin.ui.delegates.BulkDelegate
+import com.gapps.bitmexhelper.kotlin.ui.delegates.LinkedDelegate
+import com.gapps.bitmexhelper.kotlin.ui.delegates.MainDelegate
+import com.gapps.bitmexhelper.kotlin.ui.delegates.SettingsDelegate
 import javafx.application.Platform
 import javafx.fxml.FXML
 import javafx.scene.control.*

@@ -20,7 +20,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<VBox minHeight="500.0" minWidth="945.0" prefHeight="500.0" prefWidth="945.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gapps.bitmexhelper.kotlin.ui.MainController">
+<VBox minHeight="500.0" minWidth="945.0" prefHeight="500.0" prefWidth="945.0" xmlns="http://javafx.com/javafx/8.0.162" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gapps.bitmexhelper.kotlin.ui.controller.MainController">
 
     <children>
       <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
@@ -95,7 +95,7 @@
                               <Insets left="10.0" />
                            </GridPane.margin>
                         </CheckBox>
-                        <CheckBox fx:id="postOnly" mnemonicParsing="false" text="post only" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                        <CheckBox fx:id="postOnly" mnemonicParsing="false" text="post only" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="5" />
                         <CheckBox fx:id="reduceOnly" mnemonicParsing="false" text="reduce only" GridPane.columnIndex="2" GridPane.rowIndex="5" />
                         <Button fx:id="moveToLinked" alignment="CENTER" contentDisplay="RIGHT" maxHeight="42.0" maxWidth="71.0" minHeight="42.0" minWidth="71.0" mnemonicParsing="false" onMouseClicked="#onMoveToLinkedClicked" prefHeight="42.0" prefWidth="71.0" text="Move to Linked" textAlignment="CENTER" wrapText="true" GridPane.columnIndex="3" GridPane.rowIndex="5" />
                         <Button fx:id="execute" alignment="CENTER" contentDisplay="RIGHT" maxHeight="42.0" maxWidth="71.0" minHeight="42.0" minWidth="71.0" mnemonicParsing="false" onMouseClicked="#onExecuteClicked" prefHeight="42.0" prefWidth="71.0" text="Execute" textAlignment="CENTER" GridPane.columnIndex="4" GridPane.rowIndex="5" />
@@ -104,6 +104,9 @@
                         <Text fx:id="slDistanceLabel" strokeType="OUTSIDE" strokeWidth="0.0" text="SL Distance:" GridPane.columnIndex="2" GridPane.rowIndex="4" />
                         <Spinner fx:id="slDistance" amountToStepBy="1.0" editable="true" initialValue="1" max="100" maxWidth="130.0" min="1" minWidth="130.0" prefWidth="130.0" GridPane.columnIndex="3" GridPane.columnSpan="2" GridPane.rowIndex="4" />
                      </children>
+                     <padding>
+                        <Insets top="5.0" />
+                     </padding>
                   </GridPane>
                </content>
             </Tab>

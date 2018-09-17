@@ -1,4 +1,4 @@
-package com.gapps.bitmexhelper.kotlin.ui
+package com.gapps.bitmexhelper.kotlin.ui.controller
 
 interface AppController {
 

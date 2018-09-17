@@ -1,9 +1,9 @@
 package com.gapps.bitmexhelper;
 
 import com.gapps.bitmexhelper.kotlin.persistance.Constants;
-import com.gapps.bitmexhelper.kotlin.ui.AppController;
-import com.gapps.bitmexhelper.kotlin.ui.AppDelegate;
-import com.gapps.bitmexhelper.kotlin.ui.MainDelegate;
+import com.gapps.bitmexhelper.kotlin.ui.controller.AppController;
+import com.gapps.bitmexhelper.kotlin.ui.delegates.AppDelegate;
+import com.gapps.bitmexhelper.kotlin.ui.delegates.MainDelegate;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -48,6 +48,8 @@ public class App extends Application implements AppController {
         try {
             stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("main.fxml"))));
             mainDelegate.onSceneSet();
+            stage.setMinHeight(500.0);
+            stage.setMinWidth(945.0);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();

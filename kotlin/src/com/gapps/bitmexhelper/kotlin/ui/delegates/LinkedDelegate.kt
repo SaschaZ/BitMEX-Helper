@@ -1,4 +1,4 @@
-package com.gapps.bitmexhelper.kotlin.ui
+package com.gapps.bitmexhelper.kotlin.ui.delegates
 
 import com.gapps.bitmexhelper.kotlin.BulkOrderType
 import com.gapps.bitmexhelper.kotlin.BulkOrderType.*
@@ -7,12 +7,16 @@ import com.gapps.bitmexhelper.kotlin.persistance.Constants
 import com.gapps.bitmexhelper.kotlin.persistance.Settings
 import com.gapps.bitmexhelper.kotlin.toBitmexSymbol
 import com.gapps.bitmexhelper.kotlin.toCurrencyPair
+import com.gapps.bitmexhelper.kotlin.ui.EditCell
+import com.gapps.bitmexhelper.kotlin.ui.controller.MainController
+import com.gapps.bitmexhelper.kotlin.ui.SpinnerCell
 import javafx.application.Platform
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
+import javafx.scene.control.Label
 import javafx.scene.control.TableCell
 import javafx.scene.control.TableColumn
 import javafx.scene.control.cell.CheckBoxTableCell
@@ -117,8 +121,8 @@ object LinkedDelegate {
     private val priceSpinners = ArrayList<SpinnerCell<LinkedTableItem, Double>>()
 
     fun onSceneSet(controller: MainController, exchange: XChangeWrapper) {
-        this.controller = controller
-        this.exchange = exchange
+        LinkedDelegate.controller = controller
+        LinkedDelegate.exchange = exchange
 
         initLinkedTable()
     }
@@ -191,7 +195,7 @@ object LinkedDelegate {
 
             linkedLinkIdColumn.apply {
                 cellValueFactory = PropertyValueFactory<LinkedTableItem, String>("linkId")
-                cellFactory = Callback<TableColumn<LinkedTableItem, String>, TableCell<LinkedTableItem, String>> {
+                cellFactory = Callback<TableColumn<LinkedTableItem, String>, TableCell<LinkedTableItem, String>> { _ ->
                     EditCell(object : StringConverter<String>() {
                         override fun toString(value: String?) = value
                         override fun fromString(string: String?) = string
@@ -226,10 +230,12 @@ object LinkedDelegate {
                     linkedOrders[event.tablePosition.row].setReduceOnly(event.newValue)
                 }
             }
+            linkedOrdersTable.setPlaceholder(Label("Add new orders with the '+' button or press the 'Move to Linked' button on the 'Bulk' page."))
+
         }
     }
 
-    private fun TableColumn<LinkedDelegate.LinkedTableItem, Double>.initSpinnerCellValueFactory(minStep: Double) {
+    private fun TableColumn<LinkedTableItem, Double>.initSpinnerCellValueFactory(minStep: Double) {
         cellFactory = Callback<TableColumn<LinkedTableItem, Double>, TableCell<LinkedTableItem, Double>> {
             SpinnerCell<LinkedTableItem, Double>(0.0, 1000000000.0, 0.0, minStep).also { cell ->
                 priceSpinners.add(cell)

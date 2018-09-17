@@ -1,6 +1,7 @@
-package com.gapps.bitmexhelper.kotlin.ui
+package com.gapps.bitmexhelper.kotlin.ui.delegates
 
 import com.gapps.bitmexhelper.kotlin.persistance.Settings
+import com.gapps.bitmexhelper.kotlin.ui.controller.AppController
 import javafx.scene.control.Alert
 import javafx.scene.layout.Region
 
