@@ -68,7 +68,7 @@ class MainController {
     @FXML
     internal lateinit var linkedPriceColumn: TableColumn<LinkedDelegate.LinkedTableItem, Double>
     @FXML
-    internal lateinit var linkedAmountColumn: TableColumn<LinkedDelegate.LinkedTableItem, Int>
+    internal lateinit var linkedAmountColumn: TableColumn<LinkedDelegate.LinkedTableItem, Double>
     @FXML
     internal lateinit var linkedOrderTypeColumn: TableColumn<LinkedDelegate.LinkedTableItem, String>
     @FXML

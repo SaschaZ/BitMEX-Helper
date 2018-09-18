@@ -6,10 +6,7 @@ import com.gapps.bitmexhelper.kotlin.BulkDistribution.*
 import com.gapps.bitmexhelper.kotlin.BulkOrderType.*
 import com.gapps.bitmexhelper.kotlin.persistance.Constants
 import com.gapps.bitmexhelper.kotlin.persistance.Constants.minimumPriceSteps
-import com.gapps.utils.TimeUnit
-import com.gapps.utils.catchAsync
-import com.gapps.utils.launchInterval
-import com.gapps.utils.toMs
+import com.gapps.utils.*
 import org.knowm.xchange.ExchangeFactory
 import org.knowm.xchange.bitmex.Bitmex
 import org.knowm.xchange.bitmex.BitmexExchange
@@ -32,6 +29,7 @@ import org.knowm.xchange.dto.marketdata.Ticker
 import org.knowm.xchange.dto.trade.LimitOrder
 import org.knowm.xchange.dto.trade.MarketOrder
 import org.knowm.xchange.dto.trade.StopOrder
+import java.lang.IllegalArgumentException
 import java.math.BigDecimal
 import java.math.MathContext
 import java.text.SimpleDateFormat
@@ -232,33 +230,30 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
             val priceForOrder = (if (amounts.size == 1) priceLow + (priceHigh - priceLow) / 2
             else priceLow + (priceHigh - priceLow) / (amounts.size - 1) * orderIndex).roundToMinimumStep(pair)
             val builder = BitmexPlaceOrderParameters.Builder(pair.toBitmexSymbol())
-            when (type) {
-                LIMIT -> {
-                    builder.setPrice(priceForOrder.toBigDecimal())
-                    builder.setOrderType(BitmexOrderType.LIMIT)
+            builder.apply {
+                when (type) {
+                    LIMIT -> {
+                        setPrice(priceForOrder.toBigDecimal())
+                    }
+                    STOP -> {
+                        setStopPrice(priceForOrder.toBigDecimal())
+                    }
+                    STOP_LIMIT -> {
+                        setPrice((priceForOrder + (minimumPriceSteps[pair]!! * slDistance * if (orderSide == BID) -1 else 1)).toBigDecimal())
+                        setStopPrice(priceForOrder.toBigDecimal())
+                    }
+                    else -> throw IllegalArgumentException("$type is not supported for automatic bulk creation.")
                 }
-                STOP -> {
-                    builder.setStopPrice(priceForOrder.toBigDecimal())
-                    builder.setOrderType(BitmexOrderType.STOP)
-                }
-                STOP_LIMIT -> {
-                    builder.setPrice((priceForOrder + (minimumPriceSteps[pair]!! * slDistance * if (orderSide == BID) -1 else 1)).toBigDecimal())
-                    builder.setStopPrice(priceForOrder.toBigDecimal())
-                    builder.setOrderType(BitmexOrderType.STOP_LIMIT)
-                }
-                TRAILING_STOP -> {
-                    builder.setOrderType(BitmexOrderType.PEGGED)
-                    // Not used for automatic bulk creation
-                }
-            }
 
-            builder
-                    .setSide(orderSide.getSide())
-                    .setOrderQuantity(amountForOrder.toBigDecimal())
-                    .setExecutionInstructions(BitmexExecutionInstruction.Builder().setPostOnly(postOnly)
-                            .setReduceOnly(reduceOnly).setLastPrice(type == TRAILING_STOP).build())
-                    .build()
-        }.toMutableList()
+                setOrderType(type.toBitmexOrderType())
+                setSide(orderSide.getSide())
+                setOrderQuantity(amountForOrder.toBigDecimal())
+                setExecutionInstructions(BitmexExecutionInstruction.Builder()
+                        .setPostOnly(postOnly)
+                        .setReduceOnly(reduceOnly)
+                        .setLastPrice(type.equalsOne(STOP, STOP_LIMIT)).build())
+            }.build()
+        }
 
         val distinctOrders = ArrayList<BitmexPlaceOrderParameters>()
         orders.forEach { order ->

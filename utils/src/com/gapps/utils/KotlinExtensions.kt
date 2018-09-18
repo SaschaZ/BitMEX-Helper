@@ -55,7 +55,7 @@ fun List<Double?>.average(sizeForce: Int? = null, selector: ((Double?) -> Boolea
 
 fun Double?.average(arg2: Double): Double = this?.let { (it + arg2) / 2 } ?: arg2
 
-fun Any?.equalOne(vararg args: Any) = args.any { args == this }
+fun Any?.equalsOne(vararg args: Any) = args.any { args == this }
 
 fun <E, K> List<E>.merge(key: (E) -> K, combine: (List<E>) -> E?): List<E> {
     val list = ArrayList<E>()

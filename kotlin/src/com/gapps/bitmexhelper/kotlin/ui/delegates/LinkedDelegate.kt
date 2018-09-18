@@ -7,9 +7,12 @@ import com.gapps.bitmexhelper.kotlin.persistance.Constants
 import com.gapps.bitmexhelper.kotlin.persistance.Settings
 import com.gapps.bitmexhelper.kotlin.toBitmexSymbol
 import com.gapps.bitmexhelper.kotlin.toCurrencyPair
+import com.gapps.bitmexhelper.kotlin.ui.ComboBoxCell
 import com.gapps.bitmexhelper.kotlin.ui.EditCell
-import com.gapps.bitmexhelper.kotlin.ui.controller.MainController
 import com.gapps.bitmexhelper.kotlin.ui.SpinnerCell
+import com.gapps.bitmexhelper.kotlin.ui.controller.MainController
+import com.gapps.utils.equalsOne
+import com.gapps.utils.whenNotNull
 import javafx.application.Platform
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleDoubleProperty
@@ -20,17 +23,13 @@ import javafx.scene.control.Label
 import javafx.scene.control.TableCell
 import javafx.scene.control.TableColumn
 import javafx.scene.control.cell.CheckBoxTableCell
-import javafx.scene.control.cell.ComboBoxTableCell
 import javafx.scene.control.cell.PropertyValueFactory
 import javafx.util.Callback
-import javafx.util.StringConverter
-import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
-import org.knowm.xchange.bitmex.BitmexException
 import org.knowm.xchange.bitmex.dto.trade.*
-import org.knowm.xchange.bitmex.dto.trade.BitmexExecutionInstruction.*
+import org.knowm.xchange.bitmex.dto.trade.BitmexExecutionInstruction.PARTICIPATE_DO_NOT_INITIATE
+import org.knowm.xchange.bitmex.dto.trade.BitmexExecutionInstruction.REDUCE_ONLY
 import org.knowm.xchange.exceptions.ExchangeException
-import java.lang.Exception
 
 object LinkedDelegate {
 
@@ -153,12 +152,18 @@ object LinkedDelegate {
                 }
                 enableValueChangeOnScroll()
             }
+            linkedOrdersTable.apply {
+                placeholder = Label("Add new orders with the '+' button or press the 'Move to Linked' button on the 'Bulk' page.")
+//                selectionModel.isCellSelectionEnabled = true
+            }
             val minStep = Constants.minimumPriceSteps[linkedPair.value.toString().toCurrencyPair()]!!
             linkedSideColumn.apply {
                 cellValueFactory = PropertyValueFactory<LinkedTableItem, String>("side")
-                cellFactory = ComboBoxTableCell.forTableColumn("Buy", "Sell")
+                cellFactory = ComboBoxCell.forTableColumn("Buy", "Sell")
                 setOnEditCommit { event ->
-                    linkedOrders[event.tablePosition.row].setSide(event.newValue)
+                    whenNotNull(event.tablePosition, event.newValue) { tablePosition, value ->
+                        linkedOrders[tablePosition.row].setSide(value)
+                    } ?: println("side event is null")
                 }
             }
 
@@ -171,21 +176,22 @@ object LinkedDelegate {
             }
 
             linkedAmountColumn.apply {
-                cellValueFactory = PropertyValueFactory<LinkedTableItem, Int>("amount")
-                cellFactory = Callback<TableColumn<LinkedTableItem, Int>, TableCell<LinkedTableItem, Int>> {
-                    SpinnerCell(1, 10000000, 1, 1)
-                }
+                cellValueFactory = PropertyValueFactory<LinkedTableItem, Double>("amount")
+                initSpinnerCellValueFactory(1.0, 1.0, Double.MAX_VALUE, 1.0)
                 setOnEditCommit { event ->
-                    linkedOrders[event.tablePosition.row].setAmount(event.newValue)
+                    whenNotNull(event.tablePosition, event.newValue) { tablePosition, value ->
+                        linkedOrders[tablePosition.row].setAmount(value.toInt())
+                    } ?: println("amount event is null")
                 }
             }
 
             linkedOrderTypeColumn.apply {
                 cellValueFactory = PropertyValueFactory<LinkedTableItem, String>("orderType")
-                cellFactory = ComboBoxTableCell.forTableColumn(*BulkOrderType.values()
-                        .map { it.toString() }.toTypedArray())
+                cellFactory = ComboBoxCell.forTableColumn(*values().map { it.toString() }.toTypedArray())
                 setOnEditCommit { event ->
-                    linkedOrders[event.tablePosition.row].setOrderType(event.newValue)
+                    whenNotNull(event.tablePosition, event.newValue) { tablePosition, value ->
+                        linkedOrders[tablePosition.row].setOrderType(value)
+                    } ?: println("orderType event is null")
                 }
             }
 
@@ -193,17 +199,16 @@ object LinkedDelegate {
                 cellValueFactory = PropertyValueFactory<LinkedTableItem, Double>("orderTypeParameter")
                 initSpinnerCellValueFactory(minStep)
                 setOnEditCommit { event ->
-                    linkedOrders[event.tablePosition.row].setOrderTypeParameter(event.newValue)
+                    whenNotNull(event.tablePosition, event.newValue) { tablePosition, value ->
+                        linkedOrders[tablePosition.row].setOrderTypeParameter(value)
+                    } ?: println("orderTypeParameter event is null")
                 }
             }
 
             linkedLinkIdColumn.apply {
                 cellValueFactory = PropertyValueFactory<LinkedTableItem, String>("linkId")
                 cellFactory = Callback<TableColumn<LinkedTableItem, String>, TableCell<LinkedTableItem, String>> { _ ->
-                    EditCell(object : StringConverter<String>() {
-                        override fun toString(value: String?) = value
-                        override fun fromString(string: String?) = string
-                    })
+                    EditCell()
                 }
                 setOnEditCommit { event ->
                     linkedOrders[event.tablePosition.row].setLinkId(event.newValue)
@@ -212,10 +217,12 @@ object LinkedDelegate {
 
             linkedLinkTypeColumn.apply {
                 cellValueFactory = PropertyValueFactory<LinkedTableItem, String>("linkType")
-                cellFactory = ComboBoxTableCell.forTableColumn(*BitmexContingencyType.values()
-                        .map { it.toString() }.toMutableList().also { it.add(0, "NONE") }.toTypedArray())
+                cellFactory = ComboBoxCell.forTableColumn(*BitmexContingencyType.values().map { it.toString() }
+                        .toMutableList().also { it.add(0, "NONE") }.toTypedArray())
                 setOnEditCommit { event ->
-                    linkedOrders[event.tablePosition.row].setLinkType(event.newValue)
+                    whenNotNull(event.tablePosition, event.newValue) { tablePosition, value ->
+                        linkedOrders[tablePosition.row].setLinkType(value)
+                    } ?: println("linkType event is null")
                 }
             }
 
@@ -234,14 +241,12 @@ object LinkedDelegate {
                     linkedOrders[event.tablePosition.row].setReduceOnly(event.newValue)
                 }
             }
-            linkedOrdersTable.setPlaceholder(Label("Add new orders with the '+' button or press the 'Move to Linked' button on the 'Bulk' page."))
-
         }
     }
 
-    private fun TableColumn<LinkedTableItem, Double>.initSpinnerCellValueFactory(minStep: Double) {
+    private fun TableColumn<LinkedTableItem, Double>.initSpinnerCellValueFactory(step: Double, min: Double = -1.0, max: Double = Double.MAX_VALUE, initial: Double = min) {
         cellFactory = Callback<TableColumn<LinkedTableItem, Double>, TableCell<LinkedTableItem, Double>> {
-            SpinnerCell<LinkedTableItem, Double>(0.0, 1000000000.0, 0.0, minStep).also { cell ->
+            SpinnerCell<LinkedTableItem, Double>(min, max, initial, step).also { cell ->
                 priceSpinners.add(cell)
             }
         }
@@ -300,8 +305,10 @@ object LinkedDelegate {
                         .setStopPrice(stop?.let { if (it < 0) null else it.toBigDecimal() })
                         .setSide(side)
                         .setOrderType(orderType.toBitmexOrderType())
-                        .setExecutionInstructions(BitmexExecutionInstruction.Builder().setPostOnly(item.getPostOnly())
-                                .setReduceOnly(item.getReduceOnly()).setLastPrice(orderType == TRAILING_STOP).build())
+                        .setExecutionInstructions(BitmexExecutionInstruction.Builder()
+                                .setPostOnly(item.getPostOnly())
+                                .setReduceOnly(item.getReduceOnly())
+                                .setLastPrice(orderType.equalsOne(STOP, STOP_LIMIT, TRAILING_STOP)).build())
                         .setContingencyType(LinkType.valueOf(item.getLinkType()).toBitmexContingencyType())
                         .setClOrdLinkId(item.getLinkId().let { if (it.isBlank()) null else it })
                         .setPegPriceType(pegPriceType)

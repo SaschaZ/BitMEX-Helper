@@ -6,6 +6,8 @@ import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory
 import javafx.scene.control.TableColumn.CellEditEvent
 import javafx.util.StringConverter
 import javafx.util.converter.IntegerStringConverter
+import com.gapps.bitmexhelper.kotlin.ui.delegates.enableBetterListener
+import com.gapps.bitmexhelper.kotlin.ui.delegates.enableSpinnerChangeOnScroll
 
 
 class SpinnerCell<S, T : Any>(private val min: T, private val max: T, private val initial: T, private var step: T) : TableCell<S, T>() {
@@ -14,24 +16,15 @@ class SpinnerCell<S, T : Any>(private val min: T, private val max: T, private va
     private val spinner = Spinner<T>()
 
     init {
-        itemProperty().addListener { _, _, newItem ->
-            if (newItem == null) {
-                setText(null)
-            } else {
-                setText(newItem.toString())
-            }
-        }
-
+        text = null
         item = initial
         setStep(step)
 
         spinner.isEditable = true
-        graphic = spinner
-        contentDisplay = ContentDisplay.TEXT_ONLY
-
-        spinner.editor.setOnAction { _ -> commitEdit() }
-        spinner.focusedProperty().addListener { _, _, isNowFocused ->
-            if (!isNowFocused) commitEdit()
+        spinner.enableBetterListener()
+        spinner.enableSpinnerChangeOnScroll()
+        spinner.valueProperty().addListener { _, _, value ->
+            commitEdit(value)
         }
         spinner.setOnScroll { event ->
             if (event.deltaY > 0)
@@ -39,6 +32,9 @@ class SpinnerCell<S, T : Any>(private val min: T, private val max: T, private va
             else if (event.deltaY < 0)
                 spinner.decrement()
         }
+
+        graphic = spinner
+        contentDisplay = ContentDisplay.GRAPHIC_ONLY
     }
 
     fun setStep(step: T) {
@@ -59,22 +55,7 @@ class SpinnerCell<S, T : Any>(private val min: T, private val max: T, private va
         } as StringConverter<T>
     }
 
-    override fun startEdit() {
-        super.startEdit()
-        spinner.editor.text = converter.toString(item)
-        contentDisplay = ContentDisplay.GRAPHIC_ONLY
-        spinner.requestFocus()
-    }
-
-    override fun cancelEdit() {
-        super.cancelEdit()
-        contentDisplay = ContentDisplay.TEXT_ONLY
-    }
-
-    private fun commitEdit() = commitEdit(this.converter.fromString(spinner.editor.text.replace(",", ".")))
-
     override fun commitEdit(item: T?) {
-
         // This block is necessary to support commit on losing focus, because the baked-in mechanism
         // sets our editing state to false before we can intercept the loss of focus.
         // The default commitEdit(...) method simply bails if we are not editing...
@@ -90,7 +71,15 @@ class SpinnerCell<S, T : Any>(private val min: T, private val max: T, private va
         }
 
         super.commitEdit(item)
+    }
 
-        contentDisplay = ContentDisplay.TEXT_ONLY
+    override fun updateItem(item: T?, empty: Boolean) {
+        super.updateItem(item, empty)
+        graphic = if (isEmpty) {
+            null
+        } else {
+            spinner.editor.text = item.toString()
+            spinner
+        }
     }
 }

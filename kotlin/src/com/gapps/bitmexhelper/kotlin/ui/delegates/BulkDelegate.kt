@@ -12,14 +12,12 @@ import javafx.collections.FXCollections
 import javafx.scene.control.*
 import javafx.scene.control.cell.PropertyValueFactory
 import kotlinx.coroutines.experimental.launch
-import org.knowm.xchange.bitmex.BitmexException
 import org.knowm.xchange.bitmex.dto.trade.BitmexPlaceOrderParameters
 import org.knowm.xchange.bitmex.dto.trade.BitmexSide
 import org.knowm.xchange.currency.CurrencyPair
 import org.knowm.xchange.dto.Order.OrderType.*
 import org.knowm.xchange.dto.marketdata.Ticker
 import org.knowm.xchange.exceptions.ExchangeException
-import java.lang.Exception
 
 object BulkDelegate {
 
@@ -55,19 +53,19 @@ object BulkDelegate {
                 valueFactory.value = Settings.settings.lastHighPrice
                 valueProperty().addListener { _, _, _ -> updateView() }
                 enableBetterListener()
-                enableValueChangeOnScroll()
+                enableSpinnerChangeOnScroll()
             }
             lowPrice.apply {
                 valueFactory.value = Settings.settings.lastLowPrice
                 valueProperty().addListener { _, _, _ -> updateView() }
                 enableBetterListener()
-                enableValueChangeOnScroll()
+                enableSpinnerChangeOnScroll()
             }
             amount.apply {
                 valueFactory.value = Settings.settings.lastAmount.toDouble()
                 valueProperty().addListener { _, _, _ -> updateView() }
                 enableBetterListener()
-                enableValueChangeOnScroll()
+                enableSpinnerChangeOnScroll()
             }
             orderType.apply {
                 items = FXCollections.observableArrayList(Constants.orderTypes)
@@ -92,19 +90,19 @@ object BulkDelegate {
                 valueFactory.value = Settings.settings.lastDistributionParameter
                 valueProperty().addListener { _, _, _ -> updateView() }
                 enableBetterListener()
-                enableValueChangeOnScroll()
+                enableSpinnerChangeOnScroll()
             }
             minAmount.apply {
                 valueFactory.value = Settings.settings.lastMinAmount.toDouble()
                 valueProperty().addListener { _, _, _ -> updateView() }
                 enableBetterListener()
-                enableValueChangeOnScroll()
+                enableSpinnerChangeOnScroll()
             }
             slDistance.apply {
                 valueFactory.value = Settings.settings.lastSlDistance.toDouble()
                 valueProperty().addListener { _, _, _ -> updateView() }
                 enableBetterListener()
-                enableValueChangeOnScroll()
+                enableSpinnerChangeOnScroll()
             }
             reversed.isSelected = Settings.settings.lastReversed
             reversed.setOnAction { updateView() }
@@ -273,14 +271,17 @@ object BulkDelegate {
 }
 
 
-fun Spinner<Double>.enableBetterListener() {
+fun Spinner<*>.enableBetterListener() {
     editor.textProperty().addListener { _, _, new ->
-        if (new.isNotBlank())
-            valueFactory.value = new.replace(",", ".").toDouble() // FIX datatype
+        if (new.isNotBlank() && new != "-")
+            if (valueFactory.value is Double)
+                valueFactory.value = new.replace(",", ".").toDouble()
+            else if (valueFactory.value is Int)
+                valueFactory.value = new.toInt()
     }
 }
 
-fun Spinner<Double>.enableValueChangeOnScroll() {
+fun Spinner<*>.enableSpinnerChangeOnScroll() {
     setOnScroll { event ->
         if (event.deltaY > 0)
             increment()
