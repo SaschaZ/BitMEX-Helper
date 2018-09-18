@@ -133,6 +133,7 @@
                         </Pane>
                         <TableView fx:id="linkedOrdersTable" editable="true" fixedCellSize="30.0" GridPane.rowIndex="1">
                            <columns>
+                               <TableColumn fx:id="linkedPositionColumn" maxWidth="1.7976931348623157E308" minWidth="30.0" prefWidth="30.0" sortable="false" text="#" />
                               <TableColumn fx:id="linkedSideColumn" maxWidth="1.7976931348623157E308" minWidth="80.0" sortable="false" text="Side" />
                               <TableColumn fx:id="linkedPriceColumn" maxWidth="1.7976931348623157E308" minWidth="130.0" prefWidth="130.0" sortable="false" text="Price" />
                               <TableColumn fx:id="linkedAmountColumn" maxWidth="1.7976931348623157E308" minWidth="130.0" prefWidth="130.0" sortable="false" text="Amount" />

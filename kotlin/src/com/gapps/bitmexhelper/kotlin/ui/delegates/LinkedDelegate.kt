@@ -51,7 +51,8 @@ object LinkedDelegate {
     }
 
     @Suppress("unused", "MemberVisibilityCanBePrivate")
-    data class LinkedTableItem(private val side: SimpleStringProperty,
+    data class LinkedTableItem(private val position: SimpleIntegerProperty,
+                               private val side: SimpleStringProperty,
                                private val price: SimpleDoubleProperty,
                                private val amount: SimpleIntegerProperty,
                                private val orderType: SimpleStringProperty,
@@ -61,7 +62,8 @@ object LinkedDelegate {
                                private val postOnly: SimpleBooleanProperty,
                                private val reduceOnly: SimpleBooleanProperty) {
 
-        constructor(side: String = "Buy",
+        constructor(position: Int,
+                    side: String = "Buy",
                     price: Double = -1.0,
                     amount: Int = 1,
                     orderType: BulkOrderType = LIMIT,
@@ -70,6 +72,7 @@ object LinkedDelegate {
                     linkType: LinkType = LinkType.NONE,
                     postOnly: Boolean = false,
                     reduceOnly: Boolean = false) : this(
+                SimpleIntegerProperty(position),
                 SimpleStringProperty(side),
                 SimpleDoubleProperty(price),
                 SimpleIntegerProperty(amount),
@@ -80,8 +83,9 @@ object LinkedDelegate {
                 SimpleBooleanProperty(postOnly),
                 SimpleBooleanProperty(reduceOnly))
 
-        fun createNew(): LinkedTableItem {
+        fun createNew(position: Int): LinkedTableItem {
             return LinkedTableItem(
+                    position,
                     getSide(),
                     getPrice(),
                     getAmount(),
@@ -93,6 +97,8 @@ object LinkedDelegate {
                     getReduceOnly())
         }
 
+        fun getPosition(): Int = position.get() + 1
+        fun setPosition(pos: Int) = position.set(pos)
         fun getSide(): String = side.get()
         fun setSide(value: String) = side.set(value)
         fun getPrice(): Double = price.get()
@@ -154,7 +160,9 @@ object LinkedDelegate {
             }
             linkedOrdersTable.apply {
                 placeholder = Label("Add new orders with the '+' button or press the 'Move to Linked' button on the 'Bulk' page.")
-//                selectionModel.isCellSelectionEnabled = true
+            }
+            linkedPositionColumn.apply {
+                cellValueFactory = PropertyValueFactory<LinkedTableItem, Int>("position")
             }
             val minStep = Constants.minimumPriceSteps[linkedPair.value.toString().toCurrencyPair()]!!
             linkedSideColumn.apply {
@@ -259,7 +267,8 @@ object LinkedDelegate {
     }
 
     fun onAddLinkedOrderClicked() {
-        linkedOrders.add(linkedOrders.lastOrNull()?.createNew() ?: LinkedTableItem())
+        val position = linkedOrders.lastOrNull()?.getPosition() ?: 0
+        linkedOrders.add(linkedOrders.lastOrNull()?.createNew(position) ?: LinkedTableItem(position))
         updateLinkedOrders()
     }
 
@@ -335,8 +344,10 @@ object LinkedDelegate {
     }
 
     fun addOrders(orders: List<BitmexPlaceOrderParameters>) {
-        orders.forEach { order ->
+        val existingSize = linkedOrders.lastOrNull()?.getPosition() ?: 0
+        orders.forEachIndexed { index, order ->
             linkedOrders.add(LinkedTableItem(
+                    position = existingSize + index,
                     side = order.side?.capitalized!!,
                     price = order.price?.toDouble() ?: -1.0,
                     amount = order.orderQuantity?.toInt() ?: 0,

@@ -64,6 +64,8 @@ class MainController {
     @FXML
     internal lateinit var linkedOrdersTable: TableView<*>
     @FXML
+    internal lateinit var linkedPositionColumn: TableColumn<LinkedDelegate.LinkedTableItem, Int>
+    @FXML
     internal lateinit var linkedSideColumn: TableColumn<LinkedDelegate.LinkedTableItem, String>
     @FXML
     internal lateinit var linkedPriceColumn: TableColumn<LinkedDelegate.LinkedTableItem, Double>
