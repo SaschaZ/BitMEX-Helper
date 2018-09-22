@@ -54,7 +54,7 @@ object LinkedDelegate {
     data class LinkedTableItem(private val position: SimpleIntegerProperty,
                                private val side: SimpleStringProperty,
                                private val price: SimpleDoubleProperty,
-                               private val amount: SimpleIntegerProperty,
+                               private val amount: SimpleDoubleProperty,
                                private val orderType: SimpleStringProperty,
                                private val orderTypeParameter: SimpleDoubleProperty,
                                private val linkId: SimpleStringProperty,
@@ -64,10 +64,10 @@ object LinkedDelegate {
 
         constructor(position: Int,
                     side: String = "Buy",
-                    price: Double = -1.0,
-                    amount: Int = 1,
+                    price: Double = 0.0,
+                    amount: Double = 1.0,
                     orderType: BulkOrderType = LIMIT,
-                    orderTypeParameter: Double = -1.0,
+                    orderTypeParameter: Double = 0.0,
                     linkId: String = "",
                     linkType: LinkType = LinkType.NONE,
                     postOnly: Boolean = false,
@@ -75,7 +75,7 @@ object LinkedDelegate {
                 SimpleIntegerProperty(position),
                 SimpleStringProperty(side),
                 SimpleDoubleProperty(price),
-                SimpleIntegerProperty(amount),
+                SimpleDoubleProperty(amount),
                 SimpleStringProperty(orderType.toString()),
                 SimpleDoubleProperty(orderTypeParameter),
                 SimpleStringProperty(linkId),
@@ -104,8 +104,8 @@ object LinkedDelegate {
         fun getPrice(): Double = price.get()
         fun setPrice(value: Double) = price.set(value)
         fun getPriceProperty() = price
-        fun getAmount(): Int = amount.get()
-        fun setAmount(value: Int) = amount.set(value)
+        fun getAmount(): Double = amount.get()
+        fun setAmount(value: Double) = amount.set(value)
         fun getOrderType(): String = orderType.get()
         fun setOrderType(value: String) = orderType.set(value)
         fun getOrderTypeParameter(): Double = orderTypeParameter.get()
@@ -127,7 +127,7 @@ object LinkedDelegate {
     private lateinit var exchange: XChangeWrapper
 
     private var linkedOrders = ArrayList<LinkedTableItem>()
-    private val priceSpinners = ArrayList<SpinnerCell<LinkedTableItem, Double>>()
+    private val priceSpinners = ArrayList<SpinnerCell<LinkedTableItem>>()
 
     fun onSceneSet(controller: MainController, exchange: XChangeWrapper) {
         LinkedDelegate.controller = controller
@@ -143,7 +143,7 @@ object LinkedDelegate {
                 value = items[Constants.pairs.indexOf(Settings.settings.lastPair).let { if (it < 0) 0 else it }]
                 setOnAction { _ ->
                     val minStep = Constants.minimumPriceSteps[value.toString().toCurrencyPair()]!!
-                    priceSpinners.forEach { it.setStep(minStep) }
+                    priceSpinners.forEach { it.step = minStep }
                     linkedPriceColumn.initSpinnerCellValueFactory(minStep)
                     linkedOrderTypeParameterColumn.initSpinnerCellValueFactory(minStep)
                     linkedOrders = ArrayList<LinkedTableItem>().also { list ->
@@ -170,8 +170,10 @@ object LinkedDelegate {
                 cellFactory = ComboBoxCell.forTableColumn("Buy", "Sell")
                 setOnEditCommit { event ->
                     whenNotNull(event.tablePosition, event.newValue) { tablePosition, value ->
-                        linkedOrders[tablePosition.row].setSide(value)
-                    } ?: println("side event is null")
+                        val row = tablePosition.row
+                        if (row in 0..linkedOrders.lastIndex)
+                            linkedOrders[row].setSide(value)
+                    }
                 }
             }
 
@@ -179,7 +181,11 @@ object LinkedDelegate {
                 cellValueFactory = PropertyValueFactory<LinkedTableItem, Double>("price")
                 initSpinnerCellValueFactory(minStep)
                 setOnEditCommit { event ->
-                    linkedOrders[event.tablePosition.row].setPrice(event.newValue)
+                    whenNotNull(event.tablePosition, event.newValue) { tablePosition, value ->
+                        val row = tablePosition.row
+                        if (row in 0..linkedOrders.lastIndex)
+                            linkedOrders[row].setPrice(value)
+                    }
                 }
             }
 
@@ -188,8 +194,10 @@ object LinkedDelegate {
                 initSpinnerCellValueFactory(1.0, 1.0, Double.MAX_VALUE, 1.0)
                 setOnEditCommit { event ->
                     whenNotNull(event.tablePosition, event.newValue) { tablePosition, value ->
-                        linkedOrders[tablePosition.row].setAmount(value.toInt())
-                    } ?: println("amount event is null")
+                        val row = tablePosition.row
+                        if (row in 0..linkedOrders.lastIndex)
+                            linkedOrders[row].setAmount(value)
+                    }
                 }
             }
 
@@ -198,8 +206,10 @@ object LinkedDelegate {
                 cellFactory = ComboBoxCell.forTableColumn(*values().map { it.toString() }.toTypedArray())
                 setOnEditCommit { event ->
                     whenNotNull(event.tablePosition, event.newValue) { tablePosition, value ->
-                        linkedOrders[tablePosition.row].setOrderType(value)
-                    } ?: println("orderType event is null")
+                        val row = tablePosition.row
+                        if (row in 0..linkedOrders.lastIndex)
+                            linkedOrders[row].setOrderType(value)
+                    }
                 }
             }
 
@@ -208,8 +218,10 @@ object LinkedDelegate {
                 initSpinnerCellValueFactory(minStep)
                 setOnEditCommit { event ->
                     whenNotNull(event.tablePosition, event.newValue) { tablePosition, value ->
-                        linkedOrders[tablePosition.row].setOrderTypeParameter(value)
-                    } ?: println("orderTypeParameter event is null")
+                        val row = tablePosition.row
+                        if (row in 0..linkedOrders.lastIndex)
+                            linkedOrders[row].setOrderTypeParameter(value)
+                    }
                 }
             }
 
@@ -219,7 +231,11 @@ object LinkedDelegate {
                     EditCell()
                 }
                 setOnEditCommit { event ->
-                    linkedOrders[event.tablePosition.row].setLinkId(event.newValue)
+                    whenNotNull(event.tablePosition, event.newValue) { tablePosition, value ->
+                        val row = tablePosition.row
+                        if (row in 0..linkedOrders.lastIndex)
+                            linkedOrders[row].setLinkId(value)
+                    }
                 }
             }
 
@@ -229,8 +245,10 @@ object LinkedDelegate {
                         .toMutableList().also { it.add(0, "NONE") }.toTypedArray())
                 setOnEditCommit { event ->
                     whenNotNull(event.tablePosition, event.newValue) { tablePosition, value ->
-                        linkedOrders[tablePosition.row].setLinkType(value)
-                    } ?: println("linkType event is null")
+                        val row = tablePosition.row
+                        if (row in 0..linkedOrders.lastIndex)
+                            linkedOrders[row].setLinkType(value)
+                    }
                 }
             }
 
@@ -238,7 +256,11 @@ object LinkedDelegate {
                 setCellValueFactory { param -> param.value.getPostOnlyProperty() }
                 cellFactory = CheckBoxTableCell.forTableColumn(linkedPostOnlyColumn)
                 setOnEditCancel { event ->
-                    linkedOrders[event.tablePosition.row].setPostOnly(event.newValue)
+                    whenNotNull(event.tablePosition, event.newValue) { tablePosition, value ->
+                        val row = tablePosition.row
+                        if (row in 0..linkedOrders.lastIndex)
+                            linkedOrders[row].setPostOnly(value)
+                    }
                 }
             }
 
@@ -246,15 +268,19 @@ object LinkedDelegate {
                 setCellValueFactory { param -> param.value.getReduceOnlyProperty() }
                 cellFactory = CheckBoxTableCell.forTableColumn(linkedReduceOnlyColumn)
                 setOnEditCancel { event ->
-                    linkedOrders[event.tablePosition.row].setReduceOnly(event.newValue)
+                    whenNotNull(event.tablePosition, event.newValue) { tablePosition, value ->
+                        val row = tablePosition.row
+                        if (row in 0..linkedOrders.lastIndex)
+                            linkedOrders[row].setReduceOnly(value)
+                    }
                 }
             }
         }
     }
 
-    private fun TableColumn<LinkedTableItem, Double>.initSpinnerCellValueFactory(step: Double, min: Double = -1.0, max: Double = Double.MAX_VALUE, initial: Double = min) {
+    private fun TableColumn<LinkedTableItem, Double>.initSpinnerCellValueFactory(step: Double, min: Double = 0.0, max: Double = Double.MAX_VALUE, initial: Double = min) {
         cellFactory = Callback<TableColumn<LinkedTableItem, Double>, TableCell<LinkedTableItem, Double>> {
-            SpinnerCell<LinkedTableItem, Double>(min, max, initial, step).also { cell ->
+            SpinnerCell<LinkedTableItem>(min, max, initial, step).also { cell ->
                 priceSpinners.add(cell)
             }
         }
@@ -350,7 +376,7 @@ object LinkedDelegate {
                     position = existingSize + index,
                     side = order.side?.capitalized!!,
                     price = order.price?.toDouble() ?: -1.0,
-                    amount = order.orderQuantity?.toInt() ?: 0,
+                    amount = order.orderQuantity?.toDouble()  ?: 0.0,
                     orderType = when (order.orderType) {
                         BitmexOrderType.STOP -> STOP
                         BitmexOrderType.STOP_LIMIT -> STOP_LIMIT

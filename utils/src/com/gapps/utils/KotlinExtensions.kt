@@ -5,6 +5,10 @@ package com.gapps.utils
 import kotlinx.coroutines.experimental.sync.Mutex
 import kotlinx.coroutines.experimental.sync.withLock
 import java.io.File
+import java.math.BigDecimal
+import java.math.MathContext
+import java.math.RoundingMode
+import java.text.DecimalFormat
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 import kotlin.math.absoluteValue
@@ -148,3 +152,14 @@ suspend fun <K0, V0, K1, V1> ConcurrentHashMap<K0, V0>.mapToMap(
 
     return newMap
 }
+
+fun Double.decimalPlaces(): Int {
+    val df = DecimalFormat("#.########")
+    val formatted = df.format(this)
+    var pointIndex = formatted.indexOf(".")
+    if (pointIndex < 0)
+        pointIndex = formatted.indexOf(",")
+    return if (pointIndex < 0) 0 else formatted.lastIndex - pointIndex
+}
+
+fun Double.round(stepSize: Double) = BigDecimal(this).let { it.minus(it.divideAndRemainder(BigDecimal(stepSize))[1]) }.toDouble()

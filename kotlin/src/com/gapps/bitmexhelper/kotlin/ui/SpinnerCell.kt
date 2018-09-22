@@ -1,84 +1,83 @@
 package com.gapps.bitmexhelper.kotlin.ui
 
+import com.gapps.bitmexhelper.kotlin.ui.delegates.enableSpinnerChangeOnScroll
+import com.gapps.utils.asUnit
+import com.gapps.utils.round
 import javafx.event.Event
 import javafx.scene.control.*
-import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory
 import javafx.scene.control.TableColumn.CellEditEvent
-import javafx.util.StringConverter
-import javafx.util.converter.IntegerStringConverter
-import com.gapps.bitmexhelper.kotlin.ui.delegates.enableBetterListener
-import com.gapps.bitmexhelper.kotlin.ui.delegates.enableSpinnerChangeOnScroll
 
 
-class SpinnerCell<S, T : Any>(private val min: T, private val max: T, private val initial: T, private var step: T) : TableCell<S, T>() {
+class SpinnerCell<S>(private val min: Double, private val max: Double, private val initial: Double, _step: Double) : TableCell<S, Double>() {
 
-    private lateinit var converter: StringConverter<T>
-    private val spinner = Spinner<T>()
+    private var converter = SmallDoubleStringConverter(_step)
+    private val spinner = Spinner<Double>()
+
+    var step = _step
+        set(value) {
+            spinner.valueFactory = SmallDoubleValueFactory(min, max, item ?: initial, value)
+            converter = SmallDoubleStringConverter(value)
+            field = value
+        }
 
     init {
         text = null
         item = initial
-        setStep(step)
+        step = _step
 
-        spinner.isEditable = true
-        spinner.enableBetterListener()
-        spinner.enableSpinnerChangeOnScroll()
-        spinner.valueProperty().addListener { _, _, value ->
-            commitEdit(value)
-        }
-        spinner.setOnScroll { event ->
-            if (event.deltaY > 0)
-                spinner.increment()
-            else if (event.deltaY < 0)
-                spinner.decrement()
+        spinner.apply {
+            isEditable = true
+            editor.textProperty().addListener { _, _, new ->
+                if (new.isNotBlank() && new != "-" && new != ",")
+                    commitEditInternal(converter.fromString(new))
+            }
+            valueProperty().addListener { _, _, value ->
+                editor.text = converter.toString(value)
+            }
+            setOnScroll { event ->
+                if (event.deltaY > 0)
+                    increment()
+                else if (event.deltaY < 0)
+                    decrement()
+            }
+            focusedProperty().addListener { _, _, focused ->
+                val new = editor.text
+                if (!focused && new.isNotBlank() && new != "-" && new != ",")
+                    commitEdit(converter.fromString(new))
+            }
         }
 
         graphic = spinner
         contentDisplay = ContentDisplay.GRAPHIC_ONLY
     }
 
-    fun setStep(step: T) {
-        this.step = step
-        @Suppress("UNCHECKED_CAST")
-        spinner.valueFactory = when (initial) {
-            is Double -> SmallDoubleValueFactory(min as Double, max as Double, item as? Double
-                    ?: initial, step as Double)
-            is Int -> IntegerSpinnerValueFactory(min as Int, max as Int, item as? Int ?: initial, step as Int)
-            else -> throw IllegalArgumentException("Unknown generic parameter T: ${initial.javaClass}")
-        } as SpinnerValueFactory<T>
+    override fun commitEdit(item: Double?) = item?.let {
+        val rounded = it.round(step)
+        spinner.editor.text = converter.toString(rounded)
+        commitEditInternal(rounded)
+    }.asUnit()
 
-        @Suppress("UNCHECKED_CAST")
-        converter = when (initial) {
-            is Double -> SmallDoubleStringConverter()
-            is Int -> IntegerStringConverter()
-            else -> throw IllegalArgumentException("Unknown generic parameter T: ${initial.javaClass}")
-        } as StringConverter<T>
-    }
-
-    override fun commitEdit(item: T?) {
-        // This block is necessary to support commit on losing focus, because the baked-in mechanism
-        // sets our editing state to false before we can intercept the loss of focus.
-        // The default commitEdit(...) method simply bails if we are not editing...
-        if (!isEditing && item != getItem()) {
+    private fun commitEditInternal(item: Double?) = item?.let {
+        if (!isEditing && it != getItem()) {
             val table = tableView
             if (table != null) {
                 val column = tableColumn
                 val event = CellEditEvent(table,
                         TablePosition(table, index, column),
-                        TableColumn.editCommitEvent(), item)
+                        TableColumn.editCommitEvent(), it)
                 Event.fireEvent(column, event)
             }
         }
 
-        super.commitEdit(item)
+        super.commitEdit(it)
     }
 
-    override fun updateItem(item: T?, empty: Boolean) {
+    override fun updateItem(item: Double?, empty: Boolean) {
         super.updateItem(item, empty)
         graphic = if (isEmpty) {
             null
         } else {
-            spinner.editor.text = item.toString()
+            spinner.valueFactory.value = item
             spinner
         }
     }

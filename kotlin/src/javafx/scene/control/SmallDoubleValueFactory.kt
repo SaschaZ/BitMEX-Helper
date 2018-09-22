@@ -2,15 +2,14 @@
 
 package javafx.scene.control
 
+import com.gapps.bitmexhelper.kotlin.ui.SmallDoubleStringConverter
+import com.gapps.utils.decimalPlaces
 import javafx.beans.property.SimpleDoubleProperty
-import javafx.util.StringConverter
 import java.math.BigDecimal
-import java.text.DecimalFormat
-import java.text.ParseException
 import kotlin.math.max
 import kotlin.math.min
 
-open class SmallDoubleValueFactory(_min: Double,
+class SmallDoubleValueFactory(_min: Double,
                                    _max: Double,
                                    _initial: Double,
                                    _step: Double) : SpinnerValueFactory<Double>() {
@@ -36,22 +35,7 @@ open class SmallDoubleValueFactory(_min: Double,
         setMax(_max)
         setAmountToStepBy(_step)
 
-        converter = object : StringConverter<Double>() {
-            private val df = DecimalFormat("#.########")
-
-            override fun toString(value: Double?) = value?.let { df.format(it) } ?: ""
-
-            override fun fromString(value: String?) = try {
-                value?.let { nonNullValue ->
-                    val result = nonNullValue.trim()
-                    if (result.isEmpty()) null
-                    else df.parse(result).toDouble()
-                }
-            } catch (ex: ParseException) {
-                ex.printStackTrace()
-                null
-            }
-        }
+        converter = SmallDoubleStringConverter(_step)
 
         valueProperty().addListener { _, _, newValue ->
             // when the value is set, we need to react to ensure it is a

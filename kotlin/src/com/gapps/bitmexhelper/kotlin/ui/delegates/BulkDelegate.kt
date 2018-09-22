@@ -15,7 +15,8 @@ import kotlinx.coroutines.experimental.launch
 import org.knowm.xchange.bitmex.dto.trade.BitmexPlaceOrderParameters
 import org.knowm.xchange.bitmex.dto.trade.BitmexSide
 import org.knowm.xchange.currency.CurrencyPair
-import org.knowm.xchange.dto.Order.OrderType.*
+import org.knowm.xchange.dto.Order.OrderType.ASK
+import org.knowm.xchange.dto.Order.OrderType.BID
 import org.knowm.xchange.dto.marketdata.Ticker
 import org.knowm.xchange.exceptions.ExchangeException
 
@@ -273,11 +274,8 @@ object BulkDelegate {
 
 fun Spinner<*>.enableBetterListener() {
     editor.textProperty().addListener { _, _, new ->
-        if (new.isNotBlank() && new != "-")
-            if (valueFactory.value is Double)
-                valueFactory.value = new.replace(",", ".").toDouble()
-            else if (valueFactory.value is Int)
-                valueFactory.value = new.toInt()
+        if (new.isNotBlank() && new != "-" && new != ",")
+            valueFactory.value = new.replace(",", ".").toDouble() // TODO use converter
     }
 }
 
