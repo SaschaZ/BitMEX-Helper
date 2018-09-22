@@ -49,7 +49,7 @@ public class App extends Application implements AppController {
             stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("main.fxml"))));
             mainDelegate.onSceneSet();
             stage.setMinHeight(500.0);
-            stage.setMinWidth(945.0);
+            stage.setMinWidth(1039.0);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();

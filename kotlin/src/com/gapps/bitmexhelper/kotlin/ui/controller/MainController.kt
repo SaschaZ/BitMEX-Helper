@@ -123,4 +123,7 @@ class MainController {
 
     @FXML
     private fun onMoveToLinkedClicked() = MainDelegate.onMoveToLinkedClicked()
+
+    @FXML
+    private fun onClearAllLinkedOrdersClicked() = LinkedDelegate.onClearAllLinkedOrdersClicked()
 }

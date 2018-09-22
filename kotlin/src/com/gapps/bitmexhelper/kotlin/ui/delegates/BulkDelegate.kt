@@ -4,6 +4,7 @@ import com.gapps.bitmexhelper.kotlin.*
 import com.gapps.bitmexhelper.kotlin.persistance.Constants
 import com.gapps.bitmexhelper.kotlin.persistance.Settings
 import com.gapps.bitmexhelper.kotlin.ui.controller.MainController
+import com.gapps.utils.setRelativeWidth
 import com.gapps.utils.whenNotNull
 import javafx.application.Platform
 import javafx.beans.property.SimpleDoubleProperty
@@ -116,8 +117,14 @@ object BulkDelegate {
                 columnResizePolicy = TableView.CONSTRAINED_RESIZE_POLICY
                 setPlaceholder(Label("Current parameters do not return any orders."))
             }
-            reviewPriceColumn.cellValueFactory = PropertyValueFactory<PreviewItem, Double>("price")
-            reviewAmountColumn.cellValueFactory = PropertyValueFactory<PreviewItem, Int>("amount")
+            reviewPriceColumn.apply {
+                cellValueFactory = PropertyValueFactory<PreviewItem, Double>("price")
+                setRelativeWidth(review, 2.0)
+            }
+            reviewAmountColumn.apply {
+                cellValueFactory = PropertyValueFactory<PreviewItem, Int>("amount")
+                setRelativeWidth(review, 2.0)
+            }
         }
 
         updateView()

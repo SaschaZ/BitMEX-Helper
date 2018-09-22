@@ -18,9 +18,10 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<VBox minHeight="500.0" minWidth="945.0" prefHeight="500.0" prefWidth="945.0" xmlns="http://javafx.com/javafx/8.0.162" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gapps.bitmexhelper.kotlin.ui.controller.MainController">
+<VBox minHeight="500.0" minWidth="1039.0" prefHeight="500.0" prefWidth="1039.0" xmlns="http://javafx.com/javafx/8.0.162" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gapps.bitmexhelper.kotlin.ui.controller.MainController">
 
     <children>
       <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
@@ -56,8 +57,8 @@
                         <ComboBox fx:id="side" maxWidth="130.0" minWidth="130.0" prefWidth="130.0" GridPane.columnIndex="3" GridPane.columnSpan="2" />
                         <TableView fx:id="review" GridPane.columnIndex="5" GridPane.columnSpan="2147483647" GridPane.hgrow="ALWAYS" GridPane.rowSpan="2147483647" GridPane.vgrow="ALWAYS">
                            <columns>
-                              <TableColumn fx:id="reviewPriceColumn" editable="false" maxWidth="200.0" minWidth="-Infinity" prefWidth="200.0" sortType="DESCENDING" sortable="false" style="-fx-alignment: CENTER;" text="Price" />
-                              <TableColumn fx:id="reviewAmountColumn" editable="false" maxWidth="200.0" minWidth="-Infinity" prefWidth="200.0" sortType="DESCENDING" sortable="false" style="-fx-alignment: CENTER;" text="Amount" />
+                              <TableColumn fx:id="reviewPriceColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="211.0" resizable="false" sortType="DESCENDING" sortable="false" style="-fx-alignment: CENTER;" text="Price" />
+                              <TableColumn fx:id="reviewAmountColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="211.0" resizable="false" sortType="DESCENDING" sortable="false" style="-fx-alignment: CENTER;" text="Amount" />
                            </columns>
                         </TableView>
                         <Label text="High Price:" GridPane.rowIndex="1">
@@ -112,39 +113,64 @@
             </Tab>
             <Tab text="Linked">
                <content>
-                  <GridPane gridLinesVisible="true">
+                  <GridPane>
                     <columnConstraints>
-                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="495.0" minWidth="0.0" prefWidth="116.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="639.0" minWidth="10.0" prefWidth="132.0" />
+                        <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0" prefWidth="630.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="100.0" />
                     </columnConstraints>
                     <rowConstraints>
                       <RowConstraints fillHeight="false" maxHeight="50.0" minHeight="50.0" prefHeight="50.0" vgrow="NEVER" />
                       <RowConstraints maxHeight="1.7976931348623157E308" vgrow="SOMETIMES" />
                     </rowConstraints>
                      <children>
-                        <Pane>
+                        <Pane GridPane.hgrow="ALWAYS">
                            <children>
-                              <Button layoutX="14.0" layoutY="-1.0" mnemonicParsing="false" onMouseClicked="#onAddLinkedOrderClicked" prefHeight="30.0" prefWidth="30.0" text="+" />
-                              <Button layoutX="44.0" layoutY="-1.0" mnemonicParsing="false" onMouseClicked="#onRemoveLinkedOrderClicked" prefHeight="30.0" prefWidth="30.0" text="-" />
-                              <Label layoutX="142.0" layoutY="6.0" text="Pair:" />
-                              <ComboBox fx:id="linkedPair" layoutX="183.0" layoutY="-1.0" minHeight="30.0" minWidth="110.0" prefHeight="30.0" prefWidth="110.0" />
-                              <Button fx:id="linkedExecute" layoutX="856.0" layoutY="1.0" mnemonicParsing="false" onMouseClicked="#onExecuteLinkedOrdersClicked" text="Execute" />
-                              <ProgressIndicator fx:id="linkedProgress" layoutX="878.0" layoutY="1.0" prefHeight="26.0" prefWidth="26.0" />
+                              <Button maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#onAddLinkedOrderClicked" prefHeight="26.0" prefWidth="26.0" text="+">
+                                 <font>
+                                    <Font size="10.0" />
+                                 </font></Button>
+                              <Button layoutX="26.0" mnemonicParsing="false" onMouseClicked="#onRemoveLinkedOrderClicked" prefHeight="26.0" prefWidth="26.0" text="-">
+                                 <font>
+                                    <Font size="10.0" />
+                                 </font></Button>
                            </children>
+                           <GridPane.margin>
+                              <Insets left="15.0" />
+                           </GridPane.margin>
                         </Pane>
-                        <TableView fx:id="linkedOrdersTable" editable="true" fixedCellSize="30.0" GridPane.rowIndex="1">
+                        <TableView fx:id="linkedOrdersTable" editable="true" fixedCellSize="30.0" onMouseClicked="#onClearAllLinkedOrdersClicked" GridPane.columnSpan="4" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
                            <columns>
-                               <TableColumn fx:id="linkedPositionColumn" maxWidth="1.7976931348623157E308" minWidth="30.0" prefWidth="30.0" sortable="false" text="#" />
+                               <TableColumn fx:id="linkedPositionColumn" maxWidth="1.7976931348623157E308" minWidth="36.0" prefWidth="36.0" sortable="false" style="-fx-alignment: CENTER;" text="#" />
                               <TableColumn fx:id="linkedSideColumn" maxWidth="1.7976931348623157E308" minWidth="80.0" sortable="false" text="Side" />
-                              <TableColumn fx:id="linkedPriceColumn" maxWidth="1.7976931348623157E308" minWidth="130.0" prefWidth="130.0" sortable="false" text="Price" />
-                              <TableColumn fx:id="linkedAmountColumn" maxWidth="1.7976931348623157E308" minWidth="130.0" prefWidth="130.0" sortable="false" text="Amount" />
+                              <TableColumn fx:id="linkedPriceColumn" maxWidth="1.7976931348623157E308" minWidth="150.0" prefWidth="150.0" sortable="false" text="Price" />
+                              <TableColumn fx:id="linkedAmountColumn" maxWidth="1.7976931348623157E308" minWidth="150.0" prefWidth="150.0" sortable="false" text="Amount" />
                               <TableColumn fx:id="linkedOrderTypeColumn" maxWidth="1.7976931348623157E308" minWidth="160.0" prefWidth="160.0" sortable="false" text="Type" />
-                              <TableColumn fx:id="linkedOrderTypeParameterColumn" maxWidth="1.7976931348623157E308" minWidth="130.0" prefWidth="130.0" sortable="false" text="Stop" />
+                              <TableColumn fx:id="linkedOrderTypeParameterColumn" maxWidth="1.7976931348623157E308" minWidth="150.0" prefWidth="150.0" sortable="false" text="Stop" />
                               <TableColumn fx:id="linkedLinkIdColumn" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="100.0" sortable="false" text="Link ID" />
                               <TableColumn fx:id="linkedLinkTypeColumn" maxWidth="1.7976931348623157E308" minWidth="130.0" prefWidth="130.0" sortable="false" text="Link Type" />
                               <TableColumn fx:id="linkedPostOnlyColumn" maxWidth="1.7976931348623157E308" minWidth="30.0" prefWidth="30.0" sortable="false" text="PO" />
                               <TableColumn fx:id="linkedReduceOnlyColumn" maxWidth="1.7976931348623157E308" minWidth="30.0" prefWidth="30.0" sortable="false" text="RO" />
                            </columns>
                         </TableView>
+                        <Pane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                           <children>
+                              <Label layoutY="17.0" text="Pair:" />
+                              <ComboBox fx:id="linkedPair" layoutX="39.0" layoutY="10.0" minHeight="30.0" minWidth="110.0" prefHeight="30.0" prefWidth="110.0" />
+                           </children>
+                        </Pane>
+                        <Pane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                           <children>
+                              <Button fx:id="linkedExecute" layoutX="-13.0" layoutY="12.0" mnemonicParsing="false" onMouseClicked="#onExecuteLinkedOrdersClicked" text="Execute" />
+                              <ProgressIndicator fx:id="linkedProgress" layoutX="2.0" layoutY="5.0" prefHeight="40.0" prefWidth="40.0" />
+                           </children>
+                        </Pane>
+                        <Pane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                           <children>
+                              <Button layoutY="12.0" mnemonicParsing="false" onMouseClicked="#onClearAllLinkedOrdersClicked" text="Clear All" />
+                           </children>
+                        </Pane>
                      </children>
                   </GridPane>
                </content>

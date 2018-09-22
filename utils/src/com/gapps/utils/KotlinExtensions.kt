@@ -2,6 +2,8 @@
 
 package com.gapps.utils
 
+import javafx.scene.control.Control
+import javafx.scene.control.TableColumn
 import kotlinx.coroutines.experimental.sync.Mutex
 import kotlinx.coroutines.experimental.sync.withLock
 import java.io.File
@@ -163,3 +165,8 @@ fun Double.decimalPlaces(): Int {
 }
 
 fun Double.round(stepSize: Double) = BigDecimal(this).let { it.minus(it.divideAndRemainder(BigDecimal(stepSize))[1]) }.toDouble()
+
+fun TableColumn<*, *>.setRelativeWidth(origin: Control, divider: Double, resizeable: Boolean = false) {
+        isResizable = resizeable
+        prefWidthProperty().bind(origin.widthProperty().divide(divider))
+}

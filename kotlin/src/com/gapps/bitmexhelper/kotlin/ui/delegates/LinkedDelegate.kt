@@ -12,6 +12,7 @@ import com.gapps.bitmexhelper.kotlin.ui.EditCell
 import com.gapps.bitmexhelper.kotlin.ui.SpinnerCell
 import com.gapps.bitmexhelper.kotlin.ui.controller.MainController
 import com.gapps.utils.equalsOne
+import com.gapps.utils.setRelativeWidth
 import com.gapps.utils.whenNotNull
 import javafx.application.Platform
 import javafx.beans.property.SimpleBooleanProperty
@@ -159,10 +160,12 @@ object LinkedDelegate {
                 enableValueChangeOnScroll()
             }
             linkedOrdersTable.apply {
+                selectionModel.isCellSelectionEnabled = true
                 placeholder = Label("Add new orders with the '+' button or press the 'Move to Linked' button on the 'Bulk' page.")
             }
             linkedPositionColumn.apply {
                 cellValueFactory = PropertyValueFactory<LinkedTableItem, Int>("position")
+                setRelativeWidth(linkedOrdersTable, 28.861)
             }
             val minStep = Constants.minimumPriceSteps[linkedPair.value.toString().toCurrencyPair()]!!
             linkedSideColumn.apply {
@@ -175,6 +178,7 @@ object LinkedDelegate {
                             linkedOrders[row].setSide(value)
                     }
                 }
+                setRelativeWidth(linkedOrdersTable, 12.9875)
             }
 
             linkedPriceColumn.apply {
@@ -187,6 +191,7 @@ object LinkedDelegate {
                             linkedOrders[row].setPrice(value)
                     }
                 }
+                setRelativeWidth(linkedOrdersTable, 6.926666)
             }
 
             linkedAmountColumn.apply {
@@ -199,6 +204,7 @@ object LinkedDelegate {
                             linkedOrders[row].setAmount(value)
                     }
                 }
+                setRelativeWidth(linkedOrdersTable, 6.926666)
             }
 
             linkedOrderTypeColumn.apply {
@@ -211,6 +217,7 @@ object LinkedDelegate {
                             linkedOrders[row].setOrderType(value)
                     }
                 }
+                setRelativeWidth(linkedOrdersTable, 6.49375)
             }
 
             linkedOrderTypeParameterColumn.apply {
@@ -223,6 +230,7 @@ object LinkedDelegate {
                             linkedOrders[row].setOrderTypeParameter(value)
                     }
                 }
+                setRelativeWidth(linkedOrdersTable, 6.926666)
             }
 
             linkedLinkIdColumn.apply {
@@ -237,6 +245,7 @@ object LinkedDelegate {
                             linkedOrders[row].setLinkId(value)
                     }
                 }
+                setRelativeWidth(linkedOrdersTable, 10.39)
             }
 
             linkedLinkTypeColumn.apply {
@@ -250,6 +259,7 @@ object LinkedDelegate {
                             linkedOrders[row].setLinkType(value)
                     }
                 }
+                setRelativeWidth(linkedOrdersTable, 7.99230769231)
             }
 
             linkedPostOnlyColumn.apply {
@@ -262,6 +272,7 @@ object LinkedDelegate {
                             linkedOrders[row].setPostOnly(value)
                     }
                 }
+                setRelativeWidth(linkedOrdersTable, 34.63333)
             }
 
             linkedReduceOnlyColumn.apply {
@@ -274,6 +285,7 @@ object LinkedDelegate {
                             linkedOrders[row].setReduceOnly(value)
                     }
                 }
+                setRelativeWidth(linkedOrdersTable, 34.63333)
             }
         }
     }
@@ -293,9 +305,13 @@ object LinkedDelegate {
     }
 
     fun onAddLinkedOrderClicked() {
-        val position = linkedOrders.lastOrNull()?.getPosition() ?: 0
-        linkedOrders.add(linkedOrders.lastOrNull()?.createNew(position) ?: LinkedTableItem(position))
-        updateLinkedOrders()
+        if (linkedOrders.size <= 100) {
+            val position = linkedOrders.lastOrNull()?.getPosition() ?: 0
+            linkedOrders.add(linkedOrders.lastOrNull()?.createNew(position) ?: LinkedTableItem(position))
+            updateLinkedOrders()
+        } else {
+            // TODO show Dialog
+        }
     }
 
     fun onRemoveLinkedOrderClicked() {
@@ -370,32 +386,41 @@ object LinkedDelegate {
     }
 
     fun addOrders(orders: List<BitmexPlaceOrderParameters>) {
-        val existingSize = linkedOrders.lastOrNull()?.getPosition() ?: 0
-        orders.forEachIndexed { index, order ->
-            linkedOrders.add(LinkedTableItem(
-                    position = existingSize + index,
-                    side = order.side?.capitalized!!,
-                    price = order.price?.toDouble() ?: -1.0,
-                    amount = order.orderQuantity?.toDouble()  ?: 0.0,
-                    orderType = when (order.orderType) {
-                        BitmexOrderType.STOP -> STOP
-                        BitmexOrderType.STOP_LIMIT -> STOP_LIMIT
-                        BitmexOrderType.PEGGED -> TRAILING_STOP
-                        else -> LIMIT
-                    },
-                    orderTypeParameter = order.stopPrice?.toDouble() ?: -1.0,
-                    linkId = order.clOrdLinkId ?: "",
-                    linkType = when (order.contingencyType) {
-                        BitmexContingencyType.OCO -> LinkType.OCO
-                        BitmexContingencyType.OTO -> LinkType.OTO
-                        BitmexContingencyType.OUOP -> LinkType.OUOP
-                        BitmexContingencyType.OUOA -> LinkType.OUOA
-                        else -> LinkType.NONE
-                    },
-                    postOnly = order.executionInstructions?.contains(PARTICIPATE_DO_NOT_INITIATE) ?: false,
-                    reduceOnly = order.executionInstructions?.contains(REDUCE_ONLY) ?: false
-            ))
+        if (linkedOrders.size + orders.size <= 100) {
+            val existingSize = linkedOrders.lastOrNull()?.getPosition() ?: 0
+            orders.forEachIndexed { index, order ->
+                linkedOrders.add(LinkedTableItem(
+                        position = existingSize + index,
+                        side = order.side?.capitalized!!,
+                        price = order.price?.toDouble() ?: -1.0,
+                        amount = order.orderQuantity?.toDouble() ?: 0.0,
+                        orderType = when (order.orderType) {
+                            BitmexOrderType.STOP -> STOP
+                            BitmexOrderType.STOP_LIMIT -> STOP_LIMIT
+                            BitmexOrderType.PEGGED -> TRAILING_STOP
+                            else -> LIMIT
+                        },
+                        orderTypeParameter = order.stopPrice?.toDouble() ?: -1.0,
+                        linkId = order.clOrdLinkId ?: "",
+                        linkType = when (order.contingencyType) {
+                            BitmexContingencyType.OCO -> LinkType.OCO
+                            BitmexContingencyType.OTO -> LinkType.OTO
+                            BitmexContingencyType.OUOP -> LinkType.OUOP
+                            BitmexContingencyType.OUOA -> LinkType.OUOA
+                            else -> LinkType.NONE
+                        },
+                        postOnly = order.executionInstructions?.contains(PARTICIPATE_DO_NOT_INITIATE) ?: false,
+                        reduceOnly = order.executionInstructions?.contains(REDUCE_ONLY) ?: false
+                ))
+            }
+            updateLinkedOrders()
+        } else {
+            // TODO show dialog
         }
+    }
+
+    fun onClearAllLinkedOrdersClicked() {
+        linkedOrders.clear()
         updateLinkedOrders()
     }
 }

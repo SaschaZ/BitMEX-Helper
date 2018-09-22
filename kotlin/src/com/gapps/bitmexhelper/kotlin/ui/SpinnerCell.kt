@@ -1,6 +1,5 @@
 package com.gapps.bitmexhelper.kotlin.ui
 
-import com.gapps.bitmexhelper.kotlin.ui.delegates.enableSpinnerChangeOnScroll
 import com.gapps.utils.asUnit
 import com.gapps.utils.round
 import javafx.event.Event
