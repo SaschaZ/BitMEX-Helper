@@ -159,6 +159,7 @@ object LinkedDelegate {
             linkedOrdersTable.apply {
                 selectionModel.isCellSelectionEnabled = true
                 placeholder = Label("Add new orders with the '+' button or press the 'Move to Linked' button on the 'Bulk' page.")
+                setOnMouseClicked { updateLinkedOrders() } // fixes strange content disappearing bug
             }
             linkedPositionColumn.apply {
                 cellValueFactory = PropertyValueFactory<LinkedTableItem, Int>("position")
@@ -296,9 +297,7 @@ object LinkedDelegate {
     }
 
     private fun updateLinkedOrders() {
-        controller.apply {
-            linkedOrdersTable.items = FXCollections.observableArrayList<LinkedTableItem>(linkedOrders)
-        }
+        controller.linkedOrdersTable.items = FXCollections.observableArrayList<LinkedTableItem>(linkedOrders)
     }
 
     fun onAddLinkedOrderClicked() {

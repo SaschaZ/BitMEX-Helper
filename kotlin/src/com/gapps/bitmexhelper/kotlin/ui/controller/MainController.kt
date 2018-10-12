@@ -10,7 +10,6 @@ import javafx.application.Platform
 import javafx.fxml.FXML
 import javafx.scene.control.*
 import javafx.scene.text.Text
-import kotlinx.coroutines.experimental.launch
 
 class MainController {
 
@@ -62,7 +61,7 @@ class MainController {
     @FXML
     internal lateinit var linkedPair: ComboBox<*>
     @FXML
-    internal lateinit var linkedOrdersTable: TableView<*>
+    internal lateinit var linkedOrdersTable: TableView<LinkedDelegate.LinkedTableItem>
     @FXML
     internal lateinit var linkedPositionColumn: TableColumn<LinkedDelegate.LinkedTableItem, Int>
     @FXML
