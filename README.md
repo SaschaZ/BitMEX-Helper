@@ -2,8 +2,8 @@
 Java application to execute bulk orders on the BitMEX exchange.
 
 ## Features:
-* NEW: Create Bulk Order by editing every single order
-* NEW: Link orders with OTO, OCO, OUOA and OUOP
+* **NEW: Create Bulk Order by editing every single order**
+* **NEW: Link orders with `OTO`, `OCO`, `OUOA` and `OUOP`**
 ![BitMEX LinkedOrderTypes](https://github.com/SaschaZ/BitMEX-Helper/raw/master/media/BitMEX-LinkedOrderTypes.png)
 * Uses native bulk order feature which is only available via the BitMEX Api.
 * From the BitMEX Api documentation: `Bulk orders require fewer risk checks in the trading engine and thus are ratelimited at 1/10 the normal rate.`
