@@ -4,7 +4,7 @@ import com.gapps.bitmexhelper.kotlin.exchange.toCurrencyPair
 
 object Constants {
 
-    const val title = "BitMEX Helper v1.1.0"
+    const val title = "BitMEX Helper v1.1.1"
 
     const val settingsFilename = "bhSettings.json"
 

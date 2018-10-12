@@ -1,12 +1,7 @@
 package com.gapps.bitmexhelper.kotlin.ui
 
 import com.gapps.utils.decimalPlaces
-import com.gapps.utils.round
 import javafx.util.StringConverter
-import java.math.BigDecimal
-import java.math.MathContext
-import java.math.RoundingMode
-import java.math.RoundingMode.*
 import java.text.DecimalFormat
 
 class SmallDoubleStringConverter(step: Double) : StringConverter<Double>() {

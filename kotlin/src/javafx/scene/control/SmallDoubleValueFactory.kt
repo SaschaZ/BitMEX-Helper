@@ -3,7 +3,6 @@
 package javafx.scene.control
 
 import com.gapps.bitmexhelper.kotlin.ui.SmallDoubleStringConverter
-import com.gapps.utils.decimalPlaces
 import javafx.beans.property.SimpleDoubleProperty
 import java.math.BigDecimal
 import kotlin.math.max

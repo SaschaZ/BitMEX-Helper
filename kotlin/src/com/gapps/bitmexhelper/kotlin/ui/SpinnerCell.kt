@@ -1,7 +1,6 @@
 package com.gapps.bitmexhelper.kotlin.ui
 
 import com.gapps.utils.asUnit
-import com.gapps.utils.round
 import javafx.event.Event
 import javafx.scene.control.*
 import javafx.scene.control.TableColumn.CellEditEvent
@@ -51,9 +50,8 @@ class SpinnerCell<S>(private val min: Double, private val max: Double, private v
     }
 
     override fun commitEdit(item: Double?) = item?.let {
-        val rounded = it.round(step)
-        spinner.editor.text = converter.toString(rounded)
-        commitEditInternal(rounded)
+        spinner.editor.text = converter.toString(item)
+        commitEditInternal(item)
     }.asUnit()
 
     private fun commitEditInternal(item: Double?) = item?.let {
