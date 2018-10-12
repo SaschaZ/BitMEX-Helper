@@ -2,10 +2,13 @@
 Java application to execute bulk orders on the BitMEX exchange.
 
 ## Features:
+* NEW: Create Bulk Order by editing every single order
+* NEW: Link orders with OTO, OCO, OUOA and OUOP
+![BitMEX LinkedOrderTypes](https://github.com/SaschaZ/BitMEX-Helper/raw/master/media/BitMEX-LinkedOrderTypes.png)
 * Uses native bulk order feature which is only available via the BitMEX Api.
 * From the BitMEX Api documentation: `Bulk orders require fewer risk checks in the trading engine and thus are ratelimited at 1/10 the normal rate.`
 * Place up to 100 orders with one call.
-* Offers four methods of amount distribution:
+* Offers three methods of amount distribution:
 
 | Order |     FLAT    |      DCA (Dollar Cost Average)       |  SAME  |
 | ----- | ----------- | ------------------------------------ | ------ |
@@ -23,7 +26,7 @@ Java application to execute bulk orders on the BitMEX exchange.
 
 ![BitMEX preview](https://github.com/SaschaZ/BitMEX-Helper/raw/master/media/BitMEX-Helper.png)
 
-# **Download: [v1.0.11](https://github.com/SaschaZ/BitMEX-Helper/raw/master/releases/v1.0.11/BitmexHelper.jar)**
+# **Download: [v1.1.0](https://github.com/SaschaZ/BitMEX-Helper/raw/master/releases/v1.1.0/BitmexHelper.jar)**
 
 To run this application you need an installed [Java Runtime Environment](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html).
 Depending on the configuration of your OS the steps to start this application differs. On some systems you can just
