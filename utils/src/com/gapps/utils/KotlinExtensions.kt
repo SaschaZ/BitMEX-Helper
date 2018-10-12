@@ -2,9 +2,15 @@
 
 package com.gapps.utils
 
+import javafx.scene.control.Control
+import javafx.scene.control.TableColumn
 import kotlinx.coroutines.experimental.sync.Mutex
 import kotlinx.coroutines.experimental.sync.withLock
 import java.io.File
+import java.math.BigDecimal
+import java.math.MathContext
+import java.math.RoundingMode
+import java.text.DecimalFormat
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 import kotlin.math.absoluteValue
@@ -55,7 +61,7 @@ fun List<Double?>.average(sizeForce: Int? = null, selector: ((Double?) -> Boolea
 
 fun Double?.average(arg2: Double): Double = this?.let { (it + arg2) / 2 } ?: arg2
 
-fun Any?.equalOne(vararg args: Any) = args.any { args == this }
+fun Any?.equalsOne(vararg args: Any) = args.any { args == this }
 
 fun <E, K> List<E>.merge(key: (E) -> K, combine: (List<E>) -> E?): List<E> {
     val list = ArrayList<E>()
@@ -147,4 +153,20 @@ suspend fun <K0, V0, K1, V1> ConcurrentHashMap<K0, V0>.mapToMap(
     }
 
     return newMap
+}
+
+fun Double.decimalPlaces(): Int {
+    val df = DecimalFormat("#.########")
+    val formatted = df.format(this)
+    var pointIndex = formatted.indexOf(".")
+    if (pointIndex < 0)
+        pointIndex = formatted.indexOf(",")
+    return if (pointIndex < 0) 0 else formatted.lastIndex - pointIndex
+}
+
+fun Double.round(stepSize: Double) = BigDecimal(this).let { it.minus(it.divideAndRemainder(BigDecimal(stepSize))[1]) }.toDouble()
+
+fun TableColumn<*, *>.setRelativeWidth(origin: Control, divider: Double, resizeable: Boolean = false) {
+        isResizable = resizeable
+        prefWidthProperty().bind(origin.widthProperty().divide(divider))
 }

@@ -1,10 +1,9 @@
 package com.gapps.bitmexhelper;
 
 import com.gapps.bitmexhelper.kotlin.persistance.Constants;
-import com.gapps.bitmexhelper.kotlin.ui.AppController;
-import com.gapps.bitmexhelper.kotlin.ui.AppDelegate;
-import com.gapps.bitmexhelper.kotlin.ui.MainDelegate;
-import com.gapps.bitmexhelper.kotlin.ui.SettingsDelegate;
+import com.gapps.bitmexhelper.kotlin.ui.controller.AppController;
+import com.gapps.bitmexhelper.kotlin.ui.delegates.AppDelegate;
+import com.gapps.bitmexhelper.kotlin.ui.delegates.MainDelegate;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -17,7 +16,6 @@ import java.io.IOException;
 public class App extends Application implements AppController {
 
     private final AppDelegate appDelegate = AppDelegate.INSTANCE;
-    private final SettingsDelegate settingsDelegate = SettingsDelegate.INSTANCE;
     private final MainDelegate mainDelegate = MainDelegate.INSTANCE;
 
     @NotNull
@@ -37,7 +35,6 @@ public class App extends Application implements AppController {
         this.stage = primaryStage;
         primaryStage.setTitle(Constants.title);
         primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("icBitmex.jpg")));
-        primaryStage.setResizable(false);
         appDelegate.onStarted();
     }
 
@@ -48,23 +45,13 @@ public class App extends Application implements AppController {
     }
 
     @Override
-    public void openSettings(final boolean closeCurrent) {
-        if (closeCurrent) stage.close();
-        try {
-            stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("settings.fxml"))));
-            settingsDelegate.onSceneSet();
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
     public void openMain(final boolean closeCurrent) {
         if (closeCurrent) stage.close();
         try {
             stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("main.fxml"))));
             mainDelegate.onSceneSet();
+            stage.setMinHeight(500.0);
+            stage.setMinWidth(1039.0);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();

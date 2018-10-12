@@ -1,6 +1,6 @@
 package com.gapps.bitmexhelper.kotlin.persistance
 
-import com.gapps.bitmexhelper.kotlin.XChangeWrapper
+import com.gapps.bitmexhelper.kotlin.exchange.BulkDistribution
 import com.gapps.utils.*
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -8,15 +8,16 @@ import com.google.gson.GsonBuilder
 
 data class Settings(private var bitmexApiKey: String = "",
                     private var bitmexSecretKey: String = "",
-                    var lastSide: String = "BUY",
+                    var lastSide: String = "Buy",
                     var lastOrderType: String = "Limit",
                     var lastPair: String = "XBT/USD",
                     var lastLowPrice: Double = 0.0,
                     var lastHighPrice: Double = 0.0,
                     var lastAmount: Int = 1,
                     var lastMinAmount: Int = 26,
-                    var lastMode: String = XChangeWrapper.BulkDistribution.FLAT.toString(),
+                    var lastMode: String = BulkDistribution.FLAT.toString(),
                     var lastDistributionParameter: Double = 2.0,
+                    var lastSlDistance: Int = 1,
                     var lastPostOnly: Boolean = true,
                     var lastReduceOnly: Boolean = false,
                     var lastReversed: Boolean = false) {
@@ -24,20 +25,30 @@ data class Settings(private var bitmexApiKey: String = "",
     companion object {
 
         var settings: Settings = Settings()
+        var apiCredentialsAvailableListener: ((String, String) -> Unit)? = null
+            set(value) {
+                field = value
+                checkCredentialsAvailable()
+            }
+
         private val file = JarLocation.fileInSameDir(Constants.settingsFilename)
 
         private val cipher = Cipher("WTrUCHj6bVn3jaRxEqx9SetrZpKDX7sNYCpdqjz8fUQPv6aSMjBGrtTJP75CFwKKw98QGHAS6Wg9a5cV92geRWY3MKR3A3vDRB3q")
 
-        fun load(): Boolean {
-            return catch(false) {
-                if (!file.exists()) store()
-                else settings = Gson().fromJson(file.readString(), Settings::class.java)
-                hasCredentials
-            }
+        fun load() = catch(Unit) {
+            if (!file.exists()) store()
+            else settings = Gson().fromJson(file.readString(), Settings::class.java)
+            checkCredentialsAvailable()
         }
 
         fun store() = catch(Unit) {
             file.writeString(GsonBuilder().setPrettyPrinting().create().toJson(settings))
+            checkCredentialsAvailable()
+        }
+
+        private fun checkCredentialsAvailable() = whenNotNull(getBitmexApiKey(), getBitmexApiSecret()) { key, secret ->
+            if (hasCredentials)
+                apiCredentialsAvailableListener?.invoke(key, secret)
         }
 
         fun getBitmexApiKey() = cipher.decrypt(settings.bitmexApiKey)

@@ -9,13 +9,15 @@
     <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="KotlinJavaRuntime" level="project" />
-    <orderEntry type="library" exported="" name="org.knowm.xchange:xchange-core:4.3.10-SNAPSHOT" level="project" />
-    <orderEntry type="library" exported="" name="org.knowm.xchange:xchange-bitmex:4.3.10-SNAPSHOT" level="project" />
     <orderEntry type="library" exported="" name="org.slf4j:slf4j-simple:1.7.25" level="project" />
     <orderEntry type="library" exported="" name="org.jetbrains.kotlinx:kotlinx-coroutines-core:0.24.0" level="project" />
     <orderEntry type="library" exported="" name="com.google.code.gson:gson:2.8.5" level="project" />
-    <orderEntry type="library" scope="TEST" name="junit:junit:4.12" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="junit:junit:4.12" level="project" />
     <orderEntry type="module" module-name="utils" exported="" />
     <orderEntry type="library" exported="" name="com.google.guava:guava:26.0-jre" level="project" />
+    <orderEntry type="library" exported="" name="apache-codec:commons-codec:1.2" level="project" />
+    <orderEntry type="library" exported="" name="com.github.mmazi:rescu:2.0.2" level="project" />
+    <orderEntry type="library" exported="" name="org.knowm.xchange:xchange-bitmex:4.3.11" level="project" />
+    <orderEntry type="library" exported="" name="org.knowm.xchange:xchange-core:4.3.11" level="project" />
   </component>
 </module>
