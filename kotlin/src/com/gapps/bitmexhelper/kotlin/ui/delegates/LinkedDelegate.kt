@@ -1,12 +1,9 @@
 package com.gapps.bitmexhelper.kotlin.ui.delegates
 
-import com.gapps.bitmexhelper.kotlin.BulkOrderType
-import com.gapps.bitmexhelper.kotlin.BulkOrderType.*
-import com.gapps.bitmexhelper.kotlin.XChangeWrapper
+import com.gapps.bitmexhelper.kotlin.exchange.*
+import com.gapps.bitmexhelper.kotlin.exchange.BulkOrderType.*
 import com.gapps.bitmexhelper.kotlin.persistance.Constants
 import com.gapps.bitmexhelper.kotlin.persistance.Settings
-import com.gapps.bitmexhelper.kotlin.toBitmexSymbol
-import com.gapps.bitmexhelper.kotlin.toCurrencyPair
 import com.gapps.bitmexhelper.kotlin.ui.ComboBoxCell
 import com.gapps.bitmexhelper.kotlin.ui.EditCell
 import com.gapps.bitmexhelper.kotlin.ui.SpinnerCell
@@ -125,14 +122,14 @@ object LinkedDelegate {
     }
 
     private lateinit var controller: MainController
-    private lateinit var exchange: XChangeWrapper
+    private var exchange: XChangeWrapper? = null
 
     private var linkedOrders = ArrayList<LinkedTableItem>()
     private val priceSpinners = ArrayList<SpinnerCell<LinkedTableItem>>()
 
-    fun onSceneSet(controller: MainController, exchange: XChangeWrapper) {
-        LinkedDelegate.controller = controller
-        LinkedDelegate.exchange = exchange
+    fun onSceneSet(controller: MainController) {
+        this.controller = controller
+        ExchangeHolder.addListener { exchange = it }
 
         initLinkedTable()
     }
@@ -369,7 +366,8 @@ object LinkedDelegate {
 
             var error: ExchangeException? = null
             val result = try {
-                exchange.placeBulkOrders(orderParameters)
+                exchange?.placeBulkOrders(orderParameters)
+                        ?: null.also { AppDelegate.showError("Exchange not available.") }
             } catch (e: ExchangeException) {
                 error = e
                 null

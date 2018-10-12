@@ -1,6 +1,6 @@
 package com.gapps.bitmexhelper.kotlin.persistance
 
-import com.gapps.bitmexhelper.kotlin.toCurrencyPair
+import com.gapps.bitmexhelper.kotlin.exchange.toCurrencyPair
 
 object Constants {
 
@@ -12,13 +12,13 @@ object Constants {
     val pairs = listOf(
             "XBT/USD",
             "ETH/USD",
-            "ETH/U18",
-            "ADA/U18",
-            "BCH/U18",
-            "EOS/U18",
-            "LTC/U18",
-            "TRX/U18",
-            "XRP/U18"
+            "ETH/Z18",
+            "ADA/Z18",
+            "BCH/Z18",
+            "EOS/Z18",
+            "LTC/Z18",
+            "TRX/Z18",
+            "XRP/Z18"
     )
 
     val orderTypes = listOf(

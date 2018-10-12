@@ -2,29 +2,23 @@
 
 package com.gapps.bitmexhelper.kotlin.ui.delegates
 
-import com.gapps.bitmexhelper.kotlin.*
-import com.gapps.bitmexhelper.kotlin.persistance.Settings
 import com.gapps.bitmexhelper.kotlin.ui.controller.MainController
 import org.knowm.xchange.bitmex.BitmexException
-import org.knowm.xchange.bitmex.BitmexExchange
 import org.knowm.xchange.bitmex.dto.marketdata.BitmexPrivateOrder
 import org.knowm.xchange.exceptions.ExchangeException
-import java.lang.Exception
 
 
 object MainDelegate {
 
     private lateinit var controller: MainController
-    private lateinit var exchange: XChangeWrapper
 
     fun onControllerAvailable(controller: MainController) {
         MainDelegate.controller = controller
-        exchange = XChangeWrapper(BitmexExchange::class, Settings.getBitmexApiKey(), Settings.getBitmexApiSecret())
     }
 
     fun onSceneSet() {
-        BulkDelegate.onSceneSet(controller, exchange)
-        LinkedDelegate.onSceneSet(controller, exchange)
+        BulkDelegate.onSceneSet(controller)
+        LinkedDelegate.onSceneSet(controller)
         SettingsDelegate.onSceneSet(controller)
     }
 

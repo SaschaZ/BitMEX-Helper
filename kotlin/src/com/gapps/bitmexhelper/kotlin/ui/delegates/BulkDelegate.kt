@@ -1,6 +1,6 @@
 package com.gapps.bitmexhelper.kotlin.ui.delegates
 
-import com.gapps.bitmexhelper.kotlin.*
+import com.gapps.bitmexhelper.kotlin.exchange.*
 import com.gapps.bitmexhelper.kotlin.persistance.Constants
 import com.gapps.bitmexhelper.kotlin.persistance.Settings
 import com.gapps.bitmexhelper.kotlin.ui.controller.MainController
@@ -24,22 +24,25 @@ import org.knowm.xchange.exceptions.ExchangeException
 object BulkDelegate {
 
     private lateinit var controller: MainController
-    private lateinit var exchange: XChangeWrapper
+    private var exchange: XChangeWrapper? = null
 
     private var tickers: Map<CurrencyPair, Ticker>? = null
 
-    fun onSceneSet(controller: MainController, exchange: XChangeWrapper) {
-        BulkDelegate.controller = controller
-        BulkDelegate.exchange = exchange
+    fun onSceneSet(controller: MainController) {
+        this.controller = controller
+        ExchangeHolder.addListener {
+            exchange = it
 
-        controller.changeInExecutionMode(true)
-        launch {
-            tickers = exchange.getTickers()
-            Platform.runLater {
-                configureSpinnerParameters(controller.pair.value.toString().toCurrencyPair(), true)
-                controller.changeInExecutionMode(false)
+            launch {
+                tickers = exchange?.getTickers()
+                Platform.runLater {
+                    configureSpinnerParameters(controller.pair.value.toString().toCurrencyPair(), true)
+                    controller.changeInExecutionMode(false)
+                }
             }
         }
+
+        controller.changeInExecutionMode(true)
 
         controller.apply {
             pair.apply {
@@ -255,11 +258,12 @@ object BulkDelegate {
         }
     }
 
-    private fun executeOrder() = createOrders()?.let { exchange.placeBulkOrders(it) }
+    private fun executeOrder() = createOrders()?.let { exchange?.placeBulkOrders(it) }
+            ?: null.also { AppDelegate.showError("Exchange not available.") }
 
     fun createOrders(): List<BitmexPlaceOrderParameters>? {
         controller.apply {
-            return exchange.createBulkOrders(
+            return exchange?.createBulkOrders(
                     pair = pair.value.toString().toCurrencyPair(),
                     orderSide = if (BitmexSide.fromString(side.value.toString()) == BitmexSide.BUY) BID else ASK,
                     type = BulkOrderType.valueOf(orderType.value.toString().toUpperCase().replace("-", "_")),

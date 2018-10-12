@@ -15,11 +15,12 @@ object AppDelegate {
     }
 
     fun onStarted() {
-        Settings.load()
         if (Settings.hasCredentials)
             controller.openMain()
-        else
+        else {
+            controller.openMain()
             MainDelegate.openSettings()
+        }
     }
 
     fun onStopped() {}

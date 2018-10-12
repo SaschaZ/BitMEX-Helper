@@ -5,7 +5,6 @@
       <module fileurl="file://$PROJECT_DIR$/BitmexHelper.iml" filepath="$PROJECT_DIR$/BitmexHelper.iml" />
       <module fileurl="file://$PROJECT_DIR$/kotlin/kotlin.iml" filepath="$PROJECT_DIR$/kotlin/kotlin.iml" />
       <module fileurl="file://$PROJECT_DIR$/utils/utils.iml" filepath="$PROJECT_DIR$/utils/utils.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../XChange/xchange-bitmex/xchange-bitmex.iml" filepath="$PROJECT_DIR$/../XChange/xchange-bitmex/xchange-bitmex.iml" />
     </modules>
   </component>
 </project>
