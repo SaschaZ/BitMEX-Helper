@@ -48,7 +48,11 @@ public class App extends Application implements AppController {
     public void openMain(final boolean closeCurrent) {
         if (closeCurrent) stage.close();
         try {
-            stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("main.fxml"))));
+            final Scene scene = new Scene(FXMLLoader.load(getClass().getResource("main.fxml")));
+            scene.getStylesheets().add(getClass().getResource("green_row.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("red_row.css").toExternalForm());
+
+            stage.setScene(scene);
             mainDelegate.onSceneSet();
             stage.setMinHeight(500.0);
             stage.setMinWidth(1039.0);

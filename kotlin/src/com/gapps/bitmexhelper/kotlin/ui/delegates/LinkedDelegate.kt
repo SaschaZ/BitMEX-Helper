@@ -6,6 +6,7 @@ import com.gapps.bitmexhelper.kotlin.persistance.Constants
 import com.gapps.bitmexhelper.kotlin.persistance.Settings
 import com.gapps.bitmexhelper.kotlin.ui.ComboBoxCell
 import com.gapps.bitmexhelper.kotlin.ui.EditCell
+import com.gapps.bitmexhelper.kotlin.ui.GreenRedRowFactory
 import com.gapps.bitmexhelper.kotlin.ui.SpinnerCell
 import com.gapps.bitmexhelper.kotlin.ui.controller.MainController
 import com.gapps.utils.equalsOne
@@ -124,7 +125,7 @@ object LinkedDelegate {
     private lateinit var controller: MainController
     private var exchange: XChangeWrapper? = null
 
-    private var linkedOrders = ArrayList<LinkedTableItem>()
+    private var linkedOrders = FXCollections.observableArrayList<LinkedTableItem>()
     private val priceSpinners = ArrayList<SpinnerCell<LinkedTableItem>>()
 
     fun onSceneSet(controller: MainController) {
@@ -140,26 +141,27 @@ object LinkedDelegate {
                 items = FXCollections.observableArrayList(Constants.pairs)
                 value = items[Constants.pairs.indexOf(Settings.settings.lastPair).let { if (it < 0) 0 else it }]
                 setOnAction { _ ->
+                    linkedOrders.clear()
                     val minStep = Constants.minimumPriceSteps[value.toString().toCurrencyPair()]!!
                     priceSpinners.forEach { it.step = minStep }
                     linkedPriceColumn.initSpinnerCellValueFactory(minStep)
                     linkedOrderTypeParameterColumn.initSpinnerCellValueFactory(minStep)
-                    linkedOrders = ArrayList<LinkedTableItem>().also { list ->
-                        list.addAll(elements = linkedOrders.asSequence().map { item ->
-                            item.copy(
-                                    price = item.getPriceProperty()
-                                            .also { if (it.value > 0) it.value = it.value - it.value % minStep else it.value },
-                                    orderTypeParameter = item.getOrderTypeParameterProperty()
-                                            .also { if (it.value > 0) it.value = it.value - it.value % minStep else it.value })
-                        })
-                    }
+                    linkedOrders.addAll(elements = linkedOrders.asSequence().map { item ->
+                        item.copy(
+                                price = item.getPriceProperty()
+                                        .also { if (it.value > 0) it.value = it.value - it.value % minStep else it.value },
+                                orderTypeParameter = item.getOrderTypeParameterProperty()
+                                        .also { if (it.value > 0) it.value = it.value - it.value % minStep else it.value })
+                    })
                 }
                 enableValueChangeOnScroll()
             }
             linkedOrdersTable.apply {
-                selectionModel.isCellSelectionEnabled = true
+                rowFactory = GreenRedRowFactory(this)
+                items = linkedOrders
+                selectionModel.isCellSelectionEnabled = false
                 placeholder = Label("Add new orders with the '+' button or press the 'Move to Linked' button on the 'Bulk' page.")
-                setOnMouseClicked { updateLinkedOrders() } // fixes strange content disappearing bug
+                setOnMouseClicked { linkedOrdersTable.items = linkedOrders } // fixes strange content disappearing bug
             }
             linkedPositionColumn.apply {
                 cellValueFactory = PropertyValueFactory<LinkedTableItem, Int>("position")
@@ -175,6 +177,7 @@ object LinkedDelegate {
                         if (row in 0..linkedOrders.lastIndex)
                             linkedOrders[row].setSide(value)
                     }
+                    linkedOrdersTable.refresh()
                 }
                 setRelativeWidth(linkedOrdersTable, 12.9875)
             }
@@ -296,15 +299,10 @@ object LinkedDelegate {
         }
     }
 
-    private fun updateLinkedOrders() {
-        controller.linkedOrdersTable.items = FXCollections.observableArrayList<LinkedTableItem>(linkedOrders)
-    }
-
     fun onAddLinkedOrderClicked() {
         if (linkedOrders.size <= 100) {
             val position = linkedOrders.lastOrNull()?.getPosition() ?: 0
             linkedOrders.add(linkedOrders.lastOrNull()?.createNew(position) ?: LinkedTableItem(position))
-            updateLinkedOrders()
         } else {
             // TODO show Dialog
         }
@@ -317,7 +315,6 @@ object LinkedDelegate {
             if (linkedOrders.isEmpty()) {
                 priceSpinners.clear()
             }
-            updateLinkedOrders()
         }
     }
 
@@ -410,7 +407,6 @@ object LinkedDelegate {
                         reduceOnly = order.executionInstructions?.contains(REDUCE_ONLY) ?: false
                 ))
             }
-            updateLinkedOrders()
         } else {
             // TODO show dialog
         }
@@ -418,6 +414,5 @@ object LinkedDelegate {
 
     fun onClearAllLinkedOrdersClicked() {
         linkedOrders.clear()
-        updateLinkedOrders()
     }
 }
