@@ -8,6 +8,7 @@ import kotlinx.coroutines.experimental.sync.Mutex
 import kotlinx.coroutines.experimental.sync.withLock
 import java.io.File
 import java.math.BigDecimal
+import java.math.MathContext
 import java.text.DecimalFormat
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
@@ -162,9 +163,24 @@ fun Double.decimalPlaces(): Int {
     return if (pointIndex < 0) 0 else formatted.lastIndex - pointIndex
 }
 
-fun Double.round(stepSize: Double) = BigDecimal(this).let { it.minus(it.divideAndRemainder(BigDecimal(stepSize))[1]) }.toDouble().also { println("$this.round($stepSize)=$it") }
+fun BigDecimal.round(stepSize: BigDecimal): BigDecimal = (this - divideAndRemainder(stepSize)[1])
+
+fun BigDecimal.roundWithMathContext(stepSize: BigDecimal, mathContextParam: Int): BigDecimal =
+        round(stepSize).round(MathContext(mathContextParam))
 
 fun TableColumn<*, *>.setRelativeWidth(origin: Control, divider: Double, resizeable: Boolean = false) {
         isResizable = resizeable
         prefWidthProperty().bind(origin.widthProperty().divide(divider))
+}
+
+fun max(val0: BigDecimal, val1: BigDecimal) = if (val0 >= val1) val0 else val1
+
+fun min(val0: BigDecimal, val1: BigDecimal) = if (val0 < val1) val0 else val1
+
+inline fun <T> Iterable<T>.sumByBigDecimal(selector: (T) -> BigDecimal): BigDecimal {
+    var sum = BigDecimal.ZERO
+    for (element in this) {
+        sum += selector(element)
+    }
+    return sum
 }

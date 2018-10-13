@@ -29,6 +29,7 @@ import org.knowm.xchange.bitmex.dto.trade.*
 import org.knowm.xchange.bitmex.dto.trade.BitmexExecutionInstruction.PARTICIPATE_DO_NOT_INITIATE
 import org.knowm.xchange.bitmex.dto.trade.BitmexExecutionInstruction.REDUCE_ONLY
 import org.knowm.xchange.exceptions.ExchangeException
+import java.math.BigDecimal
 
 object LinkedDelegate {
 
@@ -149,9 +150,9 @@ object LinkedDelegate {
                     linkedOrders.addAll(elements = linkedOrders.asSequence().map { item ->
                         item.copy(
                                 price = item.getPriceProperty()
-                                        .also { if (it.value > 0) it.value = it.value - it.value % minStep else it.value },
+                                        .also { if (it.value.toBigDecimal() > BigDecimal.ZERO) it.value = ((it.value - it.value).toBigDecimal().divideAndRemainder(minStep.toBigDecimal())[1]).toDouble() else it.value },
                                 orderTypeParameter = item.getOrderTypeParameterProperty()
-                                        .also { if (it.value > 0) it.value = it.value - it.value % minStep else it.value })
+                                        .also { if (it.value.toBigDecimal() > BigDecimal.ZERO) it.value = ((it.value - it.value).toBigDecimal().divideAndRemainder(minStep.toBigDecimal())[1]).toDouble() else it.value })
                     })
                 }
                 enableValueChangeOnScroll()
@@ -197,7 +198,7 @@ object LinkedDelegate {
 
             linkedAmountColumn.apply {
                 cellValueFactory = PropertyValueFactory<LinkedTableItem, Double>("amount")
-                initSpinnerCellValueFactory(1.0, 1.0, Double.MAX_VALUE, 1.0)
+                initSpinnerCellValueFactory(1.0, 1.0, 10000000.0, 1.0)
                 setOnEditCommit { event ->
                     whenNotNull(event.tablePosition, event.newValue) { tablePosition, value ->
                         val row = tablePosition.row
@@ -291,7 +292,10 @@ object LinkedDelegate {
         }
     }
 
-    private fun TableColumn<LinkedTableItem, Double>.initSpinnerCellValueFactory(step: Double, min: Double = 0.0, max: Double = Double.MAX_VALUE, initial: Double = min) {
+    private fun TableColumn<LinkedTableItem, Double>.initSpinnerCellValueFactory(step: Double,
+                                                                                     min: Double = 0.0,
+                                                                                     max: Double = 10000000.0,
+                                                                                     initial: Double = min) {
         cellFactory = Callback<TableColumn<LinkedTableItem, Double>, TableCell<LinkedTableItem, Double>> {
             SpinnerCell<LinkedTableItem>(min, max, initial, step).also { cell ->
                 priceSpinners.add(cell)
@@ -340,13 +344,13 @@ object LinkedDelegate {
                     else -> null
                 }
                 val pegPriceAmount = when (orderType) {
-                    TRAILING_STOP -> item.getOrderTypeParameter() * if (side == BitmexSide.BUY) 1 else -1
+                    TRAILING_STOP -> item.getOrderTypeParameter().toBigDecimal() * (if (side == BitmexSide.BUY) 1 else -1).toBigDecimal()
                     else -> null
                 }
                 BitmexPlaceOrderParameters.Builder(controller.linkedPair.value.toString().toCurrencyPair().toBitmexSymbol())
                         .setOrderQuantity(item.getAmount().toBigDecimal())
-                        .setPrice(price?.let { if (it < 0) null else it.toBigDecimal() })
-                        .setStopPrice(stop?.let { if (it < 0) null else it.toBigDecimal() })
+                        .setPrice(price?.let { if (it.toBigDecimal() < BigDecimal.ZERO) null else it.toBigDecimal() })
+                        .setStopPrice(stop?.let { if (it.toBigDecimal() < BigDecimal.ZERO) null else it.toBigDecimal() })
                         .setSide(side)
                         .setOrderType(orderType.toBitmexOrderType())
                         .setExecutionInstructions(BitmexExecutionInstruction.Builder()
@@ -356,14 +360,13 @@ object LinkedDelegate {
                         .setContingencyType(LinkType.valueOf(item.getLinkType()).toBitmexContingencyType())
                         .setClOrdLinkId(item.getLinkId().let { if (it.isBlank()) null else it })
                         .setPegPriceType(pegPriceType)
-                        .setPegOffsetValue(pegPriceAmount?.toBigDecimal())
+                        .setPegOffsetValue(pegPriceAmount)
                         .build()
             }
 
             var error: ExchangeException? = null
             val result = try {
                 exchange?.placeBulkOrders(orderParameters)
-                        ?: null.also { AppDelegate.showError("Exchange not available.") }
             } catch (e: ExchangeException) {
                 error = e
                 null
@@ -386,7 +389,7 @@ object LinkedDelegate {
                 linkedOrders.add(LinkedTableItem(
                         position = existingSize + index,
                         side = order.side?.capitalized!!,
-                        price = order.price?.toDouble() ?: -1.0,
+                        price = order.price?.toDouble() ?: 0.0,
                         amount = order.orderQuantity?.toDouble() ?: 0.0,
                         orderType = when (order.orderType) {
                             BitmexOrderType.STOP -> STOP
@@ -394,7 +397,7 @@ object LinkedDelegate {
                             BitmexOrderType.PEGGED -> TRAILING_STOP
                             else -> LIMIT
                         },
-                        orderTypeParameter = order.stopPrice?.toDouble() ?: -1.0,
+                        orderTypeParameter = order.stopPrice?.toDouble() ?: 0.0,
                         linkId = order.clOrdLinkId ?: "",
                         linkType = when (order.contingencyType) {
                             BitmexContingencyType.OCO -> LinkType.OCO

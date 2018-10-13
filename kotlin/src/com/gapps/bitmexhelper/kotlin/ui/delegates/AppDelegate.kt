@@ -3,6 +3,7 @@ package com.gapps.bitmexhelper.kotlin.ui.delegates
 import com.gapps.bitmexhelper.kotlin.persistance.Settings
 import com.gapps.bitmexhelper.kotlin.ui.controller.AppController
 import javafx.scene.control.Alert
+import javafx.scene.control.ButtonType
 import javafx.scene.layout.Region
 
 object AppDelegate {
@@ -48,6 +49,20 @@ object AppDelegate {
             headerText = null
             contentText = message
             showAndWait()
+        }
+    }
+
+    fun showConfirmation(message: String): Boolean {
+        return Alert(Alert.AlertType.CONFIRMATION).let {
+            it.dialogPane.apply {
+                minWidth = Region.USE_PREF_SIZE
+                minHeight = Region.USE_PREF_SIZE
+            }
+            it.title = "INFORMATION"
+            it.headerText = null
+            it.contentText = message
+            it.showAndWait()
+            it.result == ButtonType.OK
         }
     }
 }

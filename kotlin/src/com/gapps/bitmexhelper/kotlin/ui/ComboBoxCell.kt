@@ -1,11 +1,11 @@
 package com.gapps.bitmexhelper.kotlin.ui
 
+import com.gapps.bitmexhelper.kotlin.ui.delegates.enableValueChangeOnScroll
 import javafx.collections.FXCollections
 import javafx.event.Event
 import javafx.scene.control.*
 import javafx.util.Callback
 import javafx.util.StringConverter
-import com.gapps.bitmexhelper.kotlin.ui.delegates.enableValueChangeOnScroll
 
 class ComboBoxCell<S>(items: List<String>) : TableCell<S, String>() {
 

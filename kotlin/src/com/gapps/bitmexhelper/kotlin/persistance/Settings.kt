@@ -4,6 +4,7 @@ import com.gapps.bitmexhelper.kotlin.exchange.BulkDistribution
 import com.gapps.utils.*
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import java.math.BigDecimal
 
 
 data class Settings(private var bitmexApiKey: String = "",
@@ -11,12 +12,12 @@ data class Settings(private var bitmexApiKey: String = "",
                     var lastSide: String = "Buy",
                     var lastOrderType: String = "Limit",
                     var lastPair: String = "XBT/USD",
-                    var lastLowPrice: Double = 0.0,
-                    var lastHighPrice: Double = 0.0,
+                    var lastLowPrice: BigDecimal = 0.0.toBigDecimal(),
+                    var lastHighPrice: BigDecimal = 0.0.toBigDecimal(),
                     var lastAmount: Int = 1,
                     var lastMinAmount: Int = 26,
                     var lastMode: String = BulkDistribution.FLAT.toString(),
-                    var lastDistributionParameter: Double = 2.0,
+                    var lastDistributionParameter: BigDecimal = 2.0.toBigDecimal(),
                     var lastSlDistance: Int = 1,
                     var lastPostOnly: Boolean = true,
                     var lastReduceOnly: Boolean = false,

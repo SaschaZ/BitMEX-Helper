@@ -4,7 +4,6 @@ package com.gapps.bitmexhelper.kotlin.exchange
 
 import com.gapps.bitmexhelper.kotlin.exchange.BulkDistribution.*
 import com.gapps.bitmexhelper.kotlin.exchange.BulkOrderType.*
-import com.gapps.bitmexhelper.kotlin.persistance.Constants
 import com.gapps.bitmexhelper.kotlin.persistance.Constants.minimumPriceSteps
 import com.gapps.utils.*
 import org.knowm.xchange.ExchangeFactory
@@ -30,11 +29,9 @@ import org.knowm.xchange.dto.trade.LimitOrder
 import org.knowm.xchange.dto.trade.MarketOrder
 import org.knowm.xchange.dto.trade.StopOrder
 import java.math.BigDecimal
-import java.math.MathContext
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.math.max
 import kotlin.reflect.KClass
 
 class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey: String? = null) {
@@ -76,11 +73,11 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
         return info.wallet
     }
 
-    fun getAvailableAmount(currency: Currency, forceRefresh: Boolean = true): Double? =
-            getWallet(forceRefresh).getBalance(currency)?.available?.toDouble()
+    fun getAvailableAmount(currency: Currency, forceRefresh: Boolean = true): BigDecimal? =
+            getWallet(forceRefresh).getBalance(currency)?.available
 
-    fun getTotalAmount(currency: Currency, forceRefresh: Boolean = true): Double? =
-            getWallet(forceRefresh).getBalance(currency)?.total?.toDouble()
+    fun getTotalAmount(currency: Currency, forceRefresh: Boolean = true): BigDecimal? =
+            getWallet(forceRefresh).getBalance(currency)?.total
 
     /**
      * Ticker
@@ -123,59 +120,59 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
      */
     public fun limitOrder(type: Order.OrderType,
                           pair: CurrencyPair,
-                          amount: Double,
-                          price: Double,
+                          amount: BigDecimal,
+                          price: BigDecimal,
                           postOnly: Boolean,
                           reduceOnly: Boolean): String? = when (exchange) {
         is BitmexExchange ->
             (exchange.tradeService as BitmexTradeServiceRaw).placeOrder(BitmexPlaceOrderParameters
                     .Builder(pair.toBitmexSymbol())
                     .setSide(type.getSide())
-                    .setOrderQuantity(amount.toBigDecimal())
-                    .setPrice(price.toBigDecimal())
+                    .setOrderQuantity(amount)
+                    .setPrice(price)
                     .setExecutionInstructions(BitmexExecutionInstruction.Builder().setPostOnly(postOnly)
                             .setReduceOnly(reduceOnly).build())
                     .build()).id
         else ->
             exchange.tradeService.placeLimitOrder(LimitOrder.Builder(type, pair)
-                    .originalAmount(amount.toBigDecimal())
-                    .limitPrice(price.toBigDecimal())
+                    .originalAmount(amount)
+                    .limitPrice(price)
                     .build())
     }
 
     fun marketOrder(type: Order.OrderType,
                     pair: CurrencyPair,
-                    amount: Double): String? = when (exchange) {
+                    amount: BigDecimal): String? = when (exchange) {
         is BitmexExchange ->
             (exchange.tradeService as BitmexTradeServiceRaw).placeOrder(BitmexPlaceOrderParameters
                     .Builder(pair.toBitmexSymbol())
                     .setSide(type.getSide())
-                    .setOrderQuantity(amount.toBigDecimal())
+                    .setOrderQuantity(amount)
                     .build()).id
         else ->
             exchange.tradeService.placeMarketOrder(MarketOrder.Builder(type, pair)
-                    .originalAmount(amount.toBigDecimal())
+                    .originalAmount(amount)
                     .build())
     }
 
     fun stopOrder(type: Order.OrderType,
                   pair: CurrencyPair,
-                  amount: Double,
-                  stopPrice: Double,
+                  amount: BigDecimal,
+                  stopPrice: BigDecimal,
                   reduceOnly: Boolean): String? = when (exchange) {
         is BitmexExchange ->
             (exchange.tradeService as BitmexTradeServiceRaw).placeOrder(BitmexPlaceOrderParameters
                     .Builder(pair.toBitmexSymbol())
                     .setSide(type.getSide())
-                    .setOrderQuantity(amount.toBigDecimal())
-                    .setStopPrice(stopPrice.toBigDecimal())
+                    .setOrderQuantity(amount)
+                    .setStopPrice(stopPrice)
                     .setExecutionInstructions(BitmexExecutionInstruction.Builder().setPostOnly(false)
                             .setReduceOnly(reduceOnly).build())
                     .build()).id
         else ->
             exchange.tradeService.placeStopOrder(StopOrder.Builder(type, pair)
-                    .originalAmount(amount.toBigDecimal())
-                    .stopPrice(stopPrice.toBigDecimal())
+                    .originalAmount(amount)
+                    .stopPrice(stopPrice)
                     .build())
     }
 
@@ -188,11 +185,11 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                         orderSide: Order.OrderType,
                         type: BulkOrderType,
                         amount: Int,
-                        priceHigh: Double,
-                        priceLow: Double,
+                        priceHigh: BigDecimal,
+                        priceLow: BigDecimal,
                         distribution: BulkDistribution,
-                        distributionParameter: Double,
-                        minimumAmount: Double,
+                        distributionParameter: BigDecimal,
+                        minimumAmount: Int,
                         slDistance: Int,
                         postOnly: Boolean = false,
                         reduceOnly: Boolean = false,
@@ -214,11 +211,11 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                          orderSide: Order.OrderType,
                          type: BulkOrderType,
                          amount: Int,
-                         priceHigh: Double,
-                         priceLow: Double,
+                         priceHigh: BigDecimal,
+                         priceLow: BigDecimal,
                          distribution: BulkDistribution,
-                         distributionParameter: Double,
-                         minimumAmount: Double,
+                         distributionParameter: BigDecimal,
+                         minimumAmount: Int,
                          slDistance: Int,
                          postOnly: Boolean = false,
                          reduceOnly: Boolean = false,
@@ -226,20 +223,18 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
         var amounts = getBulkAmounts(amount, distribution, distributionParameter, minimumAmount)
         amounts = if (reversed) amounts.reversed() else amounts
         val orders = amounts.asSequence().mapIndexed { orderIndex, amountForOrder ->
-            val priceForOrder = (if (amounts.size == 1) priceLow + (priceHigh - priceLow) / 2
-            else priceLow + (priceHigh - priceLow) / (amounts.size - 1) * orderIndex).roundToMinimumStep(pair)
+            val priceForOrder = (if (amounts.size == 1) priceLow + (priceHigh - priceLow) / 2.toBigDecimal()
+            else priceLow + (priceHigh - priceLow) / ((amounts.size - 1) * orderIndex).toBigDecimal())
+                    .roundWithMathContext(com.gapps.bitmexhelper.kotlin.persistance.Constants.minimumPriceSteps[pair]!!.toBigDecimal(), 8)
             val builder = BitmexPlaceOrderParameters.Builder(pair.toBitmexSymbol())
             builder.apply {
                 when (type) {
-                    LIMIT -> {
-                        setPrice(priceForOrder.toBigDecimal())
-                    }
-                    STOP -> {
-                        setStopPrice(priceForOrder.toBigDecimal())
-                    }
+                    LIMIT -> setPrice(priceForOrder)
+                    STOP -> setStopPrice(priceForOrder)
                     STOP_LIMIT -> {
-                        setPrice((priceForOrder + (minimumPriceSteps[pair]!! * slDistance * if (orderSide == BID) -1 else 1)).toBigDecimal())
-                        setStopPrice(priceForOrder.toBigDecimal())
+                        setPrice((priceForOrder + (minimumPriceSteps[pair]!!.toBigDecimal() * slDistance.toBigDecimal()
+                                * if (orderSide == BID) (-1).toBigDecimal() else 1.toBigDecimal())))
+                        setStopPrice(priceForOrder)
                     }
                     else -> throw IllegalArgumentException("$type is not supported for automatic bulk creation.")
                 }
@@ -289,8 +284,8 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
 
     private fun getBulkAmounts(amount: Int,
                                distribution: BulkDistribution,
-                               distributionParameter: Double,
-                               minimumAmount: Double): List<Int> {
+                               distributionParameter: BigDecimal,
+                               minimumAmount: Int): List<Int> {
         if (amount < minimumAmount)
             return emptyList()
 
@@ -299,11 +294,11 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
         var totalAmount = 0
 
         return (0 until maxOrderCount).map loop@{
-            if (distribution == SAME && it >= distributionParameter
+            if (distribution == SAME && it.toBigDecimal() >= distributionParameter
                     || distribution != SAME && totalAmount >= amount) return@loop 0
             lastAmount = when (distribution) {
-                FLAT -> max(amount.toDouble() / maxOrderCount, minimumAmount).toInt()
-                DCA -> max(minimumAmount, totalAmount * distributionParameter).toInt()
+                FLAT -> max(amount.toBigDecimal() / maxOrderCount.toBigDecimal(), minimumAmount.toBigDecimal()).toInt()
+                DCA -> max(minimumAmount.toBigDecimal(), totalAmount.toBigDecimal() * distributionParameter).toInt()
                 SAME -> amount
             }
             if (distribution != SAME && totalAmount + lastAmount > amount)
@@ -327,10 +322,10 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
         }
     }
 
-    fun updateLeverage(pair: CurrencyPair, leverage: Double) {
+    fun updateLeverage(pair: CurrencyPair, leverage: BigDecimal) {
         when (exchange) {
             is BitmexExchange -> (exchange.tradeService as BitmexTradeServiceRaw)
-                    .updateLeveragePosition(pair.toBitmexSymbol(), leverage.toBigDecimal())
+                    .updateLeveragePosition(pair.toBitmexSymbol(), leverage)
             else -> System.err.println("Can not set leverage for exchange ${exchange.javaClass.simpleName}.")
         }
     }
@@ -358,7 +353,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
         M1
     }
 
-    data class Candle(val low: Double, val high: Double, val open: Double, val close: Double, val volume: Double, val timestamp: Long)
+    data class Candle(val low: BigDecimal, val high: BigDecimal, val open: BigDecimal, val close: BigDecimal, val volume: BigDecimal, val timestamp: Long)
 
     fun getCandles(pair: CurrencyPair, interval: CandleInterval): List<Candle>? {
         return when (exchange) {
@@ -367,7 +362,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                     val dateFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH)
                     (exchange.marketDataService as BitmexMarketDataServiceRaw).getBucketedTrades(binSize,
                             false, pair, BitmexPrompt.PERPETUAL, 100, false).map {
-                        Candle(it.low.toDouble(), it.high.toDouble(), it.open.toDouble(), it.close.toDouble(), it.volume.toDouble(),
+                        Candle(it.low, it.high, it.open, it.close, it.volume,
                                 dateFormatter.parse(it.timestamp).time)
                     }
                 }
@@ -384,9 +379,6 @@ private fun XChangeWrapper.CandleInterval.getBitmexBinSize() = when (this) {
     XChangeWrapper.CandleInterval.d1 -> "1d"
     else -> null
 }
-
-fun Double.roundToMinimumStep(pair: CurrencyPair) =
-        BigDecimal(this - this % Constants.minimumPriceSteps[pair]!!).round(MathContext(8)).toDouble()
 
 fun String.toCurrencyPair(): CurrencyPair {
     val counterStartIndex = length - when {

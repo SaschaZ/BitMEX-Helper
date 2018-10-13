@@ -4,11 +4,13 @@ import com.gapps.bitmexhelper.kotlin.exchange.*
 import com.gapps.bitmexhelper.kotlin.persistance.Constants
 import com.gapps.bitmexhelper.kotlin.persistance.Settings
 import com.gapps.bitmexhelper.kotlin.ui.controller.MainController
+import com.gapps.utils.round
 import com.gapps.utils.setRelativeWidth
+import com.gapps.utils.sumByBigDecimal
 import com.gapps.utils.whenNotNull
 import javafx.application.Platform
-import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleIntegerProperty
+import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.FXCollections
 import javafx.scene.control.*
 import javafx.scene.control.cell.PropertyValueFactory
@@ -20,6 +22,7 @@ import org.knowm.xchange.dto.Order.OrderType.ASK
 import org.knowm.xchange.dto.Order.OrderType.BID
 import org.knowm.xchange.dto.marketdata.Ticker
 import org.knowm.xchange.exceptions.ExchangeException
+import java.math.BigDecimal
 
 object BulkDelegate {
 
@@ -55,13 +58,13 @@ object BulkDelegate {
                 enableValueChangeOnScroll()
             }
             highPirce.apply {
-                valueFactory.value = Settings.settings.lastHighPrice
+                valueFactory.value = Settings.settings.lastHighPrice.toDouble()
                 valueProperty().addListener { _, _, _ -> updateView() }
                 enableBetterListener()
                 enableSpinnerChangeOnScroll()
             }
             lowPrice.apply {
-                valueFactory.value = Settings.settings.lastLowPrice
+                valueFactory.value = Settings.settings.lastLowPrice.toDouble()
                 valueProperty().addListener { _, _, _ -> updateView() }
                 enableBetterListener()
                 enableSpinnerChangeOnScroll()
@@ -92,7 +95,7 @@ object BulkDelegate {
                 enableValueChangeOnScroll()
             }
             parameter.apply {
-                valueFactory.value = Settings.settings.lastDistributionParameter
+                valueFactory.value = Settings.settings.lastDistributionParameter.toDouble()
                 valueProperty().addListener { _, _, _ -> updateView() }
                 enableBetterListener()
                 enableSpinnerChangeOnScroll()
@@ -136,13 +139,13 @@ object BulkDelegate {
     private fun configureSpinnerParameters(pair: CurrencyPair, useSettingsAsInitial: Boolean = false) {
         val minStep = Constants.minimumPriceSteps[pair] ?: 0.00000001
         controller.apply {
-            val lastTicker = tickers?.get(pair)?.last?.toDouble()
+            val lastTicker = tickers?.get(pair)?.last
             highPirce.valueFactory = SmallDoubleValueFactory(minStep, 10000000.0,
-                    if (useSettingsAsInitial && Settings.settings.lastHighPrice > 0.0) Settings.settings.lastHighPrice
-                    else lastTicker?.let { it + 10 * minStep } ?: minStep, minStep)
+                    if (useSettingsAsInitial && Settings.settings.lastHighPrice > BigDecimal.ZERO) Settings.settings.lastHighPrice.toDouble()
+                    else lastTicker?.let { it + 10.toBigDecimal() * minStep.toBigDecimal() }?.toDouble() ?: minStep, minStep)
             lowPrice.valueFactory = SmallDoubleValueFactory(minStep, 10000000.0,
-                    if (useSettingsAsInitial && Settings.settings.lastLowPrice > 0.0) Settings.settings.lastLowPrice
-                    else lastTicker?.let { it - 10 * minStep } ?: minStep, minStep)
+                    if (useSettingsAsInitial && Settings.settings.lastLowPrice > BigDecimal.ZERO) Settings.settings.lastLowPrice.toDouble()
+                    else lastTicker?.let { it - 10.toBigDecimal() * minStep.toBigDecimal() }?.toDouble() ?: minStep, minStep)
         }
         updateView()
     }
@@ -150,10 +153,10 @@ object BulkDelegate {
     private fun updateView() {
         controller.apply {
             val isDistributionSame = BulkDistribution.valueOf(controller.distribution.value.toString()) == BulkDistribution.SAME
-            (parameter.valueFactory as? SpinnerValueFactory.DoubleSpinnerValueFactory)?.apply {
-                min = if (isDistributionSame) 1.0 else 0.01
-                max = if (isDistributionSame) 100.0 else 10.0
-                amountToStepBy = if (isDistributionSame) 1.0 else 0.01
+            (parameter.valueFactory as? SmallDoubleValueFactory)?.apply {
+                setMin(if (isDistributionSame) 1.0 else 0.01)
+                setMax(if (isDistributionSame) 100.0 else 10.0)
+                setAmountToStepBy(if (isDistributionSame) 1.0 else 0.01)
             }
             parameter.editor.text = controller.parameter.editor.text?.let { text ->
                 if (isDistributionSame) text.substring(0, text.indexOf(".").let { index ->
@@ -175,10 +178,10 @@ object BulkDelegate {
     }
 
     @Suppress("unused")
-    internal data class PreviewItem(private val price: SimpleDoubleProperty, private val amount: SimpleIntegerProperty) {
-        constructor(price: Double, amount: Int) : this(SimpleDoubleProperty(price), SimpleIntegerProperty(amount))
+    internal data class PreviewItem(private val price: SimpleObjectProperty<BigDecimal>, private val amount: SimpleIntegerProperty) {
+        constructor(price: BigDecimal, amount: Int) : this(SimpleObjectProperty<BigDecimal>(price), SimpleIntegerProperty(amount))
 
-        fun getPrice(): Double = price.get()
+        fun getPrice(): BigDecimal = price.get()
         fun getAmount(): Int = amount.get()
     }
 
@@ -187,7 +190,7 @@ object BulkDelegate {
             review.items = FXCollections.observableArrayList<PreviewItem>(
                     orders.asSequence().sortedByDescending { it.price ?: it.stopPrice }.mapNotNull {
                         whenNotNull(it.price ?: it.stopPrice, it.orderQuantity) { price, quantity ->
-                            PreviewItem(price.toDouble(), quantity.toInt())
+                            PreviewItem(price, quantity.toInt())
                         }
                     }.toList()
             )
@@ -198,18 +201,18 @@ object BulkDelegate {
     private fun updateStats(orders: List<BitmexPlaceOrderParameters>) {
         if (orders.isNotEmpty()) {
             val sum = orders.sumBy { it.orderQuantity?.toInt() ?: 0 }
-            val averagePrice = orders.sumByDouble {
-                (it.price?.toDouble() ?: it.stopPrice?.toDouble() ?: 0.0) * (it.orderQuantity?.toDouble() ?: 0.0) / sum
+            val averagePrice = orders.sumByBigDecimal {
+                (it.price ?: it.stopPrice ?: BigDecimal.ZERO) * (it.orderQuantity ?: BigDecimal.ZERO) / sum.toBigDecimal()
             }
 
             controller.stats.text = " total bulk order amount: " + sum + "\n" +
-                    " average price: ${averagePrice.roundToMinimumStep(controller.pair.value.toString().toCurrencyPair())}\n" +
+                    " average price: ${averagePrice.round(Constants.minimumPriceSteps[controller.pair.value.toString().toCurrencyPair()]!!.toBigDecimal())}\n" +
                     " order count: ${orders.size}\n" +
                     " min. order amount: ${orders.minBy {
-                        it.orderQuantity?.toDouble() ?: Double.MAX_VALUE
+                        it.orderQuantity ?: 10000000.toBigDecimal()
                     }?.orderQuantity}\n" +
-                    " average order amount: ${String.format("%.1f", sum.toDouble() / orders.size)}\n" +
-                    " max. order amount: ${orders.maxBy { it.orderQuantity?.toDouble() ?: 0.0 }?.orderQuantity}\n"
+                    " average order amount: ${String.format("%.1f", sum.toBigDecimal() / orders.size.toBigDecimal())}\n" +
+                    " max. order amount: ${orders.maxBy { it.orderQuantity ?: 0.toBigDecimal() }?.orderQuantity}\n"
         } else controller.stats.text = ""
     }
 
@@ -241,15 +244,15 @@ object BulkDelegate {
         controller.apply {
             Settings.settings.apply {
                 lastPair = pair.value.toString()
-                lastHighPrice = highPirce.value as Double
-                lastLowPrice = lowPrice.value as Double
-                lastAmount = (amount.value as Double).toInt()
+                lastHighPrice = (highPirce.value as Double).toBigDecimal()
+                lastLowPrice = (lowPrice.value as Double).toBigDecimal()
+                lastAmount = amount.value.toInt()
                 lastOrderType = orderType.value.toString()
                 lastSide = side.value.toString()
                 lastMode = distribution.value.toString()
-                lastDistributionParameter = parameter.value as Double
-                lastMinAmount = (minAmount.value as Double).toInt()
-                lastSlDistance = (slDistance.value as Double).toInt()
+                lastDistributionParameter = (parameter.value as Double).toBigDecimal()
+                lastMinAmount = minAmount.value.toInt()
+                lastSlDistance = slDistance.value.toInt()
                 lastReversed = reversed.isSelected
                 lastPostOnly = postOnly.isSelected
                 lastReduceOnly = reduceOnly.isSelected
@@ -267,13 +270,13 @@ object BulkDelegate {
                     pair = pair.value.toString().toCurrencyPair(),
                     orderSide = if (BitmexSide.fromString(side.value.toString()) == BitmexSide.BUY) BID else ASK,
                     type = BulkOrderType.valueOf(orderType.value.toString().toUpperCase().replace("-", "_")),
-                    amount = (amount.value as Double).toInt(),
-                    minimumAmount = minAmount.value as Double,
-                    slDistance = (slDistance.value as Double).toInt(),
-                    priceLow = lowPrice.value as Double,
-                    priceHigh = highPirce.value as Double,
+                    amount = amount.value.toInt(),
+                    minimumAmount = minAmount.value.toInt(),
+                    slDistance = slDistance.value.toInt(),
+                    priceLow = (lowPrice.value as Double).toBigDecimal(),
+                    priceHigh = (highPirce.value as Double).toBigDecimal(),
                     distribution = BulkDistribution.valueOf(distribution.value.toString()),
-                    distributionParameter = parameter.value as Double,
+                    distributionParameter = (parameter.value as Double).toBigDecimal(),
                     postOnly = postOnly.isSelected,
                     reduceOnly = reduceOnly.isSelected,
                     reversed = reversed.isSelected)
