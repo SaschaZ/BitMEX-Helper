@@ -415,4 +415,13 @@ object LinkedDelegate {
     fun onClearAllLinkedOrdersClicked() {
         linkedOrders.clear()
     }
+
+    fun onDuplicateOrdersClicked() {
+        linkedOrders.addAll(linkedOrders.map {
+            LinkedTableItem(position = it.getPosition() + linkedOrders.lastIndex,
+                    side = it.getSide(), price = it.getPrice(), amount = it.getAmount(), orderType = valueOf(it.getOrderType()),
+                    orderTypeParameter = it.getOrderTypeParameter(), linkId = it.getLinkId(),
+                    linkType = LinkType.valueOf(it.getLinkType()), postOnly = it.getPostOnly(), reduceOnly = it.getReduceOnly())
+        })
+    }
 }

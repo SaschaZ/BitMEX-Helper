@@ -135,6 +135,7 @@
                                  <font>
                                     <Font size="10.0" />
                                  </font></Button>
+                              <Button layoutX="63.0" mnemonicParsing="false" onMouseClicked="#onDuplicateLinkedOrdersClicked" text="Duplicate" />
                            </children>
                            <GridPane.margin>
                               <Insets left="15.0" />
@@ -168,7 +169,7 @@
                         </Pane>
                         <Pane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
                            <children>
-                              <Button layoutY="12.0" mnemonicParsing="false" onMouseClicked="#onClearAllLinkedOrdersClicked" text="Clear All" />
+                              <Button layoutX="40.0" layoutY="12.0" mnemonicParsing="false" onMouseClicked="#onClearAllLinkedOrdersClicked" text="Clear All" />
                            </children>
                         </Pane>
                      </children>

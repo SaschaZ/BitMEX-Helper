@@ -31,25 +31,21 @@ class GreenRedRowFactory(private val tableView: TableView<LinkedTableItem>)
     }
 
     private fun updateStyleClass(row: TableRow<LinkedTableItem>) {
-        println("updateStyleClass() item=${row.item}; rowIdx=${row.index}")
         val rowStyleClasses = row.styleClass
         when {
             row.item?.getSide() == Constants.sides[0] -> {
                 if (!rowStyleClasses.contains(greenStyleClass)) {
-                    println("green")
                     rowStyleClasses.removeAll(Collections.singletonList(redStyleClass))
                     rowStyleClasses.add(greenStyleClass)
                 }
             }
             row.item?.getSide() == Constants.sides[1] -> {
                 if (!rowStyleClasses.contains(redStyleClass)) {
-                    println("red")
                     rowStyleClasses.removeAll(Collections.singletonList(greenStyleClass))
                     rowStyleClasses.add(redStyleClass)
                 }
             }
             else -> {
-                println("clear")
                 rowStyleClasses.removeAll(Collections.singletonList(greenStyleClass))
                 rowStyleClasses.removeAll(Collections.singletonList(redStyleClass))
             }

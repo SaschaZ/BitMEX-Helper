@@ -100,6 +100,9 @@ class MainController {
     }
 
     @FXML
+    private fun onDuplicateLinkedOrdersClicked() = LinkedDelegate.onDuplicateOrdersClicked()
+
+    @FXML
     private fun onExecuteClicked() = BulkDelegate.onExecuteClicked()
 
     internal fun exitApp() = Platform.exit()
