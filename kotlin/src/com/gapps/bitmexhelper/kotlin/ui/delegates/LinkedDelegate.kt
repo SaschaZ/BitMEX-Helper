@@ -13,10 +13,7 @@ import com.gapps.utils.equalsOne
 import com.gapps.utils.setRelativeWidth
 import com.gapps.utils.whenNotNull
 import javafx.application.Platform
-import javafx.beans.property.SimpleBooleanProperty
-import javafx.beans.property.SimpleDoubleProperty
-import javafx.beans.property.SimpleIntegerProperty
-import javafx.beans.property.SimpleStringProperty
+import javafx.beans.property.*
 import javafx.collections.FXCollections
 import javafx.scene.control.Label
 import javafx.scene.control.TableCell
@@ -53,10 +50,10 @@ object LinkedDelegate {
     @Suppress("unused", "MemberVisibilityCanBePrivate")
     data class LinkedTableItem(private val position: SimpleIntegerProperty,
                                private val side: SimpleStringProperty,
-                               private val price: SimpleDoubleProperty,
-                               private val amount: SimpleDoubleProperty,
+                               private val price: SimpleObjectProperty<BigDecimal>,
+                               private val amount: SimpleObjectProperty<BigDecimal>,
                                private val orderType: SimpleStringProperty,
-                               private val orderTypeParameter: SimpleDoubleProperty,
+                               private val orderTypeParameter: SimpleObjectProperty<BigDecimal>,
                                private val linkId: SimpleStringProperty,
                                private val linkType: SimpleStringProperty,
                                private val postOnly: SimpleBooleanProperty,
@@ -64,20 +61,20 @@ object LinkedDelegate {
 
         constructor(position: Int,
                     side: String = "Buy",
-                    price: Double = 0.0,
-                    amount: Double = 1.0,
+                    price: BigDecimal = BigDecimal.ZERO,
+                    amount: BigDecimal = BigDecimal.ONE,
                     orderType: BulkOrderType = LIMIT,
-                    orderTypeParameter: Double = 0.0,
+                    orderTypeParameter: BigDecimal = BigDecimal.ZERO,
                     linkId: String = "",
                     linkType: LinkType = LinkType.NONE,
                     postOnly: Boolean = false,
                     reduceOnly: Boolean = false) : this(
                 SimpleIntegerProperty(position),
                 SimpleStringProperty(side),
-                SimpleDoubleProperty(price),
-                SimpleDoubleProperty(amount),
+                SimpleObjectProperty<BigDecimal>(price),
+                SimpleObjectProperty<BigDecimal>(amount),
                 SimpleStringProperty(orderType.toString()),
-                SimpleDoubleProperty(orderTypeParameter),
+                SimpleObjectProperty<BigDecimal>(orderTypeParameter),
                 SimpleStringProperty(linkId),
                 SimpleStringProperty(linkType.toString()),
                 SimpleBooleanProperty(postOnly),
@@ -101,15 +98,15 @@ object LinkedDelegate {
         fun setPosition(pos: Int) = position.set(pos)
         fun getSide(): String = side.get()
         fun setSide(value: String) = side.set(value)
-        fun getPrice(): Double = price.get()
-        fun setPrice(value: Double) = price.set(value)
+        fun getPrice(): BigDecimal = price.get()
+        fun setPrice(value: BigDecimal) = price.set(value)
         fun getPriceProperty() = price
-        fun getAmount(): Double = amount.get()
-        fun setAmount(value: Double) = amount.set(value)
+        fun getAmount(): BigDecimal = amount.get()
+        fun setAmount(value: BigDecimal) = amount.set(value)
         fun getOrderType(): String = orderType.get()
         fun setOrderType(value: String) = orderType.set(value)
-        fun getOrderTypeParameter(): Double = orderTypeParameter.get()
-        fun setOrderTypeParameter(value: Double) = orderTypeParameter.set(value)
+        fun getOrderTypeParameter(): BigDecimal = orderTypeParameter.get()
+        fun setOrderTypeParameter(value: BigDecimal) = orderTypeParameter.set(value)
         fun getOrderTypeParameterProperty() = orderTypeParameter
         fun getLinkId(): String = linkId.get()
         fun setLinkId(value: String) = linkId.set(value)
@@ -150,9 +147,9 @@ object LinkedDelegate {
                     linkedOrders.addAll(elements = linkedOrders.asSequence().map { item ->
                         item.copy(
                                 price = item.getPriceProperty()
-                                        .also { if (it.value.toBigDecimal() > BigDecimal.ZERO) it.value = ((it.value - it.value).toBigDecimal().divideAndRemainder(minStep.toBigDecimal())[1]).toDouble() else it.value },
+                                        .also { if (it.value > BigDecimal.ZERO) it.value = ((it.value - it.value).divideAndRemainder(minStep)[1]) else it.value },
                                 orderTypeParameter = item.getOrderTypeParameterProperty()
-                                        .also { if (it.value.toBigDecimal() > BigDecimal.ZERO) it.value = ((it.value - it.value).toBigDecimal().divideAndRemainder(minStep.toBigDecimal())[1]).toDouble() else it.value })
+                                        .also { if (it.value > BigDecimal.ZERO) it.value = ((it.value - it.value).divideAndRemainder(minStep)[1]) else it.value })
                     })
                 }
                 enableValueChangeOnScroll()
@@ -184,7 +181,7 @@ object LinkedDelegate {
             }
 
             linkedPriceColumn.apply {
-                cellValueFactory = PropertyValueFactory<LinkedTableItem, Double>("price")
+                cellValueFactory = PropertyValueFactory<LinkedTableItem, BigDecimal>("price")
                 initSpinnerCellValueFactory(minStep)
                 setOnEditCommit { event ->
                     whenNotNull(event.tablePosition, event.newValue) { tablePosition, value ->
@@ -197,8 +194,8 @@ object LinkedDelegate {
             }
 
             linkedAmountColumn.apply {
-                cellValueFactory = PropertyValueFactory<LinkedTableItem, Double>("amount")
-                initSpinnerCellValueFactory(1.0, 1.0, 10000000.0, 1.0)
+                cellValueFactory = PropertyValueFactory<LinkedTableItem, BigDecimal>("amount")
+                initSpinnerCellValueFactory(BigDecimal.ONE, BigDecimal.ONE, 10000000.toBigDecimal(), BigDecimal.ONE)
                 setOnEditCommit { event ->
                     whenNotNull(event.tablePosition, event.newValue) { tablePosition, value ->
                         val row = tablePosition.row
@@ -223,7 +220,7 @@ object LinkedDelegate {
             }
 
             linkedOrderTypeParameterColumn.apply {
-                cellValueFactory = PropertyValueFactory<LinkedTableItem, Double>("orderTypeParameter")
+                cellValueFactory = PropertyValueFactory<LinkedTableItem, BigDecimal>("orderTypeParameter")
                 initSpinnerCellValueFactory(minStep)
                 setOnEditCommit { event ->
                     whenNotNull(event.tablePosition, event.newValue) { tablePosition, value ->
@@ -292,11 +289,11 @@ object LinkedDelegate {
         }
     }
 
-    private fun TableColumn<LinkedTableItem, Double>.initSpinnerCellValueFactory(step: Double,
-                                                                                     min: Double = 0.0,
-                                                                                     max: Double = 10000000.0,
-                                                                                     initial: Double = min) {
-        cellFactory = Callback<TableColumn<LinkedTableItem, Double>, TableCell<LinkedTableItem, Double>> {
+    private fun TableColumn<LinkedTableItem, BigDecimal>.initSpinnerCellValueFactory(step: BigDecimal,
+                                                                                     min: BigDecimal = BigDecimal.ZERO,
+                                                                                     max: BigDecimal = 10000000.0.toBigDecimal(),
+                                                                                     initial: BigDecimal = min) {
+        cellFactory = Callback<TableColumn<LinkedTableItem, BigDecimal>, TableCell<LinkedTableItem, BigDecimal>> {
             SpinnerCell<LinkedTableItem>(min, max, initial, step).also { cell ->
                 priceSpinners.add(cell)
             }
@@ -344,13 +341,13 @@ object LinkedDelegate {
                     else -> null
                 }
                 val pegPriceAmount = when (orderType) {
-                    TRAILING_STOP -> item.getOrderTypeParameter().toBigDecimal() * (if (side == BitmexSide.BUY) 1 else -1).toBigDecimal()
+                    TRAILING_STOP -> item.getOrderTypeParameter() * (if (side == BitmexSide.BUY) 1 else -1).toBigDecimal()
                     else -> null
                 }
                 BitmexPlaceOrderParameters.Builder(controller.linkedPair.value.toString().toCurrencyPair().toBitmexSymbol())
-                        .setOrderQuantity(item.getAmount().toBigDecimal())
-                        .setPrice(price?.let { if (it.toBigDecimal() < BigDecimal.ZERO) null else it.toBigDecimal() })
-                        .setStopPrice(stop?.let { if (it.toBigDecimal() < BigDecimal.ZERO) null else it.toBigDecimal() })
+                        .setOrderQuantity(item.getAmount())
+                        .setPrice(price?.let { if (it < BigDecimal.ZERO) null else it })
+                        .setStopPrice(stop?.let { if (it < BigDecimal.ZERO) null else it })
                         .setSide(side)
                         .setOrderType(orderType.toBitmexOrderType())
                         .setExecutionInstructions(BitmexExecutionInstruction.Builder()
@@ -389,15 +386,15 @@ object LinkedDelegate {
                 linkedOrders.add(LinkedTableItem(
                         position = existingSize + index,
                         side = order.side?.capitalized!!,
-                        price = order.price?.toDouble() ?: 0.0,
-                        amount = order.orderQuantity?.toDouble() ?: 0.0,
+                        price = order.price ?: BigDecimal.ZERO,
+                        amount = order.orderQuantity ?: BigDecimal.ZERO,
                         orderType = when (order.orderType) {
                             BitmexOrderType.STOP -> STOP
                             BitmexOrderType.STOP_LIMIT -> STOP_LIMIT
                             BitmexOrderType.PEGGED -> TRAILING_STOP
                             else -> LIMIT
                         },
-                        orderTypeParameter = order.stopPrice?.toDouble() ?: 0.0,
+                        orderTypeParameter = order.stopPrice ?: BigDecimal.ZERO,
                         linkId = order.clOrdLinkId ?: "",
                         linkType = when (order.contingencyType) {
                             BitmexContingencyType.OCO -> LinkType.OCO

@@ -10,10 +10,11 @@ import com.gapps.utils.sumByBigDecimal
 import com.gapps.utils.whenNotNull
 import javafx.application.Platform
 import javafx.beans.property.SimpleIntegerProperty
-import javafx.beans.property.SimpleObjectProperty
+import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 import javafx.scene.control.*
 import javafx.scene.control.cell.PropertyValueFactory
+import javafx.util.converter.BigDecimalStringConverter
 import kotlinx.coroutines.experimental.launch
 import org.knowm.xchange.bitmex.dto.trade.BitmexPlaceOrderParameters
 import org.knowm.xchange.bitmex.dto.trade.BitmexSide
@@ -39,7 +40,7 @@ object BulkDelegate {
             launch {
                 tickers = exchange?.getTickers()
                 Platform.runLater {
-                    configureSpinnerParameters(controller.pair.value.toString().toCurrencyPair(), true)
+                    configureSpinnerParameters(controller.pair.value.toString().toCurrencyPair())
                     controller.changeInExecutionMode(false)
                 }
             }
@@ -56,21 +57,23 @@ object BulkDelegate {
                     updateView()
                 }
                 enableValueChangeOnScroll()
+                configureSpinnerParameters(value.toString().toCurrencyPair(), true)
             }
             highPirce.apply {
-                valueFactory.value = Settings.settings.lastHighPrice.toDouble()
+                valueFactory.value = Settings.settings.lastHighPrice
                 valueProperty().addListener { _, _, _ -> updateView() }
                 enableBetterListener()
                 enableSpinnerChangeOnScroll()
             }
             lowPrice.apply {
-                valueFactory.value = Settings.settings.lastLowPrice.toDouble()
+                valueFactory.value = Settings.settings.lastLowPrice
                 valueProperty().addListener { _, _, _ -> updateView() }
                 enableBetterListener()
                 enableSpinnerChangeOnScroll()
             }
             amount.apply {
-                valueFactory.value = Settings.settings.lastAmount.toDouble()
+                valueFactory = SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10000000)
+                valueFactory.value = Settings.settings.lastAmount
                 valueProperty().addListener { _, _, _ -> updateView() }
                 enableBetterListener()
                 enableSpinnerChangeOnScroll()
@@ -95,19 +98,21 @@ object BulkDelegate {
                 enableValueChangeOnScroll()
             }
             parameter.apply {
-                valueFactory.value = Settings.settings.lastDistributionParameter.toDouble()
+                valueFactory.value = Settings.settings.lastDistributionParameter
                 valueProperty().addListener { _, _, _ -> updateView() }
                 enableBetterListener()
                 enableSpinnerChangeOnScroll()
             }
             minAmount.apply {
-                valueFactory.value = Settings.settings.lastMinAmount.toDouble()
+                valueFactory = SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10000000)
+                valueFactory.value = Settings.settings.lastMinAmount
                 valueProperty().addListener { _, _, _ -> updateView() }
                 enableBetterListener()
                 enableSpinnerChangeOnScroll()
             }
             slDistance.apply {
-                valueFactory.value = Settings.settings.lastSlDistance.toDouble()
+                valueFactory = SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10000000)
+                valueFactory.value = Settings.settings.lastSlDistance
                 valueProperty().addListener { _, _, _ -> updateView() }
                 enableBetterListener()
                 enableSpinnerChangeOnScroll()
@@ -124,7 +129,7 @@ object BulkDelegate {
                 setPlaceholder(Label("Current parameters do not return any orders."))
             }
             reviewPriceColumn.apply {
-                cellValueFactory = PropertyValueFactory<PreviewItem, Double>("price")
+                cellValueFactory = PropertyValueFactory<PreviewItem, BigDecimal>("price")
                 setRelativeWidth(review, 2.0)
             }
             reviewAmountColumn.apply {
@@ -137,23 +142,26 @@ object BulkDelegate {
     }
 
     private fun configureSpinnerParameters(pair: CurrencyPair, useSettingsAsInitial: Boolean = false) {
-        val minStep = Constants.minimumPriceSteps[pair] ?: 0.00000001
+        val minStep = Constants.minimumPriceSteps[pair] ?: 0.00000001.toBigDecimal()
         controller.apply {
             val lastTicker = tickers?.get(pair)?.last
-            highPirce.valueFactory = SmallDoubleValueFactory(minStep, 10000000.0,
-                    if (useSettingsAsInitial && Settings.settings.lastHighPrice > BigDecimal.ZERO) Settings.settings.lastHighPrice.toDouble()
-                    else lastTicker?.let { it + 10.toBigDecimal() * minStep.toBigDecimal() }?.toDouble() ?: minStep, minStep)
-            lowPrice.valueFactory = SmallDoubleValueFactory(minStep, 10000000.0,
-                    if (useSettingsAsInitial && Settings.settings.lastLowPrice > BigDecimal.ZERO) Settings.settings.lastLowPrice.toDouble()
-                    else lastTicker?.let { it - 10.toBigDecimal() * minStep.toBigDecimal() }?.toDouble() ?: minStep, minStep)
+            highPirce.valueFactory = BigDecimalValueFactory(minStep, 10000000.0.toBigDecimal(),
+                    if (useSettingsAsInitial && Settings.settings.lastHighPrice > BigDecimal.ZERO) Settings.settings.lastHighPrice
+                    else lastTicker?.let { it + BigDecimal.TEN * minStep } ?: minStep, minStep)
+            lowPrice.valueFactory = BigDecimalValueFactory(minStep, 10000000.0.toBigDecimal(),
+                    if (useSettingsAsInitial && Settings.settings.lastLowPrice > BigDecimal.ZERO) Settings.settings.lastLowPrice
+                    else lastTicker?.let { it - BigDecimal.TEN * minStep } ?: minStep, minStep)
+            parameter.valueFactory = BigDecimalValueFactory(BigDecimal.ZERO, 10000000.0.toBigDecimal(),
+                    Settings.settings.lastDistributionParameter, 0.01.toBigDecimal())
         }
-        updateView()
+        if (!useSettingsAsInitial)
+            updateView()
     }
 
     private fun updateView() {
         controller.apply {
             val isDistributionSame = BulkDistribution.valueOf(controller.distribution.value.toString()) == BulkDistribution.SAME
-            (parameter.valueFactory as? SmallDoubleValueFactory)?.apply {
+            (parameter.valueFactory as? BigDecimalValueFactory)?.apply {
                 setMin(if (isDistributionSame) 1.0 else 0.01)
                 setMax(if (isDistributionSame) 100.0 else 10.0)
                 setAmountToStepBy(if (isDistributionSame) 1.0 else 0.01)
@@ -165,6 +173,7 @@ object BulkDelegate {
                     } else index
                 }) else text
             }
+
             val isStopLimit = orderType.value.toString().toLowerCase().replace("-", "_") ==
                     BulkOrderType.STOP_LIMIT.toString().toLowerCase()
             slDistance.isVisible = isStopLimit
@@ -178,19 +187,21 @@ object BulkDelegate {
     }
 
     @Suppress("unused")
-    internal data class PreviewItem(private val price: SimpleObjectProperty<BigDecimal>, private val amount: SimpleIntegerProperty) {
-        constructor(price: BigDecimal, amount: Int) : this(SimpleObjectProperty<BigDecimal>(price), SimpleIntegerProperty(amount))
+    internal data class PreviewItem(private val price: SimpleStringProperty, private val amount: SimpleIntegerProperty) {
+        constructor(price: String, amount: Int) : this(SimpleStringProperty(price), SimpleIntegerProperty(amount))
 
-        fun getPrice(): BigDecimal = price.get()
+        fun getPrice(): String = price.get()
         fun getAmount(): Int = amount.get()
     }
 
     private fun updatePreview(orders: List<BitmexPlaceOrderParameters>) {
         controller.apply {
+            val minStep = Constants.minimumPriceSteps[pair.value?.toString()?.toCurrencyPair()] ?: 0.00000001.toBigDecimal()
+            val stringConverter = com.gapps.bitmexhelper.kotlin.ui.BigDecimalStringConverter(minStep)
             review.items = FXCollections.observableArrayList<PreviewItem>(
                     orders.asSequence().sortedByDescending { it.price ?: it.stopPrice }.mapNotNull {
                         whenNotNull(it.price ?: it.stopPrice, it.orderQuantity) { price, quantity ->
-                            PreviewItem(price, quantity.toInt())
+                            PreviewItem(stringConverter.toString(price), quantity.toInt())
                         }
                     }.toList()
             )
@@ -206,7 +217,7 @@ object BulkDelegate {
             }
 
             controller.stats.text = " total bulk order amount: " + sum + "\n" +
-                    " average price: ${averagePrice.round(Constants.minimumPriceSteps[controller.pair.value.toString().toCurrencyPair()]!!.toBigDecimal())}\n" +
+                    " average price: ${averagePrice.round(Constants.minimumPriceSteps[controller.pair.value.toString().toCurrencyPair()]!!)}\n" +
                     " order count: ${orders.size}\n" +
                     " min. order amount: ${orders.minBy {
                         it.orderQuantity ?: 10000000.toBigDecimal()
@@ -244,13 +255,13 @@ object BulkDelegate {
         controller.apply {
             Settings.settings.apply {
                 lastPair = pair.value.toString()
-                lastHighPrice = (highPirce.value as Double).toBigDecimal()
-                lastLowPrice = (lowPrice.value as Double).toBigDecimal()
+                lastHighPrice = highPirce.value as BigDecimal
+                lastLowPrice = lowPrice.value as BigDecimal
                 lastAmount = amount.value.toInt()
                 lastOrderType = orderType.value.toString()
                 lastSide = side.value.toString()
                 lastMode = distribution.value.toString()
-                lastDistributionParameter = (parameter.value as Double).toBigDecimal()
+                lastDistributionParameter = parameter.value as BigDecimal
                 lastMinAmount = minAmount.value.toInt()
                 lastSlDistance = slDistance.value.toInt()
                 lastReversed = reversed.isSelected
@@ -273,10 +284,10 @@ object BulkDelegate {
                     amount = amount.value.toInt(),
                     minimumAmount = minAmount.value.toInt(),
                     slDistance = slDistance.value.toInt(),
-                    priceLow = (lowPrice.value as Double).toBigDecimal(),
-                    priceHigh = (highPirce.value as Double).toBigDecimal(),
+                    priceLow = lowPrice.value as BigDecimal,
+                    priceHigh = highPirce.value as BigDecimal,
                     distribution = BulkDistribution.valueOf(distribution.value.toString()),
-                    distributionParameter = (parameter.value as Double).toBigDecimal(),
+                    distributionParameter = (parameter.value as BigDecimal).toDouble(),
                     postOnly = postOnly.isSelected,
                     reduceOnly = reduceOnly.isSelected,
                     reversed = reversed.isSelected)
@@ -289,7 +300,7 @@ object BulkDelegate {
 fun Spinner<*>.enableBetterListener() {
     editor.textProperty().addListener { _, _, new ->
         if (new.isNotBlank() && new != "-" && new != ",")
-            valueFactory.value = new.replace(",", ".").toDouble() // TODO use converter
+            valueFactory.value = valueFactory.converter.fromString(new)
     }
 }
 

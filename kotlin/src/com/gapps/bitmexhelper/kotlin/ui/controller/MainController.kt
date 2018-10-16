@@ -10,6 +10,7 @@ import javafx.application.Platform
 import javafx.fxml.FXML
 import javafx.scene.control.*
 import javafx.scene.text.Text
+import java.math.BigDecimal
 
 class MainController {
 
@@ -18,11 +19,11 @@ class MainController {
     @FXML
     internal lateinit var pair: ComboBox<*>
     @FXML
-    internal lateinit var highPirce: Spinner<Double>
+    internal lateinit var highPirce: Spinner<BigDecimal>
     @FXML
-    internal lateinit var lowPrice: Spinner<Double>
+    internal lateinit var lowPrice: Spinner<BigDecimal>
     @FXML
-    internal lateinit var amount: Spinner<Double>
+    internal lateinit var amount: Spinner<Int>
     @FXML
     internal lateinit var orderType: ComboBox<*>
     @FXML
@@ -30,13 +31,13 @@ class MainController {
     @FXML
     internal lateinit var distribution: ComboBox<*>
     @FXML
-    internal lateinit var parameter: Spinner<Double>
+    internal lateinit var parameter: Spinner<BigDecimal>
     @FXML
-    internal lateinit var slDistance: Spinner<Double>
+    internal lateinit var slDistance: Spinner<Int>
     @FXML
     internal lateinit var slDistanceLabel: Text
     @FXML
-    internal lateinit var minAmount: Spinner<Double>
+    internal lateinit var minAmount: Spinner<Int>
     @FXML
     internal lateinit var reversed: CheckBox
     @FXML
@@ -46,7 +47,7 @@ class MainController {
     @FXML
     internal lateinit var review: TableView<*>
     @FXML
-    internal lateinit var reviewPriceColumn: TableColumn<BulkDelegate.PreviewItem, Double>
+    internal lateinit var reviewPriceColumn: TableColumn<BulkDelegate.PreviewItem, BigDecimal>
     @FXML
     internal lateinit var reviewAmountColumn: TableColumn<BulkDelegate.PreviewItem, Int>
     @FXML
@@ -67,13 +68,13 @@ class MainController {
     @FXML
     internal lateinit var linkedSideColumn: TableColumn<LinkedDelegate.LinkedTableItem, String>
     @FXML
-    internal lateinit var linkedPriceColumn: TableColumn<LinkedDelegate.LinkedTableItem, Double>
+    internal lateinit var linkedPriceColumn: TableColumn<LinkedDelegate.LinkedTableItem, BigDecimal>
     @FXML
-    internal lateinit var linkedAmountColumn: TableColumn<LinkedDelegate.LinkedTableItem, Double>
+    internal lateinit var linkedAmountColumn: TableColumn<LinkedDelegate.LinkedTableItem, BigDecimal>
     @FXML
     internal lateinit var linkedOrderTypeColumn: TableColumn<LinkedDelegate.LinkedTableItem, String>
     @FXML
-    internal lateinit var linkedOrderTypeParameterColumn: TableColumn<LinkedDelegate.LinkedTableItem, Double>
+    internal lateinit var linkedOrderTypeParameterColumn: TableColumn<LinkedDelegate.LinkedTableItem, BigDecimal>
     @FXML
     internal lateinit var linkedLinkIdColumn: TableColumn<LinkedDelegate.LinkedTableItem, String>
     @FXML

@@ -4,17 +4,18 @@ import com.gapps.utils.asUnit
 import javafx.event.Event
 import javafx.scene.control.*
 import javafx.scene.control.TableColumn.CellEditEvent
+import java.math.BigDecimal
 
 
-class SpinnerCell<S>(private val min: Double, private val max: Double, private val initial: Double, _step: Double) : TableCell<S, Double>() {
+class SpinnerCell<S>(private val min: BigDecimal, private val max: BigDecimal, private val initial: BigDecimal, _step: BigDecimal) : TableCell<S, BigDecimal>() {
 
-    private var converter = SmallDoubleStringConverter(_step)
-    private val spinner = Spinner<Double>()
+    private var converter = BigDecimalStringConverter(_step)
+    private val spinner = Spinner<BigDecimal>()
 
     var step = _step
         set(value) {
-            spinner.valueFactory = SmallDoubleValueFactory(min, max, item ?: initial, value)
-            converter = SmallDoubleStringConverter(value)
+            spinner.valueFactory = BigDecimalValueFactory(min, max, item ?: initial, value)
+            converter = BigDecimalStringConverter(value)
             field = value
         }
 
@@ -49,12 +50,12 @@ class SpinnerCell<S>(private val min: Double, private val max: Double, private v
         contentDisplay = ContentDisplay.GRAPHIC_ONLY
     }
 
-    override fun commitEdit(item: Double?) = item?.let {
+    override fun commitEdit(item: BigDecimal?) = item?.let {
         spinner.editor.text = converter.toString(item)
         commitEditInternal(item)
     }.asUnit()
 
-    private fun commitEditInternal(item: Double?) = item?.let {
+    private fun commitEditInternal(item: BigDecimal?) = item?.let {
         if (!isEditing && it != getItem()) {
             val table = tableView
             if (table != null) {
@@ -69,7 +70,7 @@ class SpinnerCell<S>(private val min: Double, private val max: Double, private v
         super.commitEdit(it)
     }
 
-    override fun updateItem(item: Double?, empty: Boolean) {
+    override fun updateItem(item: BigDecimal?, empty: Boolean) {
         super.updateItem(item, empty)
         graphic = if (isEmpty) {
             null

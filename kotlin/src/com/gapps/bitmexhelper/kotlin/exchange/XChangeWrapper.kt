@@ -29,9 +29,11 @@ import org.knowm.xchange.dto.trade.LimitOrder
 import org.knowm.xchange.dto.trade.MarketOrder
 import org.knowm.xchange.dto.trade.StopOrder
 import java.math.BigDecimal
+import java.math.MathContext
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.math.max
 import kotlin.reflect.KClass
 
 class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey: String? = null) {
@@ -39,6 +41,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
     companion object {
 
         const val BITMEX_CROSS_LEVERAGE = 0.0
+        val MATH_CONTEXT = MathContext.DECIMAL128!!
     }
 
     init {
@@ -100,7 +103,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                         .open(it.openValue)
                         .timestamp(dateFormatter.parse(it.timestamp))
                         .volume(it.volume)
-                        .vwap(it.vwap.toBigDecimal())
+                        .vwap(it.vwap?.toBigDecimal())
                         .build())
             }
             else -> exchange.marketDataService.getTickers(null)?.mapNotNull {
@@ -188,7 +191,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                         priceHigh: BigDecimal,
                         priceLow: BigDecimal,
                         distribution: BulkDistribution,
-                        distributionParameter: BigDecimal,
+                        distributionParameter: Double,
                         minimumAmount: Int,
                         slDistance: Int,
                         postOnly: Boolean = false,
@@ -214,26 +217,33 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
                          priceHigh: BigDecimal,
                          priceLow: BigDecimal,
                          distribution: BulkDistribution,
-                         distributionParameter: BigDecimal,
+                         distributionParameter: Double,
                          minimumAmount: Int,
                          slDistance: Int,
                          postOnly: Boolean = false,
                          reduceOnly: Boolean = false,
                          reversed: Boolean = false): List<BitmexPlaceOrderParameters> {
-        var amounts = getBulkAmounts(amount, distribution, distributionParameter, minimumAmount)
+        val stepSize = minimumPriceSteps[pair]!!
+        val maxOrderCount = priceHigh.subtract(priceLow, MATH_CONTEXT).divide(stepSize, MATH_CONTEXT).add(BigDecimal.ONE, MATH_CONTEXT)
+        var amounts = getBulkAmounts(amount, distribution, distributionParameter, minimumAmount, min(100.toBigDecimal(), maxOrderCount)!!.toInt())
         amounts = if (reversed) amounts.reversed() else amounts
+
         val orders = amounts.asSequence().mapIndexed { orderIndex, amountForOrder ->
-            val priceForOrder = (if (amounts.size == 1) priceLow + (priceHigh - priceLow) / 2.toBigDecimal()
-            else priceLow + (priceHigh - priceLow) / ((amounts.size - 1) * orderIndex).toBigDecimal())
-                    .roundWithMathContext(com.gapps.bitmexhelper.kotlin.persistance.Constants.minimumPriceSteps[pair]!!.toBigDecimal(), 8)
+            val priceForOrder = when {
+                amounts.size == 1 -> priceLow + (priceHigh - priceLow) / 2.toBigDecimal()
+                else -> priceLow.add(priceHigh.subtract(priceLow, MATH_CONTEXT)
+                        .divide((amounts.size - 1).toBigDecimal(), MATH_CONTEXT)
+                        .multiply(orderIndex.toBigDecimal(), MATH_CONTEXT), MATH_CONTEXT)
+            }.round(stepSize)
+
             val builder = BitmexPlaceOrderParameters.Builder(pair.toBitmexSymbol())
             builder.apply {
                 when (type) {
                     LIMIT -> setPrice(priceForOrder)
                     STOP -> setStopPrice(priceForOrder)
                     STOP_LIMIT -> {
-                        setPrice((priceForOrder + (minimumPriceSteps[pair]!!.toBigDecimal() * slDistance.toBigDecimal()
-                                * if (orderSide == BID) (-1).toBigDecimal() else 1.toBigDecimal())))
+                        setPrice((priceForOrder.add(stepSize.multiply(slDistance.toBigDecimal(), MATH_CONTEXT), MATH_CONTEXT)
+                                .multiply((if (orderSide == BID) -1 else 1).toBigDecimal(), MATH_CONTEXT)))
                         setStopPrice(priceForOrder)
                     }
                     else -> throw IllegalArgumentException("$type is not supported for automatic bulk creation.")
@@ -265,9 +275,9 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
     private fun BitmexPlaceOrderParameters.changeQuantity(quantity: BigDecimal): BitmexPlaceOrderParameters {
         return BitmexPlaceOrderParameters(
                 this.symbol,
-                this.orderQuantity?.add(quantity),
-                this.simpleOrderQuantity?.add(quantity),
-                this.displayQuantity?.add(quantity),
+                this.orderQuantity?.add(quantity, MATH_CONTEXT),
+                this.simpleOrderQuantity?.add(quantity, MATH_CONTEXT),
+                this.displayQuantity?.add(quantity, MATH_CONTEXT),
                 this.price,
                 this.stopPrice,
                 this.side,
@@ -284,42 +294,42 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
 
     private fun getBulkAmounts(amount: Int,
                                distribution: BulkDistribution,
-                               distributionParameter: BigDecimal,
-                               minimumAmount: Int): List<Int> {
+                               distributionParameter: Double,
+                               minimumAmount: Int,
+                               maxOrderCount: Int): List<Int> {
         if (amount < minimumAmount)
             return emptyList()
 
-        val maxOrderCount = 100
-        var lastAmount: Int
         var totalAmount = 0
+        val results = ArrayList<Int>()
 
-        return (0 until maxOrderCount).map loop@{
-            if (distribution == SAME && it.toBigDecimal() >= distributionParameter
-                    || distribution != SAME && totalAmount >= amount) return@loop 0
-            lastAmount = when (distribution) {
-                FLAT -> max(amount.toBigDecimal() / maxOrderCount.toBigDecimal(), minimumAmount.toBigDecimal()).toInt()
-                DCA -> max(minimumAmount.toBigDecimal(), totalAmount.toBigDecimal() * distributionParameter).toInt()
+        while (distribution == SAME && results.size < distributionParameter.toInt()
+                || distribution != SAME && totalAmount < amount) {
+            val lastAmount = when (distribution) {
+                FLAT -> max(amount / maxOrderCount, minimumAmount)
+                DCA -> max(minimumAmount.toDouble(), totalAmount * distributionParameter).toInt()
                 SAME -> amount
             }
-            if (distribution != SAME && totalAmount + lastAmount > amount)
-                0
-            else {
-                totalAmount += lastAmount
-                lastAmount
-            }
-        }.filter { it > 0 && it < Integer.MAX_VALUE }.toMutableList().let { result ->
-            val sum = result.sum()
-            if (sum < amount && result.isNotEmpty()) {
-                val amountToAdd = (amount - sum) / (result.size * 3)
-                result.asSequence().map { it + amountToAdd }.toMutableList().also { increasedResult ->
-                    val increasedSum = increasedResult.sum()
-                    if (increasedSum < amount) {
-                        increasedResult[increasedResult.lastIndex] += amount - increasedSum
-                    }
-                }
-            } else
-                result
+            totalAmount += lastAmount
+            results.add(lastAmount)
+            println("$lastAmount($totalAmount)")
         }
+
+        if (results.size > maxOrderCount) results.removeAtRange(maxOrderCount - 1..results.size)
+        while (results.sum() > amount) results.removeLast()
+
+        val sum = results.sum()
+        return if (sum != amount && results.isNotEmpty()) {
+            val amountToChange = (amount - sum) / results.size
+            results.asSequence().map { it + amountToChange }.toMutableList().also { changedResult ->
+                val increasedSum = changedResult.sum()
+                if (increasedSum < amount)
+                    changedResult[changedResult.lastIndex] += amount - increasedSum
+                else if (increasedSum > amount)
+                    changedResult[changedResult.lastIndex] -= increasedSum - amount
+            }
+        } else
+            results
     }
 
     fun updateLeverage(pair: CurrencyPair, leverage: BigDecimal) {
@@ -371,6 +381,7 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
         }
     }
 }
+
 
 private fun XChangeWrapper.CandleInterval.getBitmexBinSize() = when (this) {
     XChangeWrapper.CandleInterval.m1 -> "1m"

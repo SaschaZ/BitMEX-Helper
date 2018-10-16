@@ -154,7 +154,7 @@ suspend fun <K0, V0, K1, V1> ConcurrentHashMap<K0, V0>.mapToMap(
     return newMap
 }
 
-fun Double.decimalPlaces(): Int {
+fun BigDecimal.decimalPlaces(): Int {
     val df = DecimalFormat("#.########")
     val formatted = df.format(this)
     var pointIndex = formatted.indexOf(".")
@@ -163,24 +163,26 @@ fun Double.decimalPlaces(): Int {
     return if (pointIndex < 0) 0 else formatted.lastIndex - pointIndex
 }
 
-fun BigDecimal.round(stepSize: BigDecimal): BigDecimal = (this - divideAndRemainder(stepSize)[1])
-
-fun BigDecimal.roundWithMathContext(stepSize: BigDecimal, mathContextParam: Int): BigDecimal =
-        round(stepSize).round(MathContext(mathContextParam))
+fun BigDecimal.round(stepSize: BigDecimal): BigDecimal = (this.subtract(divideAndRemainder(stepSize, MathContext.DECIMAL128)[1], MathContext.DECIMAL128))//.round(MathContext(8))
 
 fun TableColumn<*, *>.setRelativeWidth(origin: Control, divider: Double, resizeable: Boolean = false) {
         isResizable = resizeable
         prefWidthProperty().bind(origin.widthProperty().divide(divider))
 }
 
-fun max(val0: BigDecimal, val1: BigDecimal) = if (val0 >= val1) val0 else val1
+fun max(val0: BigDecimal?, val1: BigDecimal?) = if (whenNotNull(val0, val1) { var0, var1 -> var0 >= var1 } == true) val0 else if (val0 != null && val1 == null) val0 else val1
 
-fun min(val0: BigDecimal, val1: BigDecimal) = if (val0 < val1) val0 else val1
+fun min(val0: BigDecimal?, val1: BigDecimal?) = if (whenNotNull(val0, val1) { var0, var1 -> var0 < var1 } == true) val0 else if (val0 != null && val1 == null) val0 else val1
 
 inline fun <T> Iterable<T>.sumByBigDecimal(selector: (T) -> BigDecimal): BigDecimal {
-    var sum = BigDecimal.ZERO
+    val sum = BigDecimal.ZERO
     for (element in this) {
-        sum += selector(element)
+        sum.add(selector(element), MathContext.DECIMAL128)
     }
     return sum
 }
+
+fun <T> ArrayList<T>.removeLast() = removeAt(lastIndex)
+
+fun <E> ArrayList<E>.removeAtRange(range: ClosedRange<Int>) =
+        (range.start until range.endInclusive).map { if (it in 0 .. lastIndex) removeAt(it) }
