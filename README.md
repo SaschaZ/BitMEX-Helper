@@ -29,7 +29,7 @@ Java application to execute bulk orders on the BitMEX exchange.
 
 # **Download: [v1.1.2](https://github.com/SaschaZ/BitMEX-Helper/raw/master/releases/v1.1.2/BitmexHelper.jar)**
 
-To run this application you need an installed [Java Runtime Environment](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html).
+To run this application you need an installed [Java Runtime Environment 8](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html).
 Depending on the configuration of your OS the steps to start this application differs. On some systems you can just
 double click the jar file. On other systems you need to execute `java -jar BitmexHelper.jar` in the same directory as
 the jar file.
