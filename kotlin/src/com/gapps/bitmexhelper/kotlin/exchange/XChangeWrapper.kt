@@ -312,7 +312,6 @@ class XChangeWrapper(exchangeClass: KClass<*>, apiKey: String? = null, secretKey
             }
             totalAmount += lastAmount
             results.add(lastAmount)
-            println("$lastAmount($totalAmount)")
         }
 
         if (results.size > maxOrderCount) results.removeAtRange(maxOrderCount - 1..results.size)

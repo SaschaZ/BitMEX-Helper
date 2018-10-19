@@ -298,9 +298,9 @@ object BulkDelegate {
 
 
 fun Spinner<*>.enableBetterListener() {
-    editor.textProperty().addListener { _, _, new ->
-        if (new.isNotBlank() && new != "-" && new != ",")
-            valueFactory.value = valueFactory.converter.fromString(new)
+    focusedProperty().addListener { _, _, focused ->
+        if (!focused)
+            valueFactory.value = valueFactory.converter.fromString(editor.textProperty().value)
     }
 }
 
